@@ -173,6 +173,15 @@ CREATE POLICY "Apenas admins podem criar eventos"
     ON events FOR INSERT
     WITH CHECK (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
 
+CREATE POLICY "Apenas admins podem atualizar eventos"
+    ON events FOR UPDATE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()))
+    WITH CHECK (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
+
+CREATE POLICY "Apenas admins podem excluir eventos"
+    ON events FOR DELETE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
+
 -- EVENT_RSVP: Todos podem ver, apenas o próprio pode criar/editar
 CREATE POLICY "Todos podem ver RSVP"
     ON event_rsvp FOR SELECT

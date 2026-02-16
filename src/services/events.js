@@ -83,6 +83,28 @@ export const eventService = {
     return { data, error }
   },
 
+  // Atualizar evento (Admin)
+  async updateEvent(eventId, eventData) {
+    const { data, error } = await supabase
+      .from('events')
+      .update(eventData)
+      .eq('id', eventId)
+      .select()
+      .single()
+
+    return { data, error }
+  },
+
+  // Excluir evento (Admin)
+  async deleteEvent(eventId) {
+    const { error } = await supabase
+      .from('events')
+      .delete()
+      .eq('id', eventId)
+
+    return { error }
+  },
+
   // Marcar presença real (Admin)
   async markAttendance(eventId, memberId, status) {
     const { data, error } = await supabase
