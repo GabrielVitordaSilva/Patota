@@ -24,27 +24,27 @@
   }
 
   .ui-btn-primary {
-    @apply ui-btn bg-emerald-600 text-white hover:bg-emerald-700;
+    @apply min-h-11 px-4 py-2.5 rounded-lg font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-emerald-600 text-white hover:bg-emerald-700;
   }
 
   .ui-btn-secondary {
-    @apply ui-btn bg-gray-200 text-gray-700 hover:bg-gray-300;
+    @apply min-h-11 px-4 py-2.5 rounded-lg font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-200 text-gray-700 hover:bg-gray-300;
   }
 
   .ui-btn-danger {
-    @apply ui-btn bg-red-600 text-white hover:bg-red-700;
+    @apply min-h-11 px-4 py-2.5 rounded-lg font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-red-600 text-white hover:bg-red-700;
   }
 
   .ui-btn-info {
-    @apply ui-btn bg-blue-600 text-white hover:bg-blue-700;
+    @apply min-h-11 px-4 py-2.5 rounded-lg font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 text-white hover:bg-blue-700;
   }
 
   .ui-btn-warning {
-    @apply ui-btn bg-orange-600 text-white hover:bg-orange-700;
+    @apply min-h-11 px-4 py-2.5 rounded-lg font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-orange-600 text-white hover:bg-orange-700;
   }
 
   .ui-btn-ghost {
-    @apply ui-btn bg-gray-100 text-gray-700 hover:bg-gray-200;
+    @apply min-h-11 px-4 py-2.5 rounded-lg font-semibold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-700 hover:bg-gray-200;
   }
 }
 
