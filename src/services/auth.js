@@ -21,16 +21,6 @@ export const authService = {
       }
     })
 
-    if (!error && data.user) {
-      // Criar registro na tabela members
-      await supabase.from('members').insert({
-        id: data.user.id,
-        email: email,
-        nome: name,
-        ativo: true
-      })
-    }
-
     return { data, error }
   },
 
