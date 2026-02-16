@@ -3,6 +3,7 @@ import { Users } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { adminService } from '../../services/admin'
 import { financeService } from '../../services/finance'
+import AdminAddMember from './AdminAddMember'
 
 export default function AdminMembers() {
   const { member: currentMember } = useAuth()
@@ -41,7 +42,7 @@ export default function AdminMembers() {
     await financeService.generateMonthlyDues(now.getFullYear(), now.getMonth() + 1)
     alert('Mensalidades geradas!')
   }
-
+<AdminAddMember onSuccess={loadMembers} />
   return (
     <div className="space-y-4">
       <button
