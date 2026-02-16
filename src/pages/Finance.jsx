@@ -100,6 +100,30 @@ export default function Finance() {
     }
   }
 
+  const handleFinePayment = async (fineId, valor, file) => {
+    if (!file || !member) return
+
+    setUploadingFile(true)
+    try {
+      const { data: url, error } = await financeService.uploadComprovante(file, member.id)
+
+      if (error) {
+        alert('Erro ao fazer upload')
+        return
+      }
+
+      await financeService.createFinePayment(member.id, fineId, valor, url)
+
+      alert('Comprovante enviado! Aguarde confirmacao do admin.')
+      loadData(member.id)
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('Erro ao enviar comprovante')
+    } finally {
+      setUploadingFile(false)
+    }
+  }
+
   if (loading) {
     return <div className="text-center py-12">Carregando...</div>
   }
@@ -191,13 +215,43 @@ export default function Finance() {
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-gray-800">{fine.tipo.replace('_', ' ')}</span>
-                  <span className={`text-lg font-bold ${fine.pago ? 'text-gray-600' : 'text-red-600'}`}>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-800">
+                      {fine.tipo === 'ATRASO' && 'Atraso'}
+                      {fine.tipo === 'FALTA_CONFIRMADA' && 'Falta Confirmada'}
+                      {fine.tipo === 'CONVIDADO' && 'Convidado'}
+                    </p>
+                    {fine.events && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        {new Date(fine.events.data_hora).toLocaleDateString('pt-BR')} - {fine.events.local}
+                      </p>
+                    )}
+                    {fine.obs && <p className="text-xs text-gray-600 mt-1">{fine.obs}</p>}
+                  </div>
+                  <span className={`text-lg font-bold ml-3 ${fine.pago ? 'text-gray-600' : 'text-red-600'}`}>
                     R$ {fine.valor.toFixed(2)}
                   </span>
                 </div>
-                {fine.obs && <p className="text-sm text-gray-600">{fine.obs}</p>}
-                {fine.pago && <span className="inline-block mt-2 text-xs text-emerald-600 font-semibold">PAGO</span>}
+
+                {fine.pago ? (
+                  <span className="inline-block text-xs text-emerald-600 font-semibold bg-emerald-100 px-3 py-1 rounded-full">
+                    PAGO
+                  </span>
+                ) : (
+                  <label className="block mt-3">
+                    <div className="flex items-center gap-2 bg-white border-2 border-emerald-600 text-emerald-600 py-2 px-4 rounded-lg cursor-pointer hover:bg-emerald-50 transition">
+                      <Upload size={18} />
+                      <span className="font-semibold text-sm">Enviar Comprovante</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFinePayment(fine.id, fine.valor, e.target.files[0])}
+                      disabled={uploadingFile}
+                    />
+                  </label>
+                )}
               </div>
             ))}
           </div>

@@ -89,6 +89,23 @@ export const financeService = {
     return { data, error }
   },
 
+  // Criar pagamento de multa
+  async createFinePayment(memberId, fineId, valor, comprovanteUrl = null) {
+    const { data, error } = await supabase
+      .from('payments')
+      .insert({
+        member_id: memberId,
+        fine_id: fineId,
+        valor,
+        status: 'PENDENTE',
+        comprovante_url: comprovanteUrl
+      })
+      .select()
+      .single()
+
+    return { data, error }
+  },
+
   // Confirmar pagamento (Admin)
   async confirmPayment(paymentId, adminId) {
     const { data: payment, error } = await supabase
@@ -104,6 +121,30 @@ export const financeService = {
       await supabase.from('cash_ledger').insert({
         tipo: 'ENTRADA',
         categoria: 'MENSALIDADE',
+        valor: payment.valor,
+        referencia: `payment_${payment.id}`,
+        lancado_por: adminId
+      })
+    }
+
+    return { data: payment, error }
+  },
+
+  // Confirmar pagamento de multa (Admin)
+  async confirmFinePayment(paymentId, adminId) {
+    const { data: payment, error } = await supabase
+      .from('payments')
+      .update({ status: 'CONFIRMADO' })
+      .eq('id', paymentId)
+      .select()
+      .single()
+
+    if (!error && payment) {
+      await supabase.from('fines').update({ pago: true }).eq('id', payment.fine_id)
+
+      await supabase.from('cash_ledger').insert({
+        tipo: 'ENTRADA',
+        categoria: 'MULTA',
         valor: payment.valor,
         referencia: `payment_${payment.id}`,
         lancado_por: adminId
