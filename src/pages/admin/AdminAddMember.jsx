@@ -12,7 +12,11 @@ export default function AdminAddMember({ onSuccess }) {
     setLoading(true)
 
     try {
-      const { error } = await authService.signUp(email, password, name)
+      const normalizedName = name.trim()
+      const normalizedEmail = email.trim().toLowerCase()
+      const normalizedPassword = password.trim()
+
+      const { error } = await authService.signUp(normalizedEmail, normalizedPassword, normalizedName)
 
       if (error) {
         alert('Erro ao adicionar membro: ' + error.message)
