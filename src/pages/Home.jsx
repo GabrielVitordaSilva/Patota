@@ -14,6 +14,8 @@ export default function Home() {
   const [pendencies, setPendencies] = useState(null)
   const [userRsvp, setUserRsvp] = useState(null)
   const [pixKey, setPixKey] = useState('seupix@exemplo.com')
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -63,9 +65,28 @@ export default function Home() {
   const handleConfirmPresence = async (status) => {
     if (!nextEvent || !member) return
 
+    if (status === 'VOU' && userRsvp !== 'VOU') {
+      setSelectedStatus(status)
+      setShowConfirmModal(true)
+      return
+    }
+
     try {
       await eventService.confirmPresence(nextEvent.id, member.id, status)
       setUserRsvp(status)
+    } catch (error) {
+      console.error('Error confirming presence:', error)
+    }
+  }
+
+  const confirmPresenceAfterModal = async () => {
+    if (!nextEvent || !member || !selectedStatus) return
+
+    try {
+      await eventService.confirmPresence(nextEvent.id, member.id, selectedStatus)
+      setUserRsvp(selectedStatus)
+      setShowConfirmModal(false)
+      setSelectedStatus(null)
     } catch (error) {
       console.error('Error confirming presence:', error)
     }
@@ -136,6 +157,55 @@ export default function Home() {
                   Talvez
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmModal && nextEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="text-emerald-600" size={32} />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Confirmar Presenca</h3>
+              <p className="text-gray-600">Tem certeza que vai participar do jogo?</p>
+            </div>
+
+            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="text-emerald-600" size={20} />
+                <p className="font-bold text-gray-800">
+                  {format(parseISO(nextEvent.data_hora), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                </p>
+              </div>
+              <p className="text-gray-700 ml-7">{format(parseISO(nextEvent.data_hora), 'HH:mm')}h - {nextEvent.local}</p>
+            </div>
+
+            <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4 mb-6">
+              <p className="text-sm text-orange-800 font-semibold mb-2">Atencao</p>
+              <p className="text-sm text-orange-700">
+                Se voce confirmar presenca e faltar, sera cobrada uma multa de <strong>R$ 10,00</strong>.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false)
+                  setSelectedStatus(null)
+                }}
+                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmPresenceAfterModal}
+                className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
+              >
+                Sim, Vou!
+              </button>
             </div>
           </div>
         </div>
