@@ -43,7 +43,11 @@ export default function AdminAddMember({ onSuccess }) {
       if (onSuccess) await onSuccess()
     } catch (error) {
       console.error('Erro ao adicionar membro:', error)
-      alert(`Erro ao adicionar membro: ${error.message}`)
+      if (String(error?.message || '').includes('Failed to send a request to the Edge Function')) {
+        alert('Nao foi possivel acessar a Edge Function. Verifique se "admin-add-member" foi deployada no Supabase e tente novamente.')
+      } else {
+        alert(`Erro ao adicionar membro: ${error.message}`)
+      }
     } finally {
       setLoading(false)
     }
