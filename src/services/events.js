@@ -19,6 +19,28 @@ const toUtcIsoIfNeeded = (dateTimeValue) => {
 }
 
 export const eventService = {
+  // Listar todos os eventos (futuros e passados)
+  async getAllEvents() {
+    const { data, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        event_rsvp (
+          member_id,
+          status,
+          members (nome)
+        ),
+        event_attendance (
+          member_id,
+          status,
+          members (nome)
+        )
+      `)
+      .order('data_hora', { ascending: false })
+
+    return { data, error }
+  },
+
   // Listar eventos futuros
   async getUpcomingEvents() {
     const { data, error } = await supabase
@@ -92,9 +114,9 @@ export const eventService = {
 
   // Criar evento (Admin)
   async createEvent(eventData) {
-    const payload = {
-      ...eventData,
-      data_hora: toUtcIsoIfNeeded(eventData?.data_hora)
+    const payload = { ...eventData }
+    if (payload.data_hora) {
+      payload.data_hora = toUtcIsoIfNeeded(payload.data_hora)
     }
 
     const { data, error } = await supabase
@@ -108,9 +130,9 @@ export const eventService = {
 
   // Atualizar evento (Admin)
   async updateEvent(eventId, eventData) {
-    const payload = {
-      ...eventData,
-      data_hora: toUtcIsoIfNeeded(eventData?.data_hora)
+    const payload = { ...eventData }
+    if (payload.data_hora) {
+      payload.data_hora = toUtcIsoIfNeeded(payload.data_hora)
     }
 
     const { data, error } = await supabase
@@ -131,6 +153,23 @@ export const eventService = {
       .eq('id', eventId)
 
     return { error }
+  },
+
+  // Lancar/atualizar placar de jogo
+  async updateEventScore(eventId, scoreData) {
+    const { data, error } = await supabase
+      .from('events')
+      .update({
+        time_a_nome: scoreData.time_a_nome,
+        time_b_nome: scoreData.time_b_nome,
+        time_a_placar: scoreData.time_a_placar,
+        time_b_placar: scoreData.time_b_placar
+      })
+      .eq('id', eventId)
+      .select()
+      .single()
+
+    return { data, error }
   },
 
   // Marcar presença real (Admin)

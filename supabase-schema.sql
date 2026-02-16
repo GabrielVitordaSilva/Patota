@@ -25,6 +25,10 @@ CREATE TABLE events (
     tipo TEXT NOT NULL CHECK (tipo IN ('JOGO', 'INTERNO')),
     data_hora TIMESTAMPTZ NOT NULL,
     local TEXT NOT NULL,
+    time_a_nome TEXT,
+    time_b_nome TEXT,
+    time_a_placar INTEGER CHECK (time_a_placar >= 0),
+    time_b_placar INTEGER CHECK (time_b_placar >= 0),
     criado_por UUID REFERENCES members(id),
     criado_em TIMESTAMPTZ DEFAULT NOW()
 );
