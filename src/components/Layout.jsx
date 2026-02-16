@@ -17,7 +17,7 @@ export default function Layout() {
     { path: '/ranking', icon: Trophy, label: 'Ranking' },
     { path: '/rules', icon: FileText, label: 'Regras' }
   ]
-console.log('🔍 isAdmin:', isAdmin) // ← ADICIONE ESTA LINHA
+
   if (isAdmin) {
     navItems.push({ path: '/admin', icon: Settings, label: 'Admin' })
   }
@@ -55,15 +55,13 @@ console.log('🔍 isAdmin:', isAdmin) // ← ADICIONE ESTA LINHA
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = location.pathname === item.path
-              
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={`flex flex-col items-center gap-1 py-3 px-4 transition ${
-                    isActive
-                      ? 'text-emerald-600'
-                      : 'text-gray-600 hover:text-emerald-600'
+                    isActive ? 'text-emerald-600' : 'text-gray-600 hover:text-emerald-600'
                   }`}
                 >
                   <Icon size={24} />

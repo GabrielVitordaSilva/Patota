@@ -18,14 +18,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Verificar sessão inicial
     checkUser()
 
-    // Listener de mudanças de auth
-    const { data: listener } = authService.onAuthStateChange(async (event, session) => {
+    const { data: listener } = authService.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setUser(session.user)
-        await loadMemberData(session.user.id)
+        await loadMemberData(session.user)
       } else {
         setUser(null)
         setMember(null)
@@ -44,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await authService.getCurrentUser()
       if (currentUser) {
         setUser(currentUser)
-        await loadMemberData(currentUser.id)
+        await loadMemberData(currentUser)
       }
     } catch (error) {
       console.error('Error checking user:', error)
@@ -53,25 +51,42 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const loadMemberData = async (userId) => {
-  try {
-    const memberData = await authService.getMemberData(userId)
-    console.log('👤 Member data:', memberData) // ← ADICIONE
-    setMember(memberData)
-    
-    const adminStatus = await authService.isAdmin(userId)
-    console.log('👑 Admin status:', adminStatus) // ← ADICIONE
-    setIsAdmin(adminStatus)
-  } catch (error) {
-    console.error('Error loading member data:', error)
+  const loadMemberData = async (authUser) => {
+    if (!authUser?.id) {
+      setMember(null)
+      setIsAdmin(false)
+      return
+    }
+
+    const fallbackMember = {
+      id: authUser.id,
+      nome: authUser.user_metadata?.name || authUser.email || 'Usuario',
+      email: authUser.email || '',
+      ativo: true
+    }
+
+    try {
+      const { data: memberData, error: memberError } = await authService.getMemberData(authUser.id)
+      if (memberError) {
+        console.error('Error loading member data:', memberError)
+      }
+
+      setMember(memberData || fallbackMember)
+
+      const adminStatus = await authService.isAdmin(authUser.id)
+      setIsAdmin(adminStatus)
+    } catch (error) {
+      console.error('Error loading member data:', error)
+      setMember(fallbackMember)
+      setIsAdmin(false)
+    }
   }
-}
 
   const signIn = async (email, password) => {
     const { data, error } = await authService.signIn(email, password)
     if (!error && data.user) {
       setUser(data.user)
-      await loadMemberData(data.user.id)
+      await loadMemberData(data.user)
     }
     return { data, error }
   }

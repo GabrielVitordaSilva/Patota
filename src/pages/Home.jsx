@@ -15,11 +15,23 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadData()
-  }, [member])
+    if (!member?.id) {
+      setNextEvent(null)
+      setPendencies(null)
+      setUserRsvp(null)
+      setLoading(false)
+      return
+    }
 
-  const loadData = async () => {
-    if (!member) return
+    setLoading(true)
+    loadData(member)
+  }, [member?.id])
+
+  const loadData = async (currentMember) => {
+    if (!currentMember?.id) {
+      setLoading(false)
+      return
+    }
 
     try {
       // Carregar próximo evento
@@ -28,12 +40,14 @@ export default function Home() {
 
       // Carregar RSVP do usuário
       if (event) {
-        const { data: rsvp } = await eventService.getUserRSVP(event.id, member.id)
+        const { data: rsvp } = await eventService.getUserRSVP(event.id, currentMember.id)
         setUserRsvp(rsvp?.status || null)
+      } else {
+        setUserRsvp(null)
       }
 
       // Carregar pendências
-      const pendenciesData = await financeService.getUserPendencies(member.id)
+      const pendenciesData = await financeService.getUserPendencies(currentMember.id)
       setPendencies(pendenciesData)
     } catch (error) {
       console.error('Error loading data:', error)
@@ -89,7 +103,7 @@ export default function Home() {
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <CheckCircle size={16} />
-              <span>{nextEvent.event_rsvp?.filter(r => r.status === 'VOU').length || 0} confirmados</span>
+              <span>{nextEvent.event_rsvp?.filter((r) => r.status === 'VOU').length || 0} confirmados</span>
             </div>
 
             <div className="pt-4 border-t border-gray-200">
@@ -103,7 +117,7 @@ export default function Home() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  ✅ Vou
+                  Vou
                 </button>
                 <button
                   onClick={() => handleConfirmPresence('NAO_VOU')}
@@ -113,7 +127,7 @@ export default function Home() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  ❌ Não vou
+                  Não vou
                 </button>
                 <button
                   onClick={() => handleConfirmPresence('TALVEZ')}
@@ -123,7 +137,7 @@ export default function Home() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  🤔 Talvez
+                  Talvez
                 </button>
               </div>
             </div>
@@ -161,9 +175,7 @@ export default function Home() {
             <div className="pt-3 border-t border-orange-200">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-lg font-semibold text-gray-800">Total</span>
-                <span className="text-2xl font-bold text-orange-600">
-                  R$ {pendencies.total.toFixed(2)}
-                </span>
+                <span className="text-2xl font-bold text-orange-600">R$ {pendencies.total.toFixed(2)}</span>
               </div>
 
               <div className="flex gap-3">
@@ -171,7 +183,7 @@ export default function Home() {
                   onClick={copyPix}
                   className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
                 >
-                  📋 Copiar PIX
+                  Copiar PIX
                 </button>
                 <Link
                   to="/finance"
@@ -191,7 +203,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <CheckCircle className="text-emerald-600" size={28} />
             <div>
-              <h3 className="text-xl font-bold text-gray-800">Tudo em dia! 🎉</h3>
+              <h3 className="text-xl font-bold text-gray-800">Tudo em dia!</h3>
               <p className="text-gray-600">Você não tem pendências financeiras.</p>
             </div>
           </div>
@@ -200,19 +212,13 @@ export default function Home() {
 
       {/* Links rápidos */}
       <div className="grid grid-cols-2 gap-4">
-        <Link
-          to="/events"
-          className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
-        >
+        <Link to="/events" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <Calendar className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Eventos</h3>
           <p className="text-sm text-gray-600">Ver todos os jogos</p>
         </Link>
 
-        <Link
-          to="/ranking"
-          className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
-        >
+        <Link to="/ranking" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <DollarSign className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Ranking</h3>
           <p className="text-sm text-gray-600">Ver classificação</p>
