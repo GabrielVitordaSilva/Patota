@@ -90,11 +90,11 @@ export default function Ranking() {
               </div>
               
               <div className="text-right">
-                <div className="flex items-center gap-1 text-emerald-600">
+                <div className="flex items-center gap-1 justify-end text-emerald-600 mb-1">
                   <TrendingUp size={20} />
                   <span className="text-2xl font-bold">{member.pontos}</span>
                 </div>
-                <p className="text-xs text-gray-500">pontos</p>
+                <p className="text-xs text-gray-500">{member.totalGols || 0} gols</p>
               </div>
             </div>
           ))}

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus, Check, X, Clock, Stethoscope, Pencil, Trash2, Goal, Users, Shuffle, RotateCcw } from 'lucide-react'
+import { Plus, Check, X, Clock, Stethoscope, Pencil, Trash2, Users, Shuffle, RotateCcw, Trophy } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { eventService } from '../../services/events'
 import { adminService } from '../../services/admin'
 import { teamsService } from '../../services/teams'
+import AdminScore from './AdminScore'
 
 const toDatetimeLocal = (value) => {
   if (!value) return ''
@@ -20,6 +21,7 @@ export default function AdminEvents() {
   const { member } = useAuth()
   const [events, setEvents] = useState([])
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [scoringEvent, setScoringEvent] = useState(null)
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEventId, setEditingEventId] = useState(null)
   const [showScoreForm, setShowScoreForm] = useState(false)
@@ -529,11 +531,11 @@ export default function AdminEvents() {
           </>
         )}
 
-        {event.tipo === 'JOGO' && event.time_a_nome && event.time_b_nome && event.time_a_placar !== null && event.time_b_placar !== null && (
+        {event.tipo === 'JOGO' && event.placar_finalizado && (
           <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
             <p className="text-xs font-semibold text-emerald-700 mb-1">PLACAR</p>
             <p className="text-lg font-bold text-emerald-800">
-              {event.time_a_nome} {event.time_a_placar} x {event.time_b_placar} {event.time_b_nome}
+              Time Preto {event.placar_preto || 0} x {event.placar_branco || 0} Time Branco
             </p>
           </div>
         )}
@@ -589,13 +591,13 @@ export default function AdminEvents() {
           </button>
         </div>
 
-        {isHistory && event.tipo === 'JOGO' && (
+        {event.tipo === 'JOGO' && event.times_gerados && (
           <button
-            onClick={() => openScoreForm(event)}
-            className="w-full mt-2 bg-amber-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
+            onClick={() => setScoringEvent(event)}
+            className="w-full mt-2 bg-purple-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
           >
-            <Goal size={16} />
-            {event.time_a_placar === null || event.time_b_placar === null ? 'Lancar Placar' : 'Editar Placar'}
+            <Trophy size={16} />
+            {event.placar_finalizado ? 'Editar Placar' : 'Placar'}
           </button>
         )}
       </div>
@@ -629,6 +631,8 @@ export default function AdminEvents() {
           historyEvents.map((event) => renderEventCard(event, true))
         )}
       </section>
+
+      {scoringEvent && <AdminScore event={scoringEvent} onClose={() => setScoringEvent(null)} onSuccess={loadEvents} />}
     </div>
   )
 }

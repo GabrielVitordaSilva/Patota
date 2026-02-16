@@ -100,6 +100,107 @@ export const teamsService = {
     return { error }
   },
 
+  // Registrar placar e distribuir pontos por gols do time
+  async registerScore(eventId, placarPreto, placarBranco, adminId) {
+    try {
+      void adminId
+      const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('times_json, times_gerados')
+        .eq('id', eventId)
+        .single()
+
+      if (eventError) return { error: eventError.message }
+      if (!event || !event.times_gerados) {
+        return { error: 'Times nao foram gerados ainda' }
+      }
+
+      const times = event.times_json || {}
+      const preto = Array.isArray(times.preto) ? times.preto : []
+      const branco = Array.isArray(times.branco) ? times.branco : []
+
+      const { error: updateError } = await supabase
+        .from('events')
+        .update({
+          placar_preto: placarPreto,
+          placar_branco: placarBranco,
+          placar_finalizado: true
+        })
+        .eq('id', eventId)
+
+      if (updateError) return { error: updateError.message }
+
+      for (const jogador of preto) {
+        await supabase.from('points_ledger').insert({
+          member_id: jogador.member_id,
+          event_id: eventId,
+          pontos: placarPreto,
+          gols: placarPreto,
+          time: 'PRETO',
+          motivo: 'GOLS_TIME'
+        })
+      }
+
+      for (const jogador of branco) {
+        await supabase.from('points_ledger').insert({
+          member_id: jogador.member_id,
+          event_id: eventId,
+          pontos: placarBranco,
+          gols: placarBranco,
+          time: 'BRANCO',
+          motivo: 'GOLS_TIME'
+        })
+      }
+
+      return {
+        data: {
+          placar_preto: placarPreto,
+          placar_branco: placarBranco,
+          vencedor: placarPreto > placarBranco ? 'PRETO' : placarBranco > placarPreto ? 'BRANCO' : 'EMPATE'
+        },
+        error: null
+      }
+    } catch (err) {
+      return { error: err.message }
+    }
+  },
+
+  // Editar placar removendo e recalculando pontos do evento
+  async editScore(eventId, placarPreto, placarBranco, adminId) {
+    try {
+      void adminId
+      await supabase
+        .from('points_ledger')
+        .delete()
+        .eq('event_id', eventId)
+        .eq('motivo', 'GOLS_TIME')
+
+      await supabase
+        .from('events')
+        .update({
+          placar_preto: 0,
+          placar_branco: 0,
+          placar_finalizado: false
+        })
+        .eq('id', eventId)
+
+      return await this.registerScore(eventId, placarPreto, placarBranco, adminId)
+    } catch (err) {
+      return { error: err.message }
+    }
+  },
+
+  // Buscar placar do jogo
+  async getScore(eventId) {
+    const { data } = await supabase
+      .from('events')
+      .select('placar_preto, placar_branco, placar_finalizado, times_json')
+      .eq('id', eventId)
+      .single()
+
+    return data
+  },
+
   // Texto para WhatsApp
   generateWhatsAppText(event, times) {
     const data = new Date(event.data_hora).toLocaleDateString('pt-BR', {
