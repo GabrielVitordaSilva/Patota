@@ -44,8 +44,20 @@ export default function AdminMembers() {
     if (!confirm('Gerar mensalidades do mes atual para todos os membros ativos?')) return
 
     const now = new Date()
-    await financeService.generateMonthlyDues(now.getFullYear(), now.getMonth() + 1)
-    alert('Mensalidades geradas!')
+    const { error, generatedCount } = await financeService.generateMonthlyDues(now.getFullYear(), now.getMonth() + 1)
+
+    if (error) {
+      console.error('Error generating dues:', error)
+      alert(`Erro ao gerar mensalidades: ${error.message}`)
+      return
+    }
+
+    if (!generatedCount) {
+      alert('Nenhuma mensalidade nova foi criada. As mensalidades deste mes ja existem.')
+      return
+    }
+
+    alert(`Mensalidades geradas! Total: ${generatedCount}`)
   }
 
   return (

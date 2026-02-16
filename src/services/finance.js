@@ -1,11 +1,12 @@
 import { supabase } from './supabaseClient'
 
 export const financeService = {
-  // Obter mensalidades do usuário
+  // Obter mensalidades do usuario
   async getUserDues(memberId) {
     const { data, error } = await supabase
       .from('dues')
-      .select(`
+      .select(
+        `
         *,
         payments (
           id,
@@ -14,53 +15,56 @@ export const financeService = {
           comprovante_url,
           criado_em
         )
-      `)
+      `
+      )
       .eq('member_id', memberId)
       .order('competencia', { ascending: false })
-    
+
     return { data, error }
   },
 
-  // Obter multas do usuário
+  // Obter multas do usuario
   async getUserFines(memberId) {
     const { data, error } = await supabase
       .from('fines')
-      .select(`
+      .select(
+        `
         *,
         events (
           tipo,
           data_hora,
           local
         )
-      `)
+      `
+      )
       .eq('member_id', memberId)
       .order('criado_em', { ascending: false })
-    
+
     return { data, error }
   },
 
-  // Obter pendências do usuário
+  // Obter pendencias do usuario
   async getUserPendencies(memberId) {
-    // Buscar mensalidades pendentes
     const { data: dues } = await supabase
       .from('dues')
       .select('*')
       .eq('member_id', memberId)
       .eq('status', 'PENDENTE')
-    
-    // Buscar multas não pagas
+
     const { data: fines } = await supabase
       .from('fines')
-      .select(`
+      .select(
+        `
         *,
         events (tipo, data_hora)
-      `)
+      `
+      )
       .eq('member_id', memberId)
       .is('pago', false)
-    
+
     const totalDues = dues?.reduce((sum, due) => sum + due.valor, 0) || 0
     const totalFines = fines?.reduce((sum, fine) => sum + fine.valor, 0) || 0
-    
+
     return {
       dues: dues || [],
       fines: fines || [],
@@ -75,13 +79,13 @@ export const financeService = {
       .insert({
         member_id: memberId,
         due_id: dueId,
-        valor: valor,
+        valor,
         status: 'PENDENTE',
         comprovante_url: comprovanteUrl
       })
       .select()
       .single()
-    
+
     return { data, error }
   },
 
@@ -93,15 +97,10 @@ export const financeService = {
       .eq('id', paymentId)
       .select()
       .single()
-    
+
     if (!error && payment) {
-      // Atualizar status da mensalidade
-      await supabase
-        .from('dues')
-        .update({ status: 'PAGO' })
-        .eq('id', payment.due_id)
-      
-      // Lançar no caixa
+      await supabase.from('dues').update({ status: 'PAGO' }).eq('id', payment.due_id)
+
       await supabase.from('cash_ledger').insert({
         tipo: 'ENTRADA',
         categoria: 'MENSALIDADE',
@@ -110,7 +109,7 @@ export const financeService = {
         lancado_por: adminId
       })
     }
-    
+
     return { data: payment, error }
   },
 
@@ -120,129 +119,130 @@ export const financeService = {
     const fileName = `${memberId}_${Date.now()}.${fileExt}`
     const filePath = `comprovantes/${fileName}`
 
-    const { data, error } = await supabase.storage
-      .from('comprovantes')
-      .upload(filePath, file)
+    const { error } = await supabase.storage.from('comprovantes').upload(filePath, file)
 
     if (error) {
       return { data: null, error }
     }
 
-    const { data: urlData } = supabase.storage
-      .from('comprovantes')
-      .getPublicUrl(filePath)
+    const { data: urlData } = supabase.storage.from('comprovantes').getPublicUrl(filePath)
 
     return { data: urlData.publicUrl, error: null }
   },
 
-  // Gerar mensalidades do mês (Admin)
+  // Gerar mensalidades do mes (Admin)
   async generateMonthlyDues(year, month) {
     const competencia = `${year}-${String(month).padStart(2, '0')}`
     const vencimento = `${year}-${String(month).padStart(2, '0')}-10`
-    
-    // Buscar membros ativos
-    const { data: members } = await supabase
+
+    const { data: members, error: membersError } = await supabase
       .from('members')
       .select('id')
       .eq('ativo', true)
-    
-    // Buscar isenções do mês
-    const { data: exemptions } = await supabase
+
+    if (membersError) {
+      return { data: null, error: membersError, generatedCount: 0 }
+    }
+
+    const { data: exemptions, error: exemptionsError } = await supabase
       .from('exemptions')
       .select('member_id')
       .eq('competencia', competencia)
-    
-    const exemptIds = exemptions?.map(e => e.member_id) || []
-    
-    // Criar mensalidades
-    const dues = members?.map(member => ({
-      member_id: member.id,
-      competencia: competencia,
-      vencimento: vencimento,
-      valor: exemptIds.includes(member.id) ? 0 : 35,
-      status: exemptIds.includes(member.id) ? 'ISENTO' : 'PENDENTE'
-    })) || []
-    
+
+    if (exemptionsError) {
+      return { data: null, error: exemptionsError, generatedCount: 0 }
+    }
+
+    const exemptIds = exemptions?.map((e) => e.member_id) || []
+
+    const dues =
+      members?.map((member) => ({
+        member_id: member.id,
+        competencia,
+        vencimento,
+        valor: exemptIds.includes(member.id) ? 0 : 35,
+        status: exemptIds.includes(member.id) ? 'ISENTO' : 'PENDENTE'
+      })) || []
+
+    if (dues.length === 0) {
+      return { data: [], error: null, generatedCount: 0 }
+    }
+
     const { data, error } = await supabase
       .from('dues')
-      .insert(dues)
-    
-    return { data, error }
+      .upsert(dues, {
+        onConflict: 'member_id,competencia',
+        ignoreDuplicates: true
+      })
+      .select('id')
+
+    return { data, error, generatedCount: data?.length || 0 }
   },
 
-  // Criar isenção (Admin)
+  // Criar isencao (Admin)
   async createExemption(memberId, competencia, motivo, adminId) {
     const { data, error } = await supabase
       .from('exemptions')
       .insert({
         member_id: memberId,
-        competencia: competencia,
-        motivo: motivo,
+        competencia,
+        motivo,
         aprovado_por: adminId
       })
       .select()
       .single()
-    
-    // Atualizar mensalidade se já existir
+
     if (!error) {
-      await supabase
-        .from('dues')
-        .update({ status: 'ISENTO', valor: 0 })
-        .eq('member_id', memberId)
-        .eq('competencia', competencia)
+      await supabase.from('dues').update({ status: 'ISENTO', valor: 0 }).eq('member_id', memberId).eq('competencia', competencia)
     }
-    
+
     return { data, error }
   },
 
   // Obter extrato do caixa
   async getCashLedger(startDate = null, endDate = null) {
-    let query = supabase
-      .from('cash_ledger')
-      .select('*')
-      .order('criado_em', { ascending: false })
-    
+    let query = supabase.from('cash_ledger').select('*').order('criado_em', { ascending: false })
+
     if (startDate) {
       query = query.gte('criado_em', startDate)
     }
     if (endDate) {
       query = query.lte('criado_em', endDate)
     }
-    
+
     const { data, error } = await query
-    
+
     return { data, error }
   },
 
   // Obter saldo do caixa
   async getCashBalance() {
-    const { data, error } = await supabase
-      .from('cash_ledger')
-      .select('tipo, valor')
-    
+    const { data, error } = await supabase.from('cash_ledger').select('tipo, valor')
+
     if (error) return { balance: 0, error }
-    
-    const balance = data?.reduce((sum, item) => {
-      return item.tipo === 'ENTRADA' ? sum + item.valor : sum - item.valor
-    }, 0) || 0
-    
+
+    const balance =
+      data?.reduce((sum, item) => {
+        return item.tipo === 'ENTRADA' ? sum + item.valor : sum - item.valor
+      }, 0) || 0
+
     return { balance, error: null }
   },
 
-  // Lançar saída no caixa (Admin)
+  // Lancar saida no caixa (Admin)
   async createCashOut(categoria, valor, obs, adminId) {
     const { data, error } = await supabase
       .from('cash_ledger')
       .insert({
         tipo: 'SAIDA',
-        categoria: categoria,
-        valor: valor,
-        obs: obs,
+        categoria,
+        valor,
+        obs,
         lancado_por: adminId
       })
       .select()
       .single()
-    
+
     return { data, error }
   }
 }
