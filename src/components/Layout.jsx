@@ -23,33 +23,33 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Header */}
       <header className="bg-emerald-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-start sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold">Patota CCC</h1>
-              <p className="text-sm text-emerald-100">OlÃ¡, {member?.nome}</p>
+              <h1 className="text-xl sm:text-2xl font-bold">Patota CCC</h1>
+              <p className="text-xs sm:text-sm text-emerald-100 break-words">OlÃ¡, {member?.nome}</p>
             </div>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-700 rounded-lg hover:bg-emerald-800 transition"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-emerald-700 rounded-lg hover:bg-emerald-800 transition"
             >
               <LogOut size={20} />
-              <span>Sair</span>
+              <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-24">
         <Outlet />
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-7xl mx-auto px-1">
           <div
             className="grid items-center"
@@ -63,21 +63,18 @@ export default function Layout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex flex-col items-center gap-1 py-2 px-1 transition ${
+                  className={`flex flex-col items-center gap-1 py-2 px-1 min-w-0 transition ${
                     isActive ? 'text-emerald-600' : 'text-gray-600 hover:text-emerald-600'
                   }`}
                 >
                   <Icon size={20} />
-                  <span className="text-[11px] font-medium leading-none">{item.label}</span>
+                  <span className="text-[10px] sm:text-[11px] font-medium leading-none truncate">{item.label}</span>
                 </Link>
               )
             })}
           </div>
         </div>
       </nav>
-
-      {/* Spacer for bottom nav */}
-      <div className="h-20"></div>
     </div>
   )
 }

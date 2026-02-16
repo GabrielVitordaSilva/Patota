@@ -12,15 +12,26 @@ export default function Finance() {
   const [uploadingFile, setUploadingFile] = useState(false)
 
   useEffect(() => {
-    loadData()
-  }, [member])
+    if (!member?.id) {
+      setDues([])
+      setFines([])
+      setLoading(false)
+      return
+    }
 
-  const loadData = async () => {
-    if (!member) return
+    setLoading(true)
+    loadData(member.id)
+  }, [member?.id])
+
+  const loadData = async (memberId) => {
+    if (!memberId) {
+      setLoading(false)
+      return
+    }
 
     try {
-      const { data: duesData } = await financeService.getUserDues(member.id)
-      const { data: finesData } = await financeService.getUserFines(member.id)
+      const { data: duesData } = await financeService.getUserDues(memberId)
+      const { data: finesData } = await financeService.getUserFines(memberId)
       
       setDues(duesData || [])
       setFines(finesData || [])
@@ -55,7 +66,7 @@ export default function Finance() {
       await financeService.createPayment(member.id, dueId, due.valor, url)
       
       alert('Comprovante enviado! Aguarde confirmação do admin.')
-      loadData()
+      loadData(member.id)
     } catch (error) {
       console.error('Error uploading file:', error)
       alert('Erro ao enviar comprovante')

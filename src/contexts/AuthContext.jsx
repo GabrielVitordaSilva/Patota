@@ -29,7 +29,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     checkUser()
 
-    const { data: listener } = authService.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = authService.onAuthStateChange(async (event, session) => {
+      if (event === 'TOKEN_REFRESHED') return
+
       setLoading(true)
       try {
         if (session?.user) {
@@ -49,6 +51,16 @@ export const AuthProvider = ({ children }) => {
       listener?.subscription?.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+
+    const failsafe = setTimeout(() => {
+      setLoading(false)
+    }, AUTH_TIMEOUT_MS * 2)
+
+    return () => clearTimeout(failsafe)
+  }, [loading])
 
   const checkUser = async () => {
     try {

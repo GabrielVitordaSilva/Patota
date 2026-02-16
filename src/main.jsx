@@ -6,14 +6,6 @@ import './index.css'
 
 const updateSW = registerSW({
   immediate: true,
-  onRegisteredSW(_swUrl, registration) {
-    if (!registration) return
-
-    // Force periodic checks so installed PWAs pick up new builds on mobile.
-    setInterval(() => {
-      registration.update()
-    }, 60 * 1000)
-  },
   onNeedRefresh() {
     updateSW(true)
   }

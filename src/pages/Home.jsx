@@ -248,7 +248,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link to="/events" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <Calendar className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Eventos</h3>
