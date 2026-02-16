@@ -16,26 +16,26 @@ export default function Admin() {
   ]
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Painel Admin</h1>
+    <div className="space-y-4">
+      <h1 className="text-xl md:text-2xl font-bold text-gray-800">Painel Admin</h1>
 
-      {/* Tabs */}
+      {/* Tabs - Responsivo */}
       <div className="bg-white rounded-xl shadow-md p-2">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1 md:gap-2">
           {tabs.map((tab) => {
             const Icon = tab.icon
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition ${
+                className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-xs md:text-sm font-semibold transition ${
                   activeTab === tab.id
                     ? 'bg-emerald-600 text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <Icon size={20} />
-                <span className="hidden md:inline">{tab.label}</span>
+                <Icon size={20} className="md:w-6 md:h-6" />
+                <span className="text-[10px] md:text-sm leading-tight">{tab.label}</span>
               </button>
             )
           })}
