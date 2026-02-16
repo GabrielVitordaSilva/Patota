@@ -1,6 +1,15 @@
 import { supabase } from './supabaseClient'
 
 export const adminService = {
+  // Criar membro via Edge Function (somente admin)
+  async addMember(name, email, password) {
+    const { data, error } = await supabase.functions.invoke('admin-add-member', {
+      body: { name, email, password }
+    })
+
+    return { data, error }
+  },
+
   // Listar todos os membros
   async getAllMembers() {
     const { data, error } = await supabase
