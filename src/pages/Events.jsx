@@ -48,29 +48,77 @@ export default function Events() {
   }
 
   const getResultBadge = (event) => {
-    if (
-      event.tipo !== 'JOGO' ||
-      event.time_a_placar === null ||
-      event.time_b_placar === null ||
-      event.time_a_placar === undefined ||
-      event.time_b_placar === undefined
-    ) {
+    if (event.tipo !== 'JOGO') {
       return null
     }
 
-    if (event.time_a_placar > event.time_b_placar) {
-      return { label: 'Vitoria do Time A', className: 'bg-emerald-100 text-emerald-700' }
+    const hasNewScore =
+      event.placar_finalizado &&
+      event.placar_preto !== null &&
+      event.placar_preto !== undefined &&
+      event.placar_branco !== null &&
+      event.placar_branco !== undefined
+
+    const hasLegacyScore =
+      event.time_a_placar !== null &&
+      event.time_a_placar !== undefined &&
+      event.time_b_placar !== null &&
+      event.time_b_placar !== undefined
+
+    if (!hasNewScore && !hasLegacyScore) return null
+
+    const scoreA = hasNewScore ? event.placar_preto : event.time_a_placar
+    const scoreB = hasNewScore ? event.placar_branco : event.time_b_placar
+    const teamA = hasNewScore ? 'Time Preto' : 'Time A'
+    const teamB = hasNewScore ? 'Time Branco' : 'Time B'
+
+    if (scoreA > scoreB) {
+      return { label: `Vitoria do ${teamA}`, className: 'bg-emerald-100 text-emerald-700' }
     }
 
-    if (event.time_b_placar > event.time_a_placar) {
-      return { label: 'Vitoria do Time B', className: 'bg-red-100 text-red-700' }
+    if (scoreB > scoreA) {
+      return { label: `Vitoria do ${teamB}`, className: 'bg-red-100 text-red-700' }
     }
 
     return { label: 'Empate', className: 'bg-gray-100 text-gray-700' }
   }
 
+  const getScoreView = (event) => {
+    if (
+      event.tipo === 'JOGO' &&
+      event.placar_finalizado &&
+      event.placar_preto !== null &&
+      event.placar_preto !== undefined &&
+      event.placar_branco !== null &&
+      event.placar_branco !== undefined
+    ) {
+      return {
+        title: 'PLACAR',
+        text: `Time Preto ${event.placar_preto} x ${event.placar_branco} Time Branco`
+      }
+    }
+
+    if (
+      event.tipo === 'JOGO' &&
+      event.time_a_nome &&
+      event.time_b_nome &&
+      event.time_a_placar !== null &&
+      event.time_a_placar !== undefined &&
+      event.time_b_placar !== null &&
+      event.time_b_placar !== undefined
+    ) {
+      return {
+        title: 'PLACAR',
+        text: `${event.time_a_nome} ${event.time_a_placar} x ${event.time_b_placar} ${event.time_b_nome}`
+      }
+    }
+
+    return null
+  }
+
   const renderEventCard = (event) => {
     const resultBadge = getResultBadge(event)
+    const scoreView = getScoreView(event)
 
     return (
     <div key={event.id} className="bg-white rounded-xl shadow-md p-6">
@@ -101,12 +149,10 @@ export default function Events() {
         </div>
       </div>
 
-      {event.tipo === 'JOGO' && event.time_a_nome && event.time_b_nome && event.time_a_placar !== null && event.time_b_placar !== null && (
+      {scoreView && (
         <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
           <p className="text-xs font-semibold text-emerald-700 mb-1">PLACAR</p>
-          <p className="text-lg font-bold text-emerald-800">
-            {event.time_a_nome} {event.time_a_placar} x {event.time_b_placar} {event.time_b_nome}
-          </p>
+          <p className="text-lg font-bold text-emerald-800">{scoreView.text || `Time Preto ${event.placar_preto} x ${event.placar_branco} Time Branco`}</p>
         </div>
       )}
 
