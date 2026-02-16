@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus, Check, X, Clock, Stethoscope, Pencil, Trash2, Goal } from 'lucide-react'
+import { Plus, Check, X, Clock, Stethoscope, Pencil, Trash2, Goal, Users, Shuffle, RotateCcw } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { eventService } from '../../services/events'
 import { adminService } from '../../services/admin'
+import { teamsService } from '../../services/teams'
 
 const toDatetimeLocal = (value) => {
   if (!value) return ''
@@ -202,6 +203,37 @@ export default function AdminEvents() {
       alert(`Erro ao salvar placar: ${error?.message || 'erro desconhecido'}`)
     } finally {
       setScoreSaving(false)
+    }
+  }
+
+  const handleGenerateTeams = async (eventId) => {
+    if (!confirm('Sortear os times agora? Isso encerrara as confirmacoes.')) return
+
+    try {
+      const { data, error } = await teamsService.generateTeams(eventId, member.id)
+
+      if (error) {
+        alert(`Erro: ${error}`)
+        return
+      }
+
+      alert(`Times gerados!\n\nTime Preto: ${data.preto.length}\nTime Branco: ${data.branco.length}`)
+      loadEvents()
+    } catch (error) {
+      alert('Erro ao gerar times')
+    }
+  }
+
+  const handleResetTeams = async (eventId) => {
+    if (!confirm('Resetar times e reabrir confirmacoes?')) return
+
+    try {
+      const { error } = await teamsService.resetTeams(eventId)
+      if (error) throw error
+      alert('Times resetados! Confirmacoes reabertas.')
+      loadEvents()
+    } catch (error) {
+      alert('Erro ao resetar times')
     }
   }
 
@@ -451,64 +483,104 @@ export default function AdminEvents() {
     const resultBadge = getResultBadge(event)
 
     return (
-    <div key={event.id} className="bg-white rounded-xl shadow-md p-6">
-      <h3 className="font-bold text-lg mb-1">{new Date(event.data_hora).toLocaleDateString()}</h3>
-      <p className="text-gray-600 mb-1">
-        {new Date(event.data_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </p>
-      <p className="text-gray-600 mb-4">{event.local}</p>
+      <div key={event.id} className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="font-bold text-lg mb-1">{new Date(event.data_hora).toLocaleDateString()}</h3>
+        <p className="text-gray-600 mb-1">
+          {new Date(event.data_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </p>
+        <p className="text-gray-600 mb-2">{event.local}</p>
+        <p className="text-sm text-gray-500 mb-2">{event.event_rsvp?.filter((r) => r.status === 'VOU').length || 0} confirmados</p>
 
-      {event.tipo === 'JOGO' && event.time_a_nome && event.time_b_nome && event.time_a_placar !== null && event.time_b_placar !== null && (
-        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-          <p className="text-xs font-semibold text-emerald-700 mb-1">PLACAR</p>
-          <p className="text-lg font-bold text-emerald-800">
-            {event.time_a_nome} {event.time_a_placar} x {event.time_b_placar} {event.time_b_nome}
-          </p>
+        {event.tipo === 'JOGO' && (
+          <>
+            {event.times_gerados ? (
+              <div className="mb-3 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <p className="text-xs text-emerald-700 font-semibold">Times ja sorteados</p>
+              </div>
+            ) : (
+              <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700 font-semibold">
+                  Confirmacoes ate:{' '}
+                  {event.data_limite_confirmacao
+                    ? new Date(event.data_limite_confirmacao).toLocaleString('pt-BR')
+                    : 'sem limite'}
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {event.tipo === 'JOGO' && event.time_a_nome && event.time_b_nome && event.time_a_placar !== null && event.time_b_placar !== null && (
+          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <p className="text-xs font-semibold text-emerald-700 mb-1">PLACAR</p>
+            <p className="text-lg font-bold text-emerald-800">
+              {event.time_a_nome} {event.time_a_placar} x {event.time_b_placar} {event.time_b_nome}
+            </p>
+          </div>
+        )}
+
+        {resultBadge && (
+          <span className={`inline-block mb-4 px-3 py-1 rounded-full text-xs font-semibold ${resultBadge.className}`}>
+            {resultBadge.label}
+          </span>
+        )}
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => setSelectedEvent(event)}
+            className="bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm"
+          >
+            <Users size={16} className="inline mr-1" />
+            Presenca
+          </button>
+
+          {event.tipo === 'JOGO' &&
+            (event.times_gerados ? (
+              <button
+                onClick={() => handleResetTeams(event.id)}
+                className="bg-orange-600 text-white py-2 rounded-lg font-semibold text-sm"
+              >
+                <RotateCcw size={16} className="inline mr-1" />
+                Resetar
+              </button>
+            ) : (
+              <button
+                onClick={() => handleGenerateTeams(event.id)}
+                className="bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm"
+              >
+                <Shuffle size={16} className="inline mr-1" />
+                Sortear
+              </button>
+            ))}
+
+          <button
+            onClick={() => openEditForm(event)}
+            className="bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm"
+          >
+            <Pencil size={16} className="inline mr-1" />
+            Editar
+          </button>
+
+          <button
+            onClick={() => handleDeleteEvent(event.id)}
+            className="bg-red-600 text-white py-2 rounded-lg font-semibold text-sm"
+          >
+            <Trash2 size={16} className="inline mr-1" />
+            Excluir
+          </button>
         </div>
-      )}
 
-      {resultBadge && (
-        <span className={`inline-block mb-4 px-3 py-1 rounded-full text-xs font-semibold ${resultBadge.className}`}>
-          {resultBadge.label}
-        </span>
-      )}
-
-      <p className="text-sm text-gray-500 mb-4">{event.event_rsvp?.filter((r) => r.status === 'VOU').length || 0} confirmados</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <button
-          onClick={() => setSelectedEvent(event)}
-          className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold"
-        >
-          Marcar Presenca
-        </button>
-        <button
-          onClick={() => openEditForm(event)}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
-        >
-          <Pencil size={16} />
-          Editar
-        </button>
-        <button
-          onClick={() => handleDeleteEvent(event.id)}
-          className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
-        >
-          <Trash2 size={16} />
-          Excluir
-        </button>
+        {isHistory && event.tipo === 'JOGO' && (
+          <button
+            onClick={() => openScoreForm(event)}
+            className="w-full mt-2 bg-amber-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
+          >
+            <Goal size={16} />
+            {event.time_a_placar === null || event.time_b_placar === null ? 'Lancar Placar' : 'Editar Placar'}
+          </button>
+        )}
       </div>
-
-      {isHistory && event.tipo === 'JOGO' && (
-        <button
-          onClick={() => openScoreForm(event)}
-          className="w-full mt-2 bg-amber-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
-        >
-          <Goal size={16} />
-          {event.time_a_placar === null || event.time_b_placar === null ? 'Lancar Placar' : 'Editar Placar'}
-        </button>
-      )}
-    </div>
-  )
+    )
   }
 
   return (
