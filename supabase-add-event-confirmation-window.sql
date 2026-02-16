@@ -28,7 +28,14 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION set_data_limite_confirmacao()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.tipo = 'JOGO' THEN
+  IF NEW.tipo = 'JOGO' AND (
+    NEW.data_limite_confirmacao IS NULL OR
+    (
+      TG_OP = 'UPDATE'
+      AND NEW.data_hora IS DISTINCT FROM OLD.data_hora
+      AND NEW.data_limite_confirmacao IS NOT DISTINCT FROM OLD.data_limite_confirmacao
+    )
+  ) THEN
     NEW.data_limite_confirmacao := calcular_data_limite(NEW.data_hora);
   END IF;
   RETURN NEW;
