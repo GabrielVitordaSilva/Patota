@@ -319,3 +319,29 @@ CREATE INDEX idx_points_member ON points_ledger(member_id);
 
 -- Depois de criar o primeiro usuário via interface, execute:
 -- INSERT INTO admins (member_id) VALUES ('UUID-DO-PRIMEIRO-USUARIO');
+
+-- ============================================
+-- CONFIGURACOES GERAIS (PIX)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS config (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chave TEXT NOT NULL UNIQUE,
+    valor TEXT NOT NULL,
+    criado_em TIMESTAMPTZ DEFAULT NOW(),
+    atualizado_em TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE config ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Todos podem ler config"
+    ON config FOR SELECT
+    USING (true);
+
+CREATE POLICY "Apenas admins podem atualizar config"
+    ON config FOR UPDATE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
+
+INSERT INTO config (chave, valor)
+VALUES ('pix_key', 'seupix@exemplo.com')
+ON CONFLICT (chave) DO NOTHING;

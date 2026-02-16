@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { Users, Calendar, DollarSign, FileText } from 'lucide-react'
+import AdminFinanceDashboard from './AdminFinanceDashboard'
 import AdminEvents from './AdminEvents'
 import AdminCaixa from './AdminCaixa'
 import AdminMembers from './AdminMembers'
 import AdminPayments from './AdminPayments'
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState('events')
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: DollarSign },
     { id: 'events', label: 'Eventos', icon: Calendar },
     { id: 'caixa', label: 'Caixa', icon: DollarSign },
     { id: 'members', label: 'Membros', icon: Users },
@@ -21,7 +23,7 @@ export default function Admin() {
 
       {/* Tabs - Responsivo */}
       <div className="bg-white rounded-xl shadow-md p-2">
-        <div className="grid grid-cols-4 gap-1 md:gap-2">
+        <div className="grid grid-cols-5 gap-1 md:gap-2">
           {tabs.map((tab) => {
             const Icon = tab.icon
             return (
@@ -44,6 +46,7 @@ export default function Admin() {
 
       {/* Content */}
       <div>
+        {activeTab === 'dashboard' && <AdminFinanceDashboard />}
         {activeTab === 'events' && <AdminEvents />}
         {activeTab === 'caixa' && <AdminCaixa />}
         {activeTab === 'members' && <AdminMembers />}

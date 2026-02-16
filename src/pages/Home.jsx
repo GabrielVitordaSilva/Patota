@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, DollarSign, AlertCircle, CheckCircle } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { configService } from '../services/config'
 import { eventService } from '../services/events'
 import { financeService } from '../services/finance'
 import { format, parseISO } from 'date-fns'
@@ -12,27 +13,44 @@ export default function Home() {
   const [nextEvent, setNextEvent] = useState(null)
   const [pendencies, setPendencies] = useState(null)
   const [userRsvp, setUserRsvp] = useState(null)
+  const [pixKey, setPixKey] = useState('seupix@exemplo.com')
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadPixKey()
+  }, [])
 
   useEffect(() => {
     loadData()
   }, [member])
 
+  const loadPixKey = async () => {
+    try {
+      const key = await configService.getPixKey()
+      if (key) setPixKey(key)
+    } catch (error) {
+      console.error('Error loading PIX key:', error)
+    }
+  }
+
   const loadData = async () => {
-    if (!member) return
+    if (!member?.id) {
+      setNextEvent(null)
+      setPendencies(null)
+      setUserRsvp(null)
+      setLoading(false)
+      return
+    }
 
     try {
-      // Carregar próximo evento
       const { data: event } = await eventService.getNextEvent()
       setNextEvent(event)
 
-      // Carregar RSVP do usuário
       if (event) {
         const { data: rsvp } = await eventService.getUserRSVP(event.id, member.id)
         setUserRsvp(rsvp?.status || null)
       }
 
-      // Carregar pendências
       const pendenciesData = await financeService.getUserPendencies(member.id)
       setPendencies(pendenciesData)
     } catch (error) {
@@ -54,7 +72,6 @@ export default function Home() {
   }
 
   const copyPix = () => {
-    const pixKey = 'seupix@exemplo.com' // Configurar no sistema
     navigator.clipboard.writeText(pixKey)
     alert('Chave PIX copiada!')
   }
@@ -69,12 +86,11 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      {/* Próximo Jogo */}
       {nextEvent && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center gap-3 mb-4">
             <Calendar className="text-emerald-600" size={28} />
-            <h2 className="text-xl font-bold text-gray-800">Próximo Jogo</h2>
+            <h2 className="text-xl font-bold text-gray-800">Proximo Jogo</h2>
           </div>
 
           <div className="space-y-3">
@@ -89,41 +105,35 @@ export default function Home() {
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <CheckCircle size={16} />
-              <span>{nextEvent.event_rsvp?.filter(r => r.status === 'VOU').length || 0} confirmados</span>
+              <span>{nextEvent.event_rsvp?.filter((r) => r.status === 'VOU').length || 0} confirmados</span>
             </div>
 
             <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-3">Você vai?</p>
+              <p className="text-sm text-gray-600 mb-3">Voce vai?</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => handleConfirmPresence('VOU')}
                   className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                    userRsvp === 'VOU'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    userRsvp === 'VOU' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  ✅ Vou
+                  Vou
                 </button>
                 <button
                   onClick={() => handleConfirmPresence('NAO_VOU')}
                   className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                    userRsvp === 'NAO_VOU'
-                      ? 'bg-red-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    userRsvp === 'NAO_VOU' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  ❌ Não vou
+                  Nao vou
                 </button>
                 <button
                   onClick={() => handleConfirmPresence('TALVEZ')}
                   className={`flex-1 py-3 rounded-lg font-semibold transition ${
-                    userRsvp === 'TALVEZ'
-                      ? 'bg-yellow-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    userRsvp === 'TALVEZ' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  🤔 Talvez
+                  Talvez
                 </button>
               </div>
             </div>
@@ -131,12 +141,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* Pendências */}
       {pendencies && pendencies.total > 0 && (
         <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle className="text-orange-600" size={28} />
-            <h2 className="text-xl font-bold text-gray-800">Você tem pendências</h2>
+            <h2 className="text-xl font-bold text-gray-800">Voce tem pendencias</h2>
           </div>
 
           <div className="space-y-3">
@@ -161,9 +170,7 @@ export default function Home() {
             <div className="pt-3 border-t border-orange-200">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-lg font-semibold text-gray-800">Total</span>
-                <span className="text-2xl font-bold text-orange-600">
-                  R$ {pendencies.total.toFixed(2)}
-                </span>
+                <span className="text-2xl font-bold text-orange-600">R$ {pendencies.total.toFixed(2)}</span>
               </div>
 
               <div className="flex gap-3">
@@ -171,7 +178,7 @@ export default function Home() {
                   onClick={copyPix}
                   className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
                 >
-                  📋 Copiar PIX
+                  Copiar PIX
                 </button>
                 <Link
                   to="/finance"
@@ -185,37 +192,29 @@ export default function Home() {
         </div>
       )}
 
-      {/* Sem pendências */}
       {pendencies && pendencies.total === 0 && (
         <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
           <div className="flex items-center gap-3">
             <CheckCircle className="text-emerald-600" size={28} />
             <div>
-              <h3 className="text-xl font-bold text-gray-800">Tudo em dia! 🎉</h3>
-              <p className="text-gray-600">Você não tem pendências financeiras.</p>
+              <h3 className="text-xl font-bold text-gray-800">Tudo em dia!</h3>
+              <p className="text-gray-600">Voce nao tem pendencias financeiras.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Links rápidos */}
       <div className="grid grid-cols-2 gap-4">
-        <Link
-          to="/events"
-          className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
-        >
+        <Link to="/events" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <Calendar className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Eventos</h3>
           <p className="text-sm text-gray-600">Ver todos os jogos</p>
         </Link>
 
-        <Link
-          to="/ranking"
-          className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
-        >
+        <Link to="/ranking" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <DollarSign className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Ranking</h3>
-          <p className="text-sm text-gray-600">Ver classificação</p>
+          <p className="text-sm text-gray-600">Ver classificacao</p>
         </Link>
       </div>
     </div>
