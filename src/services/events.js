@@ -1,5 +1,23 @@
 import { supabase } from './supabaseClient'
 
+const toUtcIsoIfNeeded = (dateTimeValue) => {
+  if (typeof dateTimeValue !== 'string' || !dateTimeValue) {
+    return dateTimeValue
+  }
+
+  // If it already has timezone info, keep it as provided.
+  if (dateTimeValue.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateTimeValue)) {
+    return dateTimeValue
+  }
+
+  const parsed = new Date(dateTimeValue)
+  if (Number.isNaN(parsed.getTime())) {
+    return dateTimeValue
+  }
+
+  return parsed.toISOString()
+}
+
 export const eventService = {
   // Listar eventos futuros
   async getUpcomingEvents() {
@@ -74,9 +92,14 @@ export const eventService = {
 
   // Criar evento (Admin)
   async createEvent(eventData) {
+    const payload = {
+      ...eventData,
+      data_hora: toUtcIsoIfNeeded(eventData?.data_hora)
+    }
+
     const { data, error } = await supabase
       .from('events')
-      .insert(eventData)
+      .insert(payload)
       .select()
       .single()
     
@@ -85,9 +108,14 @@ export const eventService = {
 
   // Atualizar evento (Admin)
   async updateEvent(eventId, eventData) {
+    const payload = {
+      ...eventData,
+      data_hora: toUtcIsoIfNeeded(eventData?.data_hora)
+    }
+
     const { data, error } = await supabase
       .from('events')
-      .update(eventData)
+      .update(payload)
       .eq('id', eventId)
       .select()
       .single()

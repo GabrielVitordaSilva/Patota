@@ -98,7 +98,7 @@ export default function AdminEvents() {
       await loadEvents()
     } catch (error) {
       console.error('Error saving event:', error)
-      alert('Erro ao salvar evento')
+      alert(`Erro ao salvar evento: ${error?.message || 'erro desconhecido'}`)
     } finally {
       setSaving(false)
     }
