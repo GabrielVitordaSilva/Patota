@@ -136,12 +136,12 @@ export default function Finance() {
 
       <button
         onClick={copyPix}
-        className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition shadow-md"
+        className="w-full ui-btn-primary rounded-xl font-bold text-lg shadow-md"
       >
         Copiar Chave PIX
       </button>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="ui-card p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Mensalidades</h2>
 
         {pendingDues.length === 0 ? (
@@ -203,7 +203,7 @@ export default function Finance() {
       </div>
 
       {fines.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="ui-card p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Multas</h2>
 
           <div className="space-y-3">

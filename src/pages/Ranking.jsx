@@ -68,12 +68,12 @@ export default function Ranking() {
       {loading ? (
         <div className="text-center py-12">Carregando...</div>
       ) : ranking.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-md p-8 text-center">
+        <div className="ui-card p-8 text-center">
           <Trophy className="mx-auto text-gray-400 mb-3" size={48} />
           <p className="text-gray-600">Nenhum dado de ranking ainda</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="ui-card overflow-hidden">
           {ranking.map((member, index) => (
             <div
               key={member.member_id}

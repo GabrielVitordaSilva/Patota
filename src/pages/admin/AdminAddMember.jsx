@@ -36,8 +36,8 @@ export default function AdminAddMember({ onSuccess }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 md:p-6 mb-4">
-      <h3 className="font-bold text-lg mb-4">Adicionar Novo Membro</h3>
+    <div className="ui-card ui-card-body mb-4">
+      <h3 className="ui-title mb-4">Adicionar Novo Membro</h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -46,7 +46,7 @@ export default function AdminAddMember({ onSuccess }) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+            className="ui-input"
             placeholder="Nome completo"
             required
           />
@@ -58,7 +58,7 @@ export default function AdminAddMember({ onSuccess }) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+            className="ui-input"
             placeholder="email@exemplo.com"
             required
           />
@@ -70,7 +70,7 @@ export default function AdminAddMember({ onSuccess }) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+            className="ui-input"
             placeholder="Minimo 6 caracteres"
             required
             minLength={6}
@@ -80,7 +80,7 @@ export default function AdminAddMember({ onSuccess }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+          className="w-full ui-btn-primary"
         >
           {loading ? 'Adicionando...' : 'Adicionar Membro'}
         </button>

@@ -92,15 +92,15 @@ export default function AdminMembers() {
     <div className="space-y-4">
       <button
         onClick={handleGenerateDues}
-        className="w-full bg-emerald-600 text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base"
+        className="w-full ui-btn-primary rounded-xl font-bold text-sm md:text-base"
       >
         Gerar Mensalidades do Mes
       </button>
 
       <AdminAddMember onSuccess={loadMembers} />
 
-      <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-        <h3 className="font-bold text-base md:text-lg mb-4 flex items-center gap-2">
+      <div className="ui-card ui-card-body">
+        <h3 className="ui-title mb-4 flex items-center gap-2">
           <Users size={20} className="md:w-6 md:h-6" />
           Membros
         </h3>
@@ -130,20 +130,20 @@ export default function AdminMembers() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => handleToggleStatus(member.id, member.ativo)}
-                  className="bg-gray-100 text-gray-700 py-2 rounded-lg text-xs md:text-sm font-semibold"
+                  className="ui-btn-ghost text-xs md:text-sm"
                 >
                   {member.ativo ? 'Desativar' : 'Ativar'}
                 </button>
                 <button
                   onClick={() => handleCreateExemption(member.id)}
-                  className="bg-blue-100 text-blue-700 py-2 rounded-lg text-xs md:text-sm font-semibold"
+                  className="ui-btn-info text-xs md:text-sm"
                 >
                   Isentar
                 </button>
                 {memberDues[member.id] && (
                   <button
                     onClick={() => setEditingDue(memberDues[member.id])}
-                    className="bg-orange-100 text-orange-700 py-2 rounded-lg text-xs md:text-sm font-semibold flex items-center justify-center gap-1"
+                    className="ui-btn-warning text-xs md:text-sm"
                   >
                     <Edit size={14} />
                     Editar

@@ -143,7 +143,7 @@ export default function Home() {
   return (
     <div className="space-y-6">
       {nextEvent && (
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="ui-card p-6">
           <div className="flex items-center gap-3 mb-4">
             <Calendar className="text-emerald-600" size={28} />
             <h2 className="text-xl font-bold text-gray-800">Proximo Jogo</h2>
@@ -187,7 +187,7 @@ export default function Home() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleConfirmPresence('VOU')}
-                    className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                    className={`ui-btn flex-1 ${
                       userRsvp === 'VOU' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -195,7 +195,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => handleConfirmPresence('NAO_VOU')}
-                    className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                    className={`ui-btn flex-1 ${
                       userRsvp === 'NAO_VOU' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -203,7 +203,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => handleConfirmPresence('TALVEZ')}
-                    className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                    className={`ui-btn flex-1 ${
                       userRsvp === 'TALVEZ' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -225,7 +225,7 @@ export default function Home() {
                   <h3 className="font-bold text-gray-800">Times Sorteados</h3>
                   <button
                     onClick={shareOnWhatsApp}
-                    className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold hover:bg-green-600 transition"
+                    className="ui-btn min-h-10 px-3 py-2 bg-green-500 text-white text-sm hover:bg-green-600"
                   >
                     <Share2 size={16} />
                     WhatsApp
@@ -301,13 +301,13 @@ export default function Home() {
                   setShowConfirmModal(false)
                   setSelectedStatus(null)
                 }}
-                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                className="flex-1 ui-btn-secondary"
               >
                 Cancelar
               </button>
               <button
                 onClick={confirmPresenceAfterModal}
-                className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
+                className="flex-1 ui-btn-primary"
               >
                 Sim, Vou!
               </button>
@@ -351,13 +351,13 @@ export default function Home() {
               <div className="flex gap-3">
                 <button
                   onClick={copyPix}
-                  className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
+                  className="flex-1 ui-btn-primary"
                 >
                   Copiar PIX
                 </button>
                 <Link
                   to="/finance"
-                  className="flex-1 bg-white text-emerald-600 border-2 border-emerald-600 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition text-center"
+                  className="flex-1 ui-btn min-h-11 bg-white text-emerald-600 border-2 border-emerald-600 hover:bg-emerald-50 text-center"
                 >
                   Ver Detalhes
                 </Link>
@@ -380,13 +380,13 @@ export default function Home() {
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        <Link to="/events" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+        <Link to="/events" className="ui-card p-6 hover:shadow-lg transition">
           <Calendar className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Eventos</h3>
           <p className="text-sm text-gray-600">Ver todos os jogos</p>
         </Link>
 
-        <Link to="/ranking" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+        <Link to="/ranking" className="ui-card p-6 hover:shadow-lg transition">
           <DollarSign className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Ranking</h3>
           <p className="text-sm text-gray-600">Ver classificacao</p>

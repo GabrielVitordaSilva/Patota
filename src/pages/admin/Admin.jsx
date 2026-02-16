@@ -30,7 +30,7 @@ export default function Admin() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-xs md:text-sm font-semibold transition ${
+                className={`min-h-12 flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-xs md:text-sm font-semibold transition ${
                   activeTab === tab.id
                     ? 'bg-emerald-600 text-white'
                     : 'text-gray-600 hover:bg-gray-100'

@@ -279,7 +279,7 @@ export default function AdminEvents() {
 
   if (showEventForm) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="ui-card p-6">
         <h2 className="text-xl font-bold mb-4">{editingEventId ? 'Editar Evento' : 'Criar Novo Evento'}</h2>
         <form onSubmit={handleSaveEvent} className="space-y-4">
           <div>
@@ -339,7 +339,7 @@ export default function AdminEvents() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50"
+              className="flex-1 ui-btn-primary"
             >
               {saving ? 'Salvando...' : editingEventId ? 'Salvar Alteracoes' : 'Criar Evento'}
             </button>
@@ -349,7 +349,7 @@ export default function AdminEvents() {
                 setShowEventForm(false)
                 setEditingEventId(null)
               }}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold"
+              className="flex-1 ui-btn-secondary"
             >
               Cancelar
             </button>
@@ -361,7 +361,7 @@ export default function AdminEvents() {
 
   if (showScoreForm) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="ui-card p-6">
         <h2 className="text-xl font-bold mb-4">Lancar Placar</h2>
         <form onSubmit={handleSaveScore} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -418,7 +418,7 @@ export default function AdminEvents() {
             <button
               type="submit"
               disabled={scoreSaving}
-              className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50"
+              className="flex-1 ui-btn-primary"
             >
               {scoreSaving ? 'Salvando...' : 'Salvar Placar'}
             </button>
@@ -428,7 +428,7 @@ export default function AdminEvents() {
                 setShowScoreForm(false)
                 setScoreEventId(null)
               }}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold"
+              className="flex-1 ui-btn-secondary"
             >
               Cancelar
             </button>
@@ -440,7 +440,7 @@ export default function AdminEvents() {
 
   if (selectedEvent) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="ui-card p-6">
         <button onClick={() => setSelectedEvent(null)} className="mb-4 text-emerald-600 font-semibold">
           Voltar
         </button>
@@ -504,7 +504,7 @@ export default function AdminEvents() {
     const resultBadge = getResultBadge(event)
 
     return (
-      <div key={event.id} className="bg-white rounded-xl shadow-md p-6">
+      <div key={event.id} className="ui-card p-6">
         <h3 className="font-bold text-lg mb-1">{new Date(event.data_hora).toLocaleDateString()}</h3>
         <p className="text-gray-600 mb-1">
           {new Date(event.data_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -546,10 +546,10 @@ export default function AdminEvents() {
           </span>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 md:gap-3">
           <button
             onClick={() => setSelectedEvent(event)}
-            className="bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm"
+            className="ui-btn-primary text-xs md:text-sm"
           >
             <Users size={16} className="inline mr-1" />
             Presenca
@@ -559,7 +559,7 @@ export default function AdminEvents() {
             (event.times_gerados ? (
               <button
                 onClick={() => handleResetTeams(event.id)}
-                className="bg-orange-600 text-white py-2 rounded-lg font-semibold text-sm"
+                className="ui-btn-warning text-xs md:text-sm"
               >
                 <RotateCcw size={16} className="inline mr-1" />
                 Resetar
@@ -567,7 +567,7 @@ export default function AdminEvents() {
             ) : (
               <button
                 onClick={() => handleGenerateTeams(event.id)}
-                className="bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm"
+                className="ui-btn-info text-xs md:text-sm"
               >
                 <Shuffle size={16} className="inline mr-1" />
                 Sortear
@@ -576,7 +576,7 @@ export default function AdminEvents() {
 
           <button
             onClick={() => openEditForm(event)}
-            className="bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm"
+            className="ui-btn-info text-xs md:text-sm"
           >
             <Pencil size={16} className="inline mr-1" />
             Editar
@@ -584,7 +584,7 @@ export default function AdminEvents() {
 
           <button
             onClick={() => handleDeleteEvent(event.id)}
-            className="bg-red-600 text-white py-2 rounded-lg font-semibold text-sm"
+            className="ui-btn-danger text-xs md:text-sm"
           >
             <Trash2 size={16} className="inline mr-1" />
             Excluir
@@ -594,7 +594,7 @@ export default function AdminEvents() {
         {event.tipo === 'JOGO' && event.times_gerados && (
           <button
             onClick={() => setScoringEvent(event)}
-            className="w-full mt-2 bg-purple-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
+            className="w-full mt-2 ui-btn text-xs md:text-sm bg-purple-600 text-white hover:bg-purple-700"
           >
             <Trophy size={16} />
             {event.placar_finalizado ? 'Editar Placar' : 'Placar'}
@@ -608,7 +608,7 @@ export default function AdminEvents() {
     <div className="space-y-6">
       <button
         onClick={openCreateForm}
-        className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2"
+        className="w-full ui-btn-primary rounded-xl font-bold"
       >
         <Plus size={24} />
         Criar Novo Evento

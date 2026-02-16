@@ -58,7 +58,7 @@ export default function AdminEditDue({ due, onClose, onSuccess }) {
               min="0"
               value={valor}
               onChange={(e) => setValor(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="ui-input"
               required
             />
             <p className="text-xs text-gray-500 mt-1">Valor original: R$ 35,00</p>
@@ -69,7 +69,7 @@ export default function AdminEditDue({ due, onClose, onSuccess }) {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="ui-input"
             >
               <option value="PENDENTE">Pendente</option>
               <option value="PAGO">Pago</option>
@@ -81,14 +81,14 @@ export default function AdminEditDue({ due, onClose, onSuccess }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+              className="flex-1 ui-btn-secondary"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+              className="flex-1 ui-btn-primary"
             >
               {loading ? 'Salvando...' : 'Salvar'}
             </button>

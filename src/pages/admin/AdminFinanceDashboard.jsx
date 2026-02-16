@@ -133,7 +133,7 @@ export default function AdminFinanceDashboard() {
       </div>
 
       {debtors.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-4">
+        <div className="ui-card p-4">
           <h3 className="font-bold text-base mb-3 text-red-600">Membros em Atraso</h3>
           <div className="space-y-2">
             {debtors.map((debt) => (
@@ -154,7 +154,7 @@ export default function AdminFinanceDashboard() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-md p-4">
+      <div className="ui-card p-4">
         <h3 className="font-bold text-base mb-3">Mensalidades do Mes</h3>
         <div className="space-y-3">
           <div>
@@ -183,21 +183,21 @@ export default function AdminFinanceDashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-4">
+      <div className="ui-card p-4">
         <h3 className="font-bold text-base mb-3">Configuracao da Chave PIX</h3>
         <form onSubmit={handleSavePixKey} className="space-y-3">
           <input
             type="text"
             value={pixKey}
             onChange={(e) => setPixKey(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="ui-input"
             placeholder="Digite a chave PIX"
             required
           />
           <button
             type="submit"
             disabled={savingPix}
-            className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+            className="w-full ui-btn-primary"
           >
             {savingPix ? 'Salvando...' : 'Salvar Chave PIX'}
           </button>

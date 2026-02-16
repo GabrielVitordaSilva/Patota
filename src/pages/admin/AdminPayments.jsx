@@ -86,7 +86,7 @@ export default function AdminPayments() {
       </div>
 
       {payments.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-md p-8 text-center">
+        <div className="ui-card p-8 text-center">
           <CheckCircle className="mx-auto text-emerald-600 mb-3" size={48} />
           <p className="text-gray-600">Nenhum pagamento pendente</p>
         </div>
@@ -95,7 +95,7 @@ export default function AdminPayments() {
           const paymentInfo = getPaymentType(payment)
 
           return (
-            <div key={payment.id} className="bg-white rounded-xl shadow-md p-4">
+            <div key={payment.id} className="ui-card p-4">
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-bold text-base text-gray-800">{payment.members?.nome}</p>
@@ -129,14 +129,14 @@ export default function AdminPayments() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleConfirmPayment(payment)}
-                  className="flex-1 bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center justify-center gap-2"
+                  className="flex-1 ui-btn-primary"
                 >
                   <CheckCircle size={18} />
                   Confirmar
                 </button>
                 <button
                   onClick={() => handleRejectPayment(payment.id)}
-                  className="flex-1 bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2"
+                  className="flex-1 ui-btn-danger"
                 >
                   <X size={18} />
                   Rejeitar
