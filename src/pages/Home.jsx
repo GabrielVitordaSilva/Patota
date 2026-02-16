@@ -7,22 +7,34 @@ import { financeService } from '../services/finance'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
+const REQUEST_TIMEOUT_MS = 12000
+const withTimeout = (promise, ms, timeoutMessage) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(timeoutMessage)), ms)
+    })
+  ])
+
 export default function Home() {
   const { member } = useAuth()
   const [nextEvent, setNextEvent] = useState(null)
   const [pendencies, setPendencies] = useState(null)
   const [userRsvp, setUserRsvp] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     if (!member?.id) {
       setNextEvent(null)
       setPendencies(null)
       setUserRsvp(null)
+      setLoadError('')
       setLoading(false)
       return
     }
 
+    setLoadError('')
     setLoading(true)
     loadData(member)
   }, [member?.id])
@@ -34,23 +46,33 @@ export default function Home() {
     }
 
     try {
-      // Carregar próximo evento
-      const { data: event } = await eventService.getNextEvent()
+      const { data: event } = await withTimeout(
+        eventService.getNextEvent(),
+        REQUEST_TIMEOUT_MS,
+        'Timeout ao carregar proximo evento'
+      )
       setNextEvent(event)
 
-      // Carregar RSVP do usuário
       if (event) {
-        const { data: rsvp } = await eventService.getUserRSVP(event.id, currentMember.id)
+        const { data: rsvp } = await withTimeout(
+          eventService.getUserRSVP(event.id, currentMember.id),
+          REQUEST_TIMEOUT_MS,
+          'Timeout ao carregar RSVP'
+        )
         setUserRsvp(rsvp?.status || null)
       } else {
         setUserRsvp(null)
       }
 
-      // Carregar pendências
-      const pendenciesData = await financeService.getUserPendencies(currentMember.id)
+      const pendenciesData = await withTimeout(
+        financeService.getUserPendencies(currentMember.id),
+        REQUEST_TIMEOUT_MS,
+        'Timeout ao carregar pendencias'
+      )
       setPendencies(pendenciesData)
     } catch (error) {
       console.error('Error loading data:', error)
+      setLoadError('Nao foi possivel atualizar os dados agora. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -68,7 +90,7 @@ export default function Home() {
   }
 
   const copyPix = () => {
-    const pixKey = 'seupix@exemplo.com' // Configurar no sistema
+    const pixKey = 'seupix@exemplo.com'
     navigator.clipboard.writeText(pixKey)
     alert('Chave PIX copiada!')
   }
@@ -81,14 +103,32 @@ export default function Home() {
     )
   }
 
+  if (loadError) {
+    return (
+      <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
+        <p className="text-sm text-red-600">{loadError}</p>
+        <button
+          onClick={() => {
+            if (!member?.id) return
+            setLoadError('')
+            setLoading(true)
+            loadData(member)
+          }}
+          className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      {/* Próximo Jogo */}
       {nextEvent && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center gap-3 mb-4">
             <Calendar className="text-emerald-600" size={28} />
-            <h2 className="text-xl font-bold text-gray-800">Próximo Jogo</h2>
+            <h2 className="text-xl font-bold text-gray-800">Proximo Jogo</h2>
           </div>
 
           <div className="space-y-3">
@@ -107,8 +147,8 @@ export default function Home() {
             </div>
 
             <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-3">Você vai?</p>
-              <div className="flex gap-3">
+              <p className="text-sm text-gray-600 mb-3">Voce vai?</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
                   onClick={() => handleConfirmPresence('VOU')}
                   className={`flex-1 py-3 rounded-lg font-semibold transition ${
@@ -127,7 +167,7 @@ export default function Home() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  Não vou
+                  Nao vou
                 </button>
                 <button
                   onClick={() => handleConfirmPresence('TALVEZ')}
@@ -145,12 +185,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* Pendências */}
       {pendencies && pendencies.total > 0 && (
         <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle className="text-orange-600" size={28} />
-            <h2 className="text-xl font-bold text-gray-800">Você tem pendências</h2>
+            <h2 className="text-xl font-bold text-gray-800">Voce tem pendencias</h2>
           </div>
 
           <div className="space-y-3">
@@ -197,20 +236,18 @@ export default function Home() {
         </div>
       )}
 
-      {/* Sem pendências */}
       {pendencies && pendencies.total === 0 && (
         <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
           <div className="flex items-center gap-3">
             <CheckCircle className="text-emerald-600" size={28} />
             <div>
               <h3 className="text-xl font-bold text-gray-800">Tudo em dia!</h3>
-              <p className="text-gray-600">Você não tem pendências financeiras.</p>
+              <p className="text-gray-600">Voce nao tem pendencias financeiras.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Links rápidos */}
       <div className="grid grid-cols-2 gap-4">
         <Link to="/events" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <Calendar className="text-emerald-600 mb-3" size={32} />
@@ -221,7 +258,7 @@ export default function Home() {
         <Link to="/ranking" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
           <DollarSign className="text-emerald-600 mb-3" size={32} />
           <h3 className="font-bold text-gray-800">Ranking</h3>
-          <p className="text-sm text-gray-600">Ver classificação</p>
+          <p className="text-sm text-gray-600">Ver classificacao</p>
         </Link>
       </div>
     </div>

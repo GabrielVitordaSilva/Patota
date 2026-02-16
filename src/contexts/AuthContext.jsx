@@ -2,6 +2,15 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { authService } from '../services/auth'
 
 const AuthContext = createContext({})
+const AUTH_TIMEOUT_MS = 10000
+
+const withTimeout = (promise, ms, timeoutMessage) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(timeoutMessage)), ms)
+    })
+  ])
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -21,15 +30,19 @@ export const AuthProvider = ({ children }) => {
     checkUser()
 
     const { data: listener } = authService.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        setUser(session.user)
-        await loadMemberData(session.user)
-      } else {
-        setUser(null)
-        setMember(null)
-        setIsAdmin(false)
+      setLoading(true)
+      try {
+        if (session?.user) {
+          setUser(session.user)
+          await loadMemberData(session.user)
+        } else {
+          setUser(null)
+          setMember(null)
+          setIsAdmin(false)
+        }
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => {
@@ -39,7 +52,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkUser = async () => {
     try {
-      const currentUser = await authService.getCurrentUser()
+      const currentUser = await withTimeout(
+        authService.getCurrentUser(),
+        AUTH_TIMEOUT_MS,
+        'Timeout while checking user session'
+      )
+
       if (currentUser) {
         setUser(currentUser)
         await loadMemberData(currentUser)
@@ -66,14 +84,23 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const { data: memberData, error: memberError } = await authService.getMemberData(authUser.id)
+      const { data: memberData, error: memberError } = await withTimeout(
+        authService.getMemberData(authUser.id),
+        AUTH_TIMEOUT_MS,
+        'Timeout while loading member data'
+      )
+
       if (memberError) {
         console.error('Error loading member data:', memberError)
       }
 
       setMember(memberData || fallbackMember)
 
-      const adminStatus = await authService.isAdmin(authUser.id)
+      const adminStatus = await withTimeout(
+        authService.isAdmin(authUser.id),
+        AUTH_TIMEOUT_MS,
+        'Timeout while checking admin role'
+      )
       setIsAdmin(adminStatus)
     } catch (error) {
       console.error('Error loading member data:', error)

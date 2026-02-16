@@ -30,7 +30,7 @@ export default function Layout() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Patota CCC</h1>
-              <p className="text-sm text-emerald-100">Olá, {member?.nome}</p>
+              <p className="text-sm text-emerald-100">OlÃ¡, {member?.nome}</p>
             </div>
             <button
               onClick={handleSignOut}
@@ -50,8 +50,11 @@ export default function Layout() {
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-        <div className="max-w-7xl mx-auto px-2">
-          <div className="flex items-center justify-around">
+        <div className="max-w-7xl mx-auto px-1">
+          <div
+            className="grid items-center"
+            style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
+          >
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = location.pathname === item.path
@@ -60,12 +63,12 @@ export default function Layout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex flex-col items-center gap-1 py-3 px-4 transition ${
+                  className={`flex flex-col items-center gap-1 py-2 px-1 transition ${
                     isActive ? 'text-emerald-600' : 'text-gray-600 hover:text-emerald-600'
                   }`}
                 >
-                  <Icon size={24} />
-                  <span className="text-xs font-medium">{item.label}</span>
+                  <Icon size={20} />
+                  <span className="text-[11px] font-medium leading-none">{item.label}</span>
                 </Link>
               )
             })}
