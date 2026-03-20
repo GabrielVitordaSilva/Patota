@@ -1,8 +1,9 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { authService } from '../services/auth'
 
 const AuthContext = createContext({})
 const AUTH_TIMEOUT_MS = 10000
+const AUTH_CACHE_KEY = 'patota_auth_cache_v1'
 
 const withTimeout = (promise, ms, timeoutMessage) =>
   Promise.race([
@@ -11,6 +12,38 @@ const withTimeout = (promise, ms, timeoutMessage) =>
       setTimeout(() => reject(new Error(timeoutMessage)), ms)
     })
   ])
+
+const readAuthCache = () => {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const rawCache = window.localStorage.getItem(AUTH_CACHE_KEY)
+    return rawCache ? JSON.parse(rawCache) : null
+  } catch (error) {
+    console.error('Error reading auth cache:', error)
+    return null
+  }
+}
+
+const writeAuthCache = (payload) => {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(payload))
+  } catch (error) {
+    console.error('Error writing auth cache:', error)
+  }
+}
+
+const clearAuthCache = () => {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.removeItem(AUTH_CACHE_KEY)
+  } catch (error) {
+    console.error('Error clearing auth cache:', error)
+  }
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -30,21 +63,32 @@ export const AuthProvider = ({ children }) => {
     checkUser()
 
     const { data: listener } = authService.onAuthStateChange(async (event, session) => {
-      if (event === 'TOKEN_REFRESHED') return
-
-      setLoading(true)
-      try {
+      if (event === 'TOKEN_REFRESHED') {
         if (session?.user) {
-          setUser(session.user)
-          await loadMemberData(session.user)
-        } else {
-          setUser(null)
-          setMember(null)
-          setIsAdmin(false)
+          setUser((currentUser) => currentUser || session.user)
         }
-      } finally {
-        setLoading(false)
+        return
       }
+
+      if (session?.user) {
+        setUser(session.user)
+        hydrateFromCache(session.user.id)
+        setLoading(true)
+
+        try {
+          await loadMemberData(session.user)
+        } finally {
+          setLoading(false)
+        }
+
+        return
+      }
+
+      setUser(null)
+      setMember(null)
+      setIsAdmin(false)
+      clearAuthCache()
+      setLoading(false)
     })
 
     return () => {
@@ -62,6 +106,32 @@ export const AuthProvider = ({ children }) => {
     return () => clearTimeout(failsafe)
   }, [loading])
 
+  const hydrateFromCache = (userId) => {
+    const cache = readAuthCache()
+    if (!cache || cache.userId !== userId) return null
+
+    if (cache.member) {
+      setMember(cache.member)
+    }
+
+    if (typeof cache.isAdmin === 'boolean') {
+      setIsAdmin(cache.isAdmin)
+    }
+
+    return cache
+  }
+
+  const persistAuthCache = (authUser, nextMember, nextIsAdmin) => {
+    if (!authUser?.id) return
+
+    writeAuthCache({
+      userId: authUser.id,
+      member: nextMember,
+      isAdmin: nextIsAdmin,
+      updatedAt: new Date().toISOString()
+    })
+  }
+
   const checkUser = async () => {
     try {
       const currentUser = await withTimeout(
@@ -72,6 +142,7 @@ export const AuthProvider = ({ children }) => {
 
       if (currentUser) {
         setUser(currentUser)
+        hydrateFromCache(currentUser.id)
         await loadMemberData(currentUser)
       }
     } catch (error) {
@@ -85,9 +156,11 @@ export const AuthProvider = ({ children }) => {
     if (!authUser?.id) {
       setMember(null)
       setIsAdmin(false)
+      clearAuthCache()
       return
     }
 
+    const cachedAuth = hydrateFromCache(authUser.id)
     const fallbackMember = {
       id: authUser.id,
       nome: authUser.user_metadata?.name || authUser.email || 'Usuario',
@@ -96,28 +169,36 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const { data: memberData, error: memberError } = await withTimeout(
-        authService.getMemberData(authUser.id),
-        AUTH_TIMEOUT_MS,
-        'Timeout while loading member data'
-      )
+      const [{ data: memberData, error: memberError }, adminStatus] = await Promise.all([
+        withTimeout(
+          authService.getMemberData(authUser.id),
+          AUTH_TIMEOUT_MS,
+          'Timeout while loading member data'
+        ),
+        withTimeout(
+          authService.isAdmin(authUser.id),
+          AUTH_TIMEOUT_MS,
+          'Timeout while checking admin role'
+        )
+      ])
 
       if (memberError) {
         console.error('Error loading member data:', memberError)
       }
 
-      setMember(memberData || fallbackMember)
+      const resolvedMember = memberData || cachedAuth?.member || fallbackMember
 
-      const adminStatus = await withTimeout(
-        authService.isAdmin(authUser.id),
-        AUTH_TIMEOUT_MS,
-        'Timeout while checking admin role'
-      )
+      setMember(resolvedMember)
       setIsAdmin(adminStatus)
+      persistAuthCache(authUser, resolvedMember, adminStatus)
     } catch (error) {
       console.error('Error loading member data:', error)
-      setMember(fallbackMember)
-      setIsAdmin(false)
+      const resolvedMember = cachedAuth?.member || fallbackMember
+      const resolvedAdmin = typeof cachedAuth?.isAdmin === 'boolean' ? cachedAuth.isAdmin : false
+
+      setMember(resolvedMember)
+      setIsAdmin(resolvedAdmin)
+      persistAuthCache(authUser, resolvedMember, resolvedAdmin)
     }
   }
 
@@ -125,6 +206,7 @@ export const AuthProvider = ({ children }) => {
     const { data, error } = await authService.signIn(email, password)
     if (!error && data.user) {
       setUser(data.user)
+      hydrateFromCache(data.user.id)
       await loadMemberData(data.user)
     }
     return { data, error }
@@ -141,19 +223,23 @@ export const AuthProvider = ({ children }) => {
       setUser(null)
       setMember(null)
       setIsAdmin(false)
+      clearAuthCache()
     }
     return { error }
   }
 
-  const value = {
-    user,
-    member,
-    isAdmin,
-    loading,
-    signIn,
-    signUp,
-    signOut
-  }
+  const value = useMemo(
+    () => ({
+      user,
+      member,
+      isAdmin,
+      loading,
+      signIn,
+      signUp,
+      signOut
+    }),
+    [user, member, isAdmin, loading]
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
