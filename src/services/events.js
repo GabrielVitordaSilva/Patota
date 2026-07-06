@@ -79,7 +79,7 @@ export const eventService = {
       .gte('data_hora', new Date().toISOString())
       .order('data_hora', { ascending: true })
       .limit(1)
-      .single()
+      .maybeSingle()
     
     return { data, error }
   },
@@ -107,7 +107,7 @@ export const eventService = {
       .select('status')
       .eq('event_id', eventId)
       .eq('member_id', memberId)
-      .single()
+      .maybeSingle()
     
     return { data, error }
   },

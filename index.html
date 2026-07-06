@@ -7,6 +7,10 @@
     <meta name="theme-color" content="#10b981" />
     <meta name="description" content="Sistema de gestão da Patota CCC" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Abre a conexao (DNS + TLS) com o Supabase antes da primeira query.
+         O %VITE_SUPABASE_URL% e substituido pela URL real no build. -->
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
+    <link rel="dns-prefetch" href="%VITE_SUPABASE_URL%" />
     <title>Patota CCC</title>
   </head>
   <body>

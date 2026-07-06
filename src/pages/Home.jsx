@@ -23,20 +23,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadPixKey()
-  }, [])
-
-  useEffect(() => {
     loadData()
   }, [member?.id])
 
-  const loadPixKey = async () => {
-    try {
-      const key = await configService.getPixKey()
-      if (key) setPixKey(key)
-    } catch (error) {
-      console.error('Error loading PIX key:', error)
-    }
+  // Deriva "confirmacoes abertas" direto dos campos do proprio evento,
+  // sem query extra. Mesma regra do teamsService.isConfirmationOpen.
+  const deriveConfirmationOpen = (event) => {
+    if (!event) return false
+    if (event.times_gerados) return false
+    if (!event.data_limite_confirmacao) return true
+    return new Date() < new Date(event.data_limite_confirmacao)
   }
 
   const loadData = async () => {
@@ -52,31 +48,35 @@ export default function Home() {
     }
 
     try {
-      const { data: event } = await eventService.getNextEvent()
-      setNextEvent(event)
+      // Antes eram 6 requisicoes em SEQUENCIA (evento -> confirmacao aberta
+      // -> meu RSVP -> times -> pendencias, + pix). Como o getNextEvent usa
+      // select('*') e ja traz data_limite_confirmacao, times_gerados,
+      // times_json e TODOS os RSVPs, tres dessas queries eram redundantes.
+      // Agora sao 3 requisicoes em PARALELO e o resto e derivado localmente.
+      const [{ data: event }, pendenciesData, pixResult] = await Promise.all([
+        eventService.getNextEvent(),
+        financeService.getUserPendencies(member.id),
+        configService.getPixKey().catch(() => null)
+      ])
+
+      setNextEvent(event || null)
+      setPendencies(pendenciesData)
+      if (pixResult) setPixKey(pixResult)
 
       if (event) {
-        const isOpen = await teamsService.isConfirmationOpen(event.id)
-        setConfirmationOpen(isOpen)
         setDataLimite(event.data_limite_confirmacao || null)
+        setConfirmationOpen(deriveConfirmationOpen(event))
 
-        const { data: rsvp } = await eventService.getUserRSVP(event.id, member.id)
-        setUserRsvp(rsvp?.status || null)
+        const myRsvp = event.event_rsvp?.find((r) => r.member_id === member.id)
+        setUserRsvp(myRsvp?.status || null)
 
-        const teamsData = await teamsService.getTeams(event.id)
-        if (teamsData?.times_gerados && teamsData.times_json) {
-          setTeams(teamsData.times_json)
-        } else {
-          setTeams(null)
-        }
+        setTeams(event.times_gerados && event.times_json ? event.times_json : null)
       } else {
         setConfirmationOpen(false)
         setDataLimite(null)
         setTeams(null)
+        setUserRsvp(null)
       }
-
-      const pendenciesData = await financeService.getUserPendencies(member.id)
-      setPendencies(pendenciesData)
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {

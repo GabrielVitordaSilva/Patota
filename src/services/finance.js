@@ -45,22 +45,25 @@ export const financeService = {
 
   // Obter pendencias do usuario
   async getUserPendencies(memberId) {
-    const { data: dues } = await supabase
-      .from('dues')
-      .select('*')
-      .eq('member_id', memberId)
-      .eq('status', 'PENDENTE')
-
-    const { data: fines } = await supabase
-      .from('fines')
-      .select(
+    // As duas consultas nao dependem uma da outra: rodar em paralelo
+    // corta o tempo total pela metade.
+    const [{ data: dues }, { data: fines }] = await Promise.all([
+      supabase
+        .from('dues')
+        .select('*')
+        .eq('member_id', memberId)
+        .eq('status', 'PENDENTE'),
+      supabase
+        .from('fines')
+        .select(
+          `
+          *,
+          events (tipo, data_hora)
         `
-        *,
-        events (tipo, data_hora)
-      `
-      )
-      .eq('member_id', memberId)
-      .is('pago', false)
+        )
+        .eq('member_id', memberId)
+        .is('pago', false)
+    ])
 
     const totalDues = dues?.reduce((sum, due) => sum + due.valor, 0) || 0
     const totalFines = fines?.reduce((sum, fine) => sum + fine.valor, 0) || 0
