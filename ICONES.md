@@ -49,3 +49,4 @@ Os ícones são importantes para:
 - Aparecer bonito na tela inicial do celular
 - Identificação fácil do app
 - Experiência profissional
+T
