@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Users, Edit } from 'lucide-react'
+import { Users, Edit, Trash2, X } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../services/supabaseClient'
 import { adminService } from '../../services/admin'
@@ -12,6 +12,9 @@ export default function AdminMembers() {
   const [members, setMembers] = useState([])
   const [memberDues, setMemberDues] = useState({})
   const [editingDue, setEditingDue] = useState(null)
+  const [editingMember, setEditingMember] = useState(null)
+  const [editForm, setEditForm] = useState({ nome: '', posicao: 'LINHA' })
+  const [savingMember, setSavingMember] = useState(false)
 
   useEffect(() => {
     loadMembers()
@@ -52,6 +55,53 @@ export default function AdminMembers() {
   const handleToggleStatus = async (memberId, currentStatus) => {
     await adminService.toggleMemberStatus(memberId, !currentStatus)
     alert('Status atualizado!')
+    loadMembers()
+  }
+
+  const openEditMember = (member) => {
+    setEditingMember(member)
+    setEditForm({ nome: member.nome || '', posicao: member.posicao || 'LINHA' })
+  }
+
+  const handleSaveMember = async (e) => {
+    e.preventDefault()
+    setSavingMember(true)
+
+    try {
+      const { error } = await adminService.updateMember(editingMember.id, {
+        nome: editForm.nome.trim(),
+        posicao: editForm.posicao
+      })
+
+      if (error) throw error
+
+      alert('Membro atualizado!')
+      setEditingMember(null)
+      loadMembers()
+    } catch (error) {
+      alert(`Erro ao atualizar membro: ${error?.message || 'erro desconhecido'}`)
+    } finally {
+      setSavingMember(false)
+    }
+  }
+
+  const handleDeleteMember = async (member) => {
+    if (
+      !confirm(
+        `Excluir ${member.nome}?\n\nIsso apaga TODO o historico do membro: pontos, presencas, mensalidades, multas e pagamentos.\n\nEssa acao nao pode ser desfeita. Se quiser apenas afastar o membro, use "Desativar".`
+      )
+    ) {
+      return
+    }
+
+    const { error } = await adminService.deleteMember(member.id)
+
+    if (error) {
+      alert(`Erro ao excluir membro: ${error.message}`)
+      return
+    }
+
+    alert('Membro excluido!')
     loadMembers()
   }
 
@@ -138,6 +188,13 @@ export default function AdminMembers() {
 
               <div className="grid grid-cols-3 gap-2">
                 <button
+                  onClick={() => openEditMember(member)}
+                  className="ui-btn-primary text-xs md:text-sm"
+                >
+                  <Edit size={14} />
+                  Editar
+                </button>
+                <button
                   onClick={() => handleToggleStatus(member.id, member.ativo)}
                   className="ui-btn-ghost text-xs md:text-sm"
                 >
@@ -154,8 +211,16 @@ export default function AdminMembers() {
                     onClick={() => setEditingDue(memberDues[member.id])}
                     className="ui-btn-warning text-xs md:text-sm"
                   >
-                    <Edit size={14} />
-                    Editar
+                    Mensalidade
+                  </button>
+                )}
+                {member.id !== currentMember?.id && (
+                  <button
+                    onClick={() => handleDeleteMember(member)}
+                    className="ui-btn-danger text-xs md:text-sm"
+                  >
+                    <Trash2 size={14} />
+                    Excluir
                   </button>
                 )}
               </div>
@@ -173,6 +238,61 @@ export default function AdminMembers() {
             loadMemberDues(editingDue.member_id)
           }}
         />
+      )}
+
+      {editingMember && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-800">Editar Membro</h3>
+              <button onClick={() => setEditingMember(null)} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMember} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Nome</label>
+                <input
+                  type="text"
+                  value={editForm.nome}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, nome: e.target.value }))}
+                  className="ui-input"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Posicao</label>
+                <select
+                  value={editForm.posicao}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, posicao: e.target.value }))}
+                  className="ui-input"
+                >
+                  <option value="LINHA">Jogador de Linha</option>
+                  <option value="GOLEIRO">Goleiro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Email (login)</label>
+                <input type="email" value={editingMember.email} className="ui-input bg-gray-100" disabled />
+                <p className="text-xs text-gray-500 mt-1">
+                  O email de login e gerenciado pelo Supabase Auth e nao pode ser alterado por aqui.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button type="submit" disabled={savingMember} className="flex-1 ui-btn-primary">
+                  {savingMember ? 'Salvando...' : 'Salvar'}
+                </button>
+                <button type="button" onClick={() => setEditingMember(null)} className="flex-1 ui-btn-secondary">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   )
