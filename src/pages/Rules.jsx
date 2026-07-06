@@ -103,10 +103,10 @@ export default function Rules() {
         <div className="space-y-3">
           <div className="flex justify-between items-center py-3">
             <div>
-              <p className="font-semibold text-gray-800">Presenca em Jogo</p>
-              <p className="text-sm text-gray-600">Por cada jogo que voce participa</p>
+              <p className="font-semibold text-gray-800">Gols do seu time</p>
+              <p className="text-sm text-gray-600">Presente no jogo, voce ganha os gols que o seu time marcou</p>
             </div>
-            <span className="font-bold text-emerald-600">+1 ponto</span>
+            <span className="font-bold text-emerald-600">+1 ponto por gol</span>
           </div>
         </div>
 

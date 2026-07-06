@@ -17,7 +17,7 @@ export default function AdminScore({ event, onClose, onSuccess }) {
 
     if (
       !confirm(
-        `Confirmar placar?\n\nTime Preto: ${preto}\nTime Branco: ${branco}\n\nIsso distribuira pontos para todos os jogadores!`
+        `Confirmar placar?\n\nTime Preto: ${preto}\nTime Branco: ${branco}\n\nIsso distribuira pontos para os jogadores presentes!`
       )
     ) {
       return
@@ -37,7 +37,7 @@ export default function AdminScore({ event, onClose, onSuccess }) {
       } else {
         const vencedor = result.data.vencedor
         const msg = vencedor === 'EMPATE' ? 'Empate!' : `Time ${vencedor} venceu!`
-        alert(`Placar registrado!\n\n${msg}\n\nPontos distribuidos para todos os jogadores.`)
+        alert(`Placar registrado!\n\n${msg}\n\nPontos distribuidos para os jogadores presentes.`)
         onSuccess()
         onClose()
       }
@@ -130,7 +130,7 @@ export default function AdminScore({ event, onClose, onSuccess }) {
             </div>
 
             <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-3">
-              <p className="text-xs font-semibold text-emerald-800 mb-2">Distribuicao de Pontos:</p>
+              <p className="text-xs font-semibold text-emerald-800 mb-2">Distribuicao de Pontos (jogadores presentes):</p>
               <div className="space-y-1 text-xs text-emerald-700">
                 <p>
                   Time Preto: <strong>+{placarPreto || 0} pontos cada</strong>

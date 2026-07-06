@@ -240,6 +240,7 @@ export default function Home() {
                         <div key={jogador.member_id} className="text-xs py-1 px-2 bg-gray-800 rounded flex items-center gap-2">
                           <span className="font-semibold">{i + 1}.</span>
                           <span className="truncate">{jogador.nome}</span>
+                          {jogador.posicao === 'GOLEIRO' && <span title="Goleiro">🧤</span>}
                         </div>
                       ))}
                     </div>
@@ -252,6 +253,7 @@ export default function Home() {
                         <div key={jogador.member_id} className="text-xs py-1 px-2 bg-gray-100 rounded flex items-center gap-2">
                           <span className="font-semibold">{i + 1}.</span>
                           <span className="truncate">{jogador.nome}</span>
+                          {jogador.posicao === 'GOLEIRO' && <span title="Goleiro">🧤</span>}
                         </div>
                       ))}
                     </div>

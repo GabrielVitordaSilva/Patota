@@ -104,8 +104,8 @@ export default function Ranking() {
       {/* Info */}
       <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
         <p className="text-sm text-blue-800">
-          <strong>Como funciona:</strong> Você ganha +1 ponto por presença em cada jogo. 
-          Continue participando para subir no ranking!
+          <strong>Como funciona:</strong> Estando presente no jogo, você ganha os gols que o seu time marcou.
+          Ex: se o seu time venceu por 8 a 6, você ganha 8 pontos e cada jogador do outro time ganha 6.
         </p>
       </div>
     </div>

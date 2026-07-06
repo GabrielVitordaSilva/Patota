@@ -12,12 +12,12 @@ export const authService = {
   },
 
   // Registro de novo usuário
-  async signUp(email, password, name) {
+  async signUp(email, password, name, posicao = 'LINHA') {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { name }
+        data: { name, posicao }
       }
     })
 

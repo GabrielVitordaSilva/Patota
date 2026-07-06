@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient'
 
 export const rankingService = {
-  // Obter ranking geral
+  // Obter ranking geral (pontos = gols do time nos jogos em que esteve presente)
   async getGeneralRanking() {
     const { data, error } = await supabase
       .from('points_ledger')
@@ -13,6 +13,7 @@ export const rankingService = {
         members (nome)
       `
       )
+      .neq('motivo', 'PRESENCA_JOGO')
 
     if (error) return { data: [], error }
 
@@ -49,6 +50,7 @@ export const rankingService = {
         members (nome)
       `
       )
+      .neq('motivo', 'PRESENCA_JOGO')
       .gte('criado_em', startDate.toISOString())
       .lte('criado_em', endDate.toISOString())
 
@@ -92,6 +94,7 @@ export const rankingService = {
       `
       )
       .eq('member_id', memberId)
+      .neq('motivo', 'PRESENCA_JOGO')
       .order('criado_em', { ascending: false })
 
     const totalPoints = points?.reduce((sum, p) => sum + p.pontos, 0) || 0

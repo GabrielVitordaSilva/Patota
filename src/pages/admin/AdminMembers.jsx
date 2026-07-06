@@ -110,7 +110,16 @@ export default function AdminMembers() {
             <div key={member.id} className="border border-gray-200 rounded-lg p-3 md:p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm md:text-base text-gray-800 truncate">{member.nome}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-sm md:text-base text-gray-800 truncate">{member.nome}</p>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-semibold whitespace-nowrap ${
+                        member.posicao === 'GOLEIRO' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                      }`}
+                    >
+                      {member.posicao === 'GOLEIRO' ? 'Goleiro' : 'Linha'}
+                    </span>
+                  </div>
                   <p className="text-xs md:text-sm text-gray-600 truncate">{member.email}</p>
                   {memberDues[member.id] && (
                     <p className="text-xs text-gray-500 mt-1">

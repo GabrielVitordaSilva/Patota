@@ -5,6 +5,7 @@ export default function AdminAddMember({ onSuccess }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [posicao, setPosicao] = useState('LINHA')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -16,7 +17,7 @@ export default function AdminAddMember({ onSuccess }) {
       const normalizedEmail = email.trim().toLowerCase()
       const normalizedPassword = password.trim()
 
-      const { error } = await authService.signUp(normalizedEmail, normalizedPassword, normalizedName)
+      const { error } = await authService.signUp(normalizedEmail, normalizedPassword, normalizedName, posicao)
 
       if (error) {
         alert('Erro ao adicionar membro: ' + error.message)
@@ -25,6 +26,7 @@ export default function AdminAddMember({ onSuccess }) {
         setName('')
         setEmail('')
         setPassword('')
+        setPosicao('LINHA')
         if (onSuccess) onSuccess()
       }
     } catch (error) {
@@ -62,6 +64,19 @@ export default function AdminAddMember({ onSuccess }) {
             placeholder="email@exemplo.com"
             required
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Posicao</label>
+          <select
+            value={posicao}
+            onChange={(e) => setPosicao(e.target.value)}
+            className="ui-input"
+            required
+          >
+            <option value="LINHA">Jogador de Linha</option>
+            <option value="GOLEIRO">Goleiro</option>
+          </select>
         </div>
 
         <div>
