@@ -27,7 +27,7 @@ export const teamsService = {
         .select(
           `
           member_id,
-          members (nome)
+          members (nome, posicao)
         `
         )
         .eq('event_id', eventId)
@@ -40,19 +40,31 @@ export const teamsService = {
       }
 
       const shuffled = [...confirmados].sort(() => Math.random() - 0.5)
-      const meio = Math.ceil(shuffled.length / 2)
-      const timePreto = shuffled.slice(0, meio)
-      const timeBranco = shuffled.slice(meio)
+      const goleiros = shuffled.filter((p) => p.members?.posicao === 'GOLEIRO')
+      const linha = shuffled.filter((p) => p.members?.posicao !== 'GOLEIRO')
+
+      const timePreto = []
+      const timeBranco = []
+
+      // Goleiros distribuidos alternadamente para cada time ter o seu
+      goleiros.forEach((p, i) => {
+        ;(i % 2 === 0 ? timePreto : timeBranco).push(p)
+      })
+
+      // Jogadores de linha completam equilibrando o tamanho dos times
+      linha.forEach((p) => {
+        ;(timePreto.length <= timeBranco.length ? timePreto : timeBranco).push(p)
+      })
+
+      const toJogador = (p) => ({
+        member_id: p.member_id,
+        nome: p.members?.nome || 'Jogador',
+        posicao: p.members?.posicao === 'GOLEIRO' ? 'GOLEIRO' : 'LINHA'
+      })
 
       const times = {
-        preto: timePreto.map((p) => ({
-          member_id: p.member_id,
-          nome: p.members?.nome || 'Jogador'
-        })),
-        branco: timeBranco.map((p) => ({
-          member_id: p.member_id,
-          nome: p.members?.nome || 'Jogador'
-        })),
+        preto: timePreto.map(toJogador),
+        branco: timeBranco.map(toJogador),
         gerado_em: new Date().toISOString(),
         gerado_por: adminId
       }
@@ -101,6 +113,7 @@ export const teamsService = {
   },
 
   // Registrar placar e distribuir pontos por gols do time
+  // Cada jogador presente no evento ganha os gols que o time dele marcou
   async registerScore(eventId, placarPreto, placarBranco, adminId) {
     try {
       void adminId
@@ -119,6 +132,22 @@ export const teamsService = {
       const preto = Array.isArray(times.preto) ? times.preto : []
       const branco = Array.isArray(times.branco) ? times.branco : []
 
+      const { data: attendance } = await supabase
+        .from('event_attendance')
+        .select('member_id, status')
+        .eq('event_id', eventId)
+
+      const statusPorMembro = {}
+      attendance?.forEach((a) => {
+        statusPorMembro[a.member_id] = a.status
+      })
+
+      // Sem registro de presenca conta como presente (padrao da chamada)
+      const estevePresente = (memberId) => {
+        const status = statusPorMembro[memberId]
+        return status !== 'AUSENTE' && status !== 'JUSTIFICADO'
+      }
+
       const { error: updateError } = await supabase
         .from('events')
         .update({
@@ -130,26 +159,32 @@ export const teamsService = {
 
       if (updateError) return { error: updateError.message }
 
-      for (const jogador of preto) {
-        await supabase.from('points_ledger').insert({
-          member_id: jogador.member_id,
-          event_id: eventId,
-          pontos: placarPreto,
-          gols: placarPreto,
-          time: 'PRETO',
-          motivo: 'GOLS_TIME'
-        })
-      }
+      const lancamentos = [
+        ...preto
+          .filter((jogador) => estevePresente(jogador.member_id))
+          .map((jogador) => ({
+            member_id: jogador.member_id,
+            event_id: eventId,
+            pontos: placarPreto,
+            gols: placarPreto,
+            time: 'PRETO',
+            motivo: 'GOLS_TIME'
+          })),
+        ...branco
+          .filter((jogador) => estevePresente(jogador.member_id))
+          .map((jogador) => ({
+            member_id: jogador.member_id,
+            event_id: eventId,
+            pontos: placarBranco,
+            gols: placarBranco,
+            time: 'BRANCO',
+            motivo: 'GOLS_TIME'
+          }))
+      ]
 
-      for (const jogador of branco) {
-        await supabase.from('points_ledger').insert({
-          member_id: jogador.member_id,
-          event_id: eventId,
-          pontos: placarBranco,
-          gols: placarBranco,
-          time: 'BRANCO',
-          motivo: 'GOLS_TIME'
-        })
+      if (lancamentos.length > 0) {
+        const { error: pointsError } = await supabase.from('points_ledger').insert(lancamentos)
+        if (pointsError) return { error: pointsError.message }
       }
 
       return {
@@ -220,12 +255,12 @@ export const teamsService = {
 
     texto += 'TIME PRETO:\n'
     times.preto.forEach((jogador, i) => {
-      texto += `${i + 1}. ${jogador.nome}\n`
+      texto += `${i + 1}. ${jogador.nome}${jogador.posicao === 'GOLEIRO' ? ' (Goleiro)' : ''}\n`
     })
 
     texto += '\nTIME BRANCO:\n'
     times.branco.forEach((jogador, i) => {
-      texto += `${i + 1}. ${jogador.nome}\n`
+      texto += `${i + 1}. ${jogador.nome}${jogador.posicao === 'GOLEIRO' ? ' (Goleiro)' : ''}\n`
     })
 
     texto += `\nTotal: ${times.preto.length + times.branco.length} jogadores`

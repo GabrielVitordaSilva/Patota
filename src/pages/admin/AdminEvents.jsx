@@ -266,12 +266,35 @@ export default function AdminEvents() {
   const handleMarkAttendance = async (eventId, memberId, status) => {
     try {
       await eventService.markAttendance(eventId, memberId, status)
-      alert('Presenca marcada!')
 
       const { data } = await adminService.getEventDetails(eventId)
       setSelectedEvent(data)
     } catch (error) {
       alert('Erro ao marcar presenca')
+    }
+  }
+
+  const openAttendance = async (event) => {
+    try {
+      const { data } = await adminService.getEventDetails(event.id)
+      const detalhes = data || event
+
+      // Todos os confirmados ja entram como presentes por padrao
+      const semRegistro = (detalhes.event_rsvp || [])
+        .filter((rsvp) => rsvp.status === 'VOU')
+        .filter((rsvp) => !(detalhes.event_attendance || []).some((a) => a.member_id === rsvp.member_id))
+        .map((rsvp) => rsvp.member_id)
+
+      if (semRegistro.length > 0) {
+        await eventService.markAllPresent(detalhes.id, semRegistro)
+        const { data: atualizado } = await adminService.getEventDetails(detalhes.id)
+        setSelectedEvent(atualizado || detalhes)
+      } else {
+        setSelectedEvent(detalhes)
+      }
+    } catch (error) {
+      console.error('Error opening attendance:', error)
+      setSelectedEvent(event)
     }
   }
 
@@ -450,6 +473,8 @@ export default function AdminEvents() {
         <div className="space-y-3">
           {selectedEvent.event_rsvp?.map((rsvp) => {
             const attendance = selectedEvent.event_attendance?.find((a) => a.member_id === rsvp.member_id)
+            // Quem confirmou ja aparece como presente por padrao
+            const statusAtual = attendance?.status || (rsvp.status === 'VOU' ? 'PRESENTE' : null)
 
             return (
               <div key={rsvp.member_id} className="border border-gray-200 rounded-lg p-4">
@@ -458,7 +483,7 @@ export default function AdminEvents() {
                   <button
                     onClick={() => handleMarkAttendance(selectedEvent.id, rsvp.member_id, 'PRESENTE')}
                     className={`py-2 rounded-lg text-sm font-semibold ${
-                      attendance?.status === 'PRESENTE' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700'
+                      statusAtual === 'PRESENTE' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     <Check size={16} className="mx-auto" />
@@ -467,7 +492,7 @@ export default function AdminEvents() {
                   <button
                     onClick={() => handleMarkAttendance(selectedEvent.id, rsvp.member_id, 'ATRASO')}
                     className={`py-2 rounded-lg text-sm font-semibold ${
-                      attendance?.status === 'ATRASO' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700'
+                      statusAtual === 'ATRASO' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     <Clock size={16} className="mx-auto" />
@@ -476,7 +501,7 @@ export default function AdminEvents() {
                   <button
                     onClick={() => handleMarkAttendance(selectedEvent.id, rsvp.member_id, 'AUSENTE')}
                     className={`py-2 rounded-lg text-sm font-semibold ${
-                      attendance?.status === 'AUSENTE' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
+                      statusAtual === 'AUSENTE' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     <X size={16} className="mx-auto" />
@@ -485,7 +510,7 @@ export default function AdminEvents() {
                   <button
                     onClick={() => handleMarkAttendance(selectedEvent.id, rsvp.member_id, 'JUSTIFICADO')}
                     className={`py-2 rounded-lg text-sm font-semibold ${
-                      attendance?.status === 'JUSTIFICADO' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                      statusAtual === 'JUSTIFICADO' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     <Stethoscope size={16} className="mx-auto" />
@@ -548,7 +573,7 @@ export default function AdminEvents() {
 
         <div className="grid grid-cols-2 gap-2 md:gap-3">
           <button
-            onClick={() => setSelectedEvent(event)}
+            onClick={() => openAttendance(event)}
             className="ui-btn-primary text-xs md:text-sm"
           >
             <Users size={16} className="inline mr-1" />

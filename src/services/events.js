@@ -200,25 +200,29 @@ export const eventService = {
         await this.createFine(memberId, eventId, 'FALTA_CONFIRMADA', 10)
       }
     }
-    
-    // Se presente em jogo, adicionar ponto
-    if (status === 'PRESENTE') {
-      const { data: event } = await supabase
-        .from('events')
-        .select('tipo')
-        .eq('id', eventId)
-        .single()
-      
-      if (event && event.tipo === 'JOGO') {
-        await supabase.from('points_ledger').insert({
-          member_id: memberId,
-          event_id: eventId,
-          pontos: 1,
-          motivo: 'PRESENCA_JOGO'
-        })
-      }
+
+    // Pontos do ranking vem dos gols do time no placar, nao da presenca
+
+    return { data, error }
+  },
+
+  // Marcar varios membros como presentes de uma vez (padrao ao abrir a tela de presenca)
+  async markAllPresent(eventId, memberIds) {
+    if (!memberIds || memberIds.length === 0) {
+      return { data: null, error: null }
     }
-    
+
+    const { data, error } = await supabase
+      .from('event_attendance')
+      .upsert(
+        memberIds.map((memberId) => ({
+          event_id: eventId,
+          member_id: memberId,
+          status: 'PRESENTE'
+        })),
+        { onConflict: 'event_id,member_id' }
+      )
+
     return { data, error }
   },
 

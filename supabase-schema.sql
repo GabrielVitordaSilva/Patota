@@ -7,6 +7,7 @@ CREATE TABLE members (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     nome TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    posicao TEXT NOT NULL DEFAULT 'LINHA' CHECK (posicao IN ('GOLEIRO', 'LINHA')),
     ativo BOOLEAN DEFAULT true,
     criado_em TIMESTAMPTZ DEFAULT NOW()
 );
@@ -288,11 +289,12 @@ CREATE POLICY "Apenas admins podem ver logs"
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO members (id, nome, email)
+    INSERT INTO members (id, nome, email, posicao)
     VALUES (
         NEW.id,
         COALESCE(NEW.raw_user_meta_data->>'name', NEW.email),
-        NEW.email
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'posicao', 'LINHA')
     );
     RETURN NEW;
 END;
