@@ -5,6 +5,16 @@ import { cardsService, STAT_LABELS } from '../services/cards'
 
 const NOTA_PADRAO = 70
 
+// Cor da nota por faixa, estilo FIFA (verde alto -> vermelho baixo)
+const statColor = (valor) => {
+  if (valor == null) return 'text-white/40'
+  if (valor >= 85) return 'text-emerald-400'
+  if (valor >= 75) return 'text-lime-400'
+  if (valor >= 65) return 'text-yellow-400'
+  if (valor >= 50) return 'text-orange-400'
+  return 'text-red-400'
+}
+
 export default function Cards() {
   const { member, isAdmin } = useAuth()
   const [members, setMembers] = useState([])
@@ -151,18 +161,24 @@ export default function Cards() {
           return (
             <div key={card.id} className="space-y-2">
               <div
-                className={`relative rounded-2xl p-4 text-white shadow-xl bg-gradient-to-b ${
+                className={`relative overflow-hidden rounded-2xl p-4 pt-5 text-white shadow-xl ring-1 ring-white/10 bg-gradient-to-br ${
                   isGoleiro
-                    ? 'from-blue-700 via-blue-900 to-blue-950'
-                    : 'from-gray-700 via-gray-900 to-black'
+                    ? 'from-blue-600 via-blue-900 to-slate-950'
+                    : 'from-slate-600 via-gray-900 to-black'
                 }`}
               >
-                <p className="text-center font-bold text-lg truncate mb-2">{card.nome}</p>
+                {/* Brilho diagonal de fundo */}
+                <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
 
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="text-center w-16 shrink-0">
-                    <p className="text-4xl font-extrabold leading-none">{card.overall ?? '--'}</p>
-                    <p className="text-xs font-semibold opacity-75 mt-1">{isGoleiro ? 'GOL' : 'LIN'}</p>
+                {/* Topo: overall + foto + posicao */}
+                <div className="relative flex items-start gap-3">
+                  <div className="shrink-0 text-center">
+                    <p className="text-5xl font-black leading-none tracking-tight bg-gradient-to-b from-yellow-200 to-yellow-400 bg-clip-text text-transparent drop-shadow">
+                      {card.overall ?? '--'}
+                    </p>
+                    <span className="mt-1 inline-block rounded px-2 py-0.5 text-[10px] font-bold tracking-widest bg-white/15">
+                      {isGoleiro ? 'GOL' : 'LIN'}
+                    </span>
                   </div>
 
                   <div className="flex-1 flex justify-center">
@@ -170,31 +186,44 @@ export default function Cards() {
                       <img
                         src={photoUrls[card.id]}
                         alt={card.nome}
-                        className="w-24 h-24 rounded-full object-cover border-2 border-white/40"
+                        className="w-24 h-24 rounded-full object-cover border-2 border-white/50 shadow-lg ring-2 ring-yellow-400/30"
                       />
                     ) : (
-                      <div className="w-24 h-24 rounded-full border-2 border-white/40 flex items-center justify-center">
-                        <User size={56} className="opacity-60" />
+                      <div className="w-24 h-24 rounded-full border-2 border-dashed border-white/40 bg-white/5 flex items-center justify-center">
+                        <User size={52} className="opacity-50" />
                       </div>
                     )}
                   </div>
 
-                  <div className="w-16 shrink-0" />
+                  <div className="w-10 shrink-0" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-6 gap-y-1 px-2">
+                {/* Nome */}
+                <p className="relative mt-3 text-center font-extrabold text-lg uppercase tracking-wide truncate">
+                  {card.nome}
+                </p>
+
+                <div className="relative my-3 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+                {/* Estatisticas: valor colado na sigla */}
+                <div className="relative grid grid-cols-2 gap-x-4 gap-y-2">
                   {STAT_LABELS.map(({ key, sigla }) => (
-                    <div key={key} className="flex items-center justify-between text-sm md:text-base">
-                      <span className="font-bold w-8">{card.stats[key] ?? '--'}</span>
-                      <span className="opacity-75 font-semibold">{sigla}</span>
+                    <div
+                      key={key}
+                      className="flex items-baseline gap-2 rounded-lg bg-white/5 px-3 py-1.5"
+                    >
+                      <span className={`text-xl font-black tabular-nums ${statColor(card.stats[key])}`}>
+                        {card.stats[key] ?? '--'}
+                      </span>
+                      <span className="text-xs font-bold tracking-widest text-white/60">{sigla}</span>
                     </div>
                   ))}
                 </div>
 
-                <p className="text-[10px] text-center opacity-60 mt-3">
+                <p className="relative text-[10px] text-center text-white/50 mt-3">
                   {card.avaliacoes === 0
                     ? 'Ainda sem avaliacoes'
-                    : `${card.avaliacoes} avaliacao${card.avaliacoes > 1 ? 'es' : ''}`}
+                    : `Media de ${card.avaliacoes} avaliacao${card.avaliacoes > 1 ? 'es' : ''}`}
                 </p>
               </div>
 
