@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Home, Calendar, DollarSign, Trophy, FileText, Settings, LogOut } from 'lucide-react'
+import { Home, Calendar, DollarSign, Trophy, Star, FileText, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Layout() {
@@ -15,6 +15,7 @@ export default function Layout() {
     { path: '/events', icon: Calendar, label: 'Eventos' },
     { path: '/finance', icon: DollarSign, label: 'Financeiro' },
     { path: '/ranking', icon: Trophy, label: 'Ranking' },
+    { path: '/cards', icon: Star, label: 'Cards' },
     { path: '/rules', icon: FileText, label: 'Regras' }
   ]
 
