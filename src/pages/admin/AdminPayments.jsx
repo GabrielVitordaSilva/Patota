@@ -34,7 +34,17 @@ export default function AdminPayments() {
       .eq('status', 'PENDENTE')
       .order('criado_em', { ascending: true })
 
-    setPayments(data || [])
+    // O bucket de comprovantes e privado: troca o caminho salvo no banco
+    // por uma URL assinada temporaria para exibir
+    const resolved = await Promise.all(
+      (data || []).map(async (payment) => {
+        if (!payment.comprovante_url) return payment
+        const { data: signedUrl } = await financeService.getReceiptUrl(payment.comprovante_url)
+        return { ...payment, comprovante_url: signedUrl || payment.comprovante_url }
+      })
+    )
+
+    setPayments(resolved)
     setLoading(false)
   }
 

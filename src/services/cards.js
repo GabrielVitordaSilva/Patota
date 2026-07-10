@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { storagePathFrom } from './storageUtils'
 
 export const STAT_LABELS = [
   { key: 'ritmo', sigla: 'RIT', label: 'Ritmo' },
@@ -42,18 +43,40 @@ export const cardsService = {
     return { data, error }
   },
 
-  // Upload da foto do card (bucket publico "avatars")
+  // Upload da foto do card. O bucket "avatars" e privado: o arquivo vai
+  // para a pasta do proprio membro e o banco guarda apenas o caminho.
   async uploadPhoto(memberId, file) {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-    const filePath = `${memberId}-${Date.now()}.${ext}`
+    const filePath = `${memberId}/${Date.now()}.${ext}`
 
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true })
     if (uploadError) return { error: uploadError }
 
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
+    const { error } = await supabase.from('members').update({ foto_url: filePath }).eq('id', memberId)
 
-    const { error } = await supabase.from('members').update({ foto_url: urlData.publicUrl }).eq('id', memberId)
+    return { data: filePath, error }
+  },
 
-    return { data: urlData.publicUrl, error }
+  // URLs assinadas (validas por 1h) para exibir as fotos do bucket privado
+  async getPhotoUrls(members) {
+    const entries = members
+      .map((m) => ({ id: m.id, path: storagePathFrom(m.foto_url, 'avatars') }))
+      .filter((entry) => entry.path)
+
+    if (entries.length === 0) return {}
+
+    const { data } = await supabase.storage.from('avatars').createSignedUrls(
+      entries.map((entry) => entry.path),
+      60 * 60
+    )
+
+    const urls = {}
+    entries.forEach((entry, i) => {
+      if (data?.[i]?.signedUrl) {
+        urls[entry.id] = data[i].signedUrl
+      }
+    })
+
+    return urls
   }
 }

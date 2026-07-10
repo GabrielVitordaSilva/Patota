@@ -69,40 +69,9 @@ BEGIN
   END IF;
 END $$;
 
--- Bucket publico para as fotos dos cards
+-- Bucket PRIVADO para as fotos dos cards (as fotos sao servidas por
+-- URLs assinadas; as policies de acesso estao em
+-- supabase-security-hardening.sql, que deve ser executado tambem)
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('avatars', 'avatars', true)
+VALUES ('avatars', 'avatars', false)
 ON CONFLICT (id) DO NOTHING;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-      AND policyname = 'Avatar leitura publica'
-  ) THEN
-    CREATE POLICY "Avatar leitura publica"
-      ON storage.objects FOR SELECT
-      USING (bucket_id = 'avatars');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-      AND policyname = 'Avatar upload autenticado'
-  ) THEN
-    CREATE POLICY "Avatar upload autenticado"
-      ON storage.objects FOR INSERT TO authenticated
-      WITH CHECK (bucket_id = 'avatars');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-      AND policyname = 'Avatar update autenticado'
-  ) THEN
-    CREATE POLICY "Avatar update autenticado"
-      ON storage.objects FOR UPDATE TO authenticated
-      USING (bucket_id = 'avatars');
-  END IF;
-END $$;
