@@ -19,8 +19,73 @@ export const adminService = {
       .eq('id', memberId)
       .select()
       .single()
-    
+
     return { data, error }
+  },
+
+  // Atualizar dados do membro (nome, posicao, etc)
+  async updateMember(memberId, updates) {
+    const { data, error } = await supabase
+      .from('members')
+      .update(updates)
+      .eq('id', memberId)
+      .select()
+      .single()
+
+    return { data, error }
+  },
+
+  // Excluir o usuario por completo: login no Auth, membro e todo o historico.
+  // Usa a funcao delete_member do banco (SECURITY DEFINER) porque o cliente
+  // nao tem permissao para apagar de auth.users diretamente.
+  async deleteMember(memberId) {
+    const { error } = await supabase.rpc('delete_member', { target_id: memberId })
+    return { error }
+  },
+
+  // Lancamentos de pontos do ranking (sem os pontos antigos de presenca)
+  async getPointsLedger() {
+    const { data, error } = await supabase
+      .from('points_ledger')
+      .select(`
+        id,
+        member_id,
+        pontos,
+        gols,
+        time,
+        motivo,
+        obs,
+        criado_em,
+        events (data_hora, local)
+      `)
+      .neq('motivo', 'PRESENCA_JOGO')
+      .order('criado_em', { ascending: false })
+
+    return { data, error }
+  },
+
+  // Ajuste manual de pontos no ranking (positivo = bonus, negativo = penalidade)
+  async addPointsAdjustment(memberId, pontos, obs) {
+    const { data, error } = await supabase
+      .from('points_ledger')
+      .insert({
+        member_id: memberId,
+        pontos: pontos,
+        motivo: pontos < 0 ? 'PENALIDADE' : 'BONUS',
+        obs: obs || null
+      })
+
+    return { data, error }
+  },
+
+  // Excluir um lancamento de pontos
+  async deletePointsEntry(entryId) {
+    const { error } = await supabase
+      .from('points_ledger')
+      .delete()
+      .eq('id', entryId)
+
+    return { error }
   },
 
   // Listar pagamentos pendentes

@@ -30,7 +30,7 @@ CREATE TABLE events (
     time_b_nome TEXT,
     time_a_placar INTEGER CHECK (time_a_placar >= 0),
     time_b_placar INTEGER CHECK (time_b_placar >= 0),
-    criado_por UUID REFERENCES members(id),
+    criado_por UUID REFERENCES members(id) ON DELETE SET NULL,
     criado_em TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -72,7 +72,7 @@ CREATE TABLE exemptions (
     member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
     competencia TEXT NOT NULL, -- YYYY-MM
     motivo TEXT NOT NULL CHECK (motivo IN ('LESAO', 'TRABALHO')),
-    aprovado_por UUID REFERENCES members(id),
+    aprovado_por UUID REFERENCES members(id) ON DELETE SET NULL,
     criado_em TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(member_id, competencia)
 );
@@ -97,7 +97,7 @@ CREATE TABLE cash_ledger (
     valor DECIMAL(10,2) NOT NULL,
     referencia TEXT, -- fine_id, due_id, payment_id, etc
     obs TEXT,
-    lancado_por UUID REFERENCES members(id),
+    lancado_por UUID REFERENCES members(id) ON DELETE SET NULL,
     criado_em TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -119,6 +119,7 @@ CREATE TABLE points_ledger (
     event_id UUID REFERENCES events(id) ON DELETE SET NULL,
     pontos INTEGER NOT NULL,
     motivo TEXT NOT NULL,
+    obs TEXT,
     criado_em TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -126,7 +127,7 @@ CREATE TABLE points_ledger (
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     action TEXT NOT NULL,
-    member_id UUID REFERENCES members(id),
+    member_id UUID REFERENCES members(id) ON DELETE SET NULL,
     details JSONB,
     criado_em TIMESTAMPTZ DEFAULT NOW()
 );
@@ -163,6 +164,14 @@ CREATE POLICY "Todos podem ver membros"
 CREATE POLICY "Membro pode atualizar próprio perfil"
     ON members FOR UPDATE
     USING (auth.uid() = id);
+
+CREATE POLICY "Admins podem atualizar membros"
+    ON members FOR UPDATE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
+
+CREATE POLICY "Admins podem excluir membros"
+    ON members FOR DELETE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
 
 -- ADMINS: Apenas admins podem ver e modificar
 CREATE POLICY "Apenas admins podem ver admins"
@@ -271,6 +280,14 @@ CREATE POLICY "Apenas admins podem lançar pontos"
     ON points_ledger FOR INSERT
     WITH CHECK (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
 
+CREATE POLICY "Admins podem atualizar pontos"
+    ON points_ledger FOR UPDATE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
+
+CREATE POLICY "Admins podem excluir pontos"
+    ON points_ledger FOR DELETE
+    USING (EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()));
+
 -- EXEMPTIONS: Apenas admins
 CREATE POLICY "Apenas admins podem ver isenções"
     ON exemptions FOR ALL
@@ -303,6 +320,31 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- Funcao para admin excluir o usuario por completo (login + membro + historico)
+CREATE OR REPLACE FUNCTION delete_member(target_id UUID)
+RETURNS void AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()) THEN
+        RAISE EXCEPTION 'Apenas admins podem excluir membros';
+    END IF;
+
+    IF target_id = auth.uid() THEN
+        RAISE EXCEPTION 'Voce nao pode excluir o proprio usuario';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM members WHERE id = target_id) THEN
+        RAISE EXCEPTION 'Membro nao encontrado';
+    END IF;
+
+    -- Apagar o usuario do Auth cascateia para members e todo o historico
+    DELETE FROM auth.users WHERE id = target_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE EXECUTE ON FUNCTION delete_member(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION delete_member(UUID) FROM anon;
+GRANT EXECUTE ON FUNCTION delete_member(UUID) TO authenticated;
 
 -- ============================================
 -- ÍNDICES PARA PERFORMANCE
