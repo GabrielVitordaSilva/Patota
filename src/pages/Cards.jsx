@@ -9,6 +9,7 @@ export default function Cards() {
   const { member, isAdmin } = useAuth()
   const [members, setMembers] = useState([])
   const [ratings, setRatings] = useState([])
+  const [photoUrls, setPhotoUrls] = useState({})
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [ratingTarget, setRatingTarget] = useState(null)
@@ -36,6 +37,7 @@ export default function Cards() {
 
       setMembers(membersData)
       setRatings(ratingsData)
+      setPhotoUrls(await cardsService.getPhotoUrls(membersData))
     } catch (error) {
       console.error('Error loading cards:', error)
       setLoadError('Erro ao carregar os cards.')
@@ -164,9 +166,9 @@ export default function Cards() {
                   </div>
 
                   <div className="flex-1 flex justify-center">
-                    {card.foto_url ? (
+                    {photoUrls[card.id] ? (
                       <img
-                        src={card.foto_url}
+                        src={photoUrls[card.id]}
                         alt={card.nome}
                         className="w-24 h-24 rounded-full object-cover border-2 border-white/40"
                       />

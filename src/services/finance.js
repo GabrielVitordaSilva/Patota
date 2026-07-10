@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { storagePathFrom } from './storageUtils'
 
 export const financeService = {
   // Obter mensalidades do usuario
@@ -157,11 +158,11 @@ export const financeService = {
     return { data: payment, error }
   },
 
-  // Upload de comprovante
+  // Upload de comprovante. O bucket "comprovantes" e privado: o arquivo
+  // vai para a pasta do proprio membro e o banco guarda apenas o caminho.
   async uploadComprovante(file, memberId) {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${memberId}_${Date.now()}.${fileExt}`
-    const filePath = `comprovantes/${fileName}`
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const filePath = `${memberId}/${Date.now()}.${fileExt}`
 
     const { error } = await supabase.storage.from('comprovantes').upload(filePath, file)
 
@@ -169,9 +170,18 @@ export const financeService = {
       return { data: null, error }
     }
 
-    const { data: urlData } = supabase.storage.from('comprovantes').getPublicUrl(filePath)
+    return { data: filePath, error: null }
+  },
 
-    return { data: urlData.publicUrl, error: null }
+  // URL assinada (valida por 1h) para exibir um comprovante do bucket
+  // privado. Aceita caminhos novos e URLs publicas antigas.
+  async getReceiptUrl(stored) {
+    const path = storagePathFrom(stored, 'comprovantes')
+    if (!path) return { data: stored || null, error: null }
+
+    const { data, error } = await supabase.storage.from('comprovantes').createSignedUrl(path, 60 * 60)
+
+    return { data: data?.signedUrl || null, error }
   },
 
   // Gerar mensalidades do mes (Admin)

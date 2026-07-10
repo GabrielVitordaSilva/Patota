@@ -135,12 +135,16 @@ CREATE TABLE audit_logs (
 -- ============================================
 -- CRIAR STORAGE BUCKET PARA COMPROVANTES
 -- ============================================
--- Execute no Supabase Dashboard -> Storage
--- Criar bucket "comprovantes" com acesso público
+-- Bucket "comprovantes" deve ser PRIVADO (os arquivos sao servidos por
+-- URLs assinadas). A criacao e as policies estao em
+-- supabase-security-hardening.sql
 
 -- ============================================
 -- RLS (Row Level Security) POLICIES
 -- ============================================
+-- IMPORTANTE: apos executar este schema, execute tambem
+-- supabase-security-hardening.sql, que substitui as policies de
+-- leitura abertas abaixo por versoes restritas a membros ativos.
 
 -- Habilitar RLS em todas as tabelas
 ALTER TABLE members ENABLE ROW LEVEL SECURITY;
@@ -303,15 +307,18 @@ CREATE POLICY "Apenas admins podem ver logs"
 -- ============================================
 
 -- Trigger para criar member automaticamente quando user é criado
+-- Novo cadastro entra INATIVO por seguranca: um admin ativa depois
+-- (o formulario de adicionar membro do painel admin ja ativa sozinho)
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO members (id, nome, email, posicao)
+    INSERT INTO members (id, nome, email, posicao, ativo)
     VALUES (
         NEW.id,
         COALESCE(NEW.raw_user_meta_data->>'name', NEW.email),
         NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'posicao', 'LINHA')
+        COALESCE(NEW.raw_user_meta_data->>'posicao', 'LINHA'),
+        false
     );
     RETURN NEW;
 END;
@@ -362,6 +369,7 @@ CREATE INDEX idx_points_member ON points_ledger(member_id);
 -- ============================================
 
 -- Depois de criar o primeiro usuário via interface, execute:
+-- UPDATE members SET ativo = true WHERE id = 'UUID-DO-PRIMEIRO-USUARIO';
 -- INSERT INTO admins (member_id) VALUES ('UUID-DO-PRIMEIRO-USUARIO');
 
 -- ============================================

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { authService } from '../../services/auth'
+import { adminService } from '../../services/admin'
 
 export default function AdminAddMember({ onSuccess }) {
   const [name, setName] = useState('')
@@ -17,12 +18,25 @@ export default function AdminAddMember({ onSuccess }) {
       const normalizedEmail = email.trim().toLowerCase()
       const normalizedPassword = password.trim()
 
-      const { error } = await authService.signUp(normalizedEmail, normalizedPassword, normalizedName, posicao)
+      const { data, error } = await authService.signUp(normalizedEmail, normalizedPassword, normalizedName, posicao)
 
       if (error) {
         alert('Erro ao adicionar membro: ' + error.message)
       } else {
-        alert('Membro adicionado com sucesso!')
+        // Por seguranca todo cadastro novo entra inativo no banco;
+        // como foi o admin que criou, ativa na sequencia
+        let ativado = false
+        const newUserId = data?.user?.id
+        if (newUserId) {
+          const { data: updated, error: activateError } = await adminService.toggleMemberStatus(newUserId, true)
+          ativado = !activateError && updated?.ativo === true
+        }
+
+        alert(
+          ativado
+            ? 'Membro adicionado e ativado com sucesso!'
+            : 'Membro adicionado! Por seguranca ele entrou como INATIVO - use o botao "Ativar" na lista para liberar o acesso.'
+        )
         setName('')
         setEmail('')
         setPassword('')
