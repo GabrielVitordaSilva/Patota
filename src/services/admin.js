@@ -35,13 +35,11 @@ export const adminService = {
     return { data, error }
   },
 
-  // Excluir membro e todo o historico ligado a ele
+  // Excluir o usuario por completo: login no Auth, membro e todo o historico.
+  // Usa a funcao delete_member do banco (SECURITY DEFINER) porque o cliente
+  // nao tem permissao para apagar de auth.users diretamente.
   async deleteMember(memberId) {
-    const { error } = await supabase
-      .from('members')
-      .delete()
-      .eq('id', memberId)
-
+    const { error } = await supabase.rpc('delete_member', { target_id: memberId })
     return { error }
   },
 

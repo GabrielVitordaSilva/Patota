@@ -65,3 +65,30 @@ ALTER TABLE audit_logs ADD CONSTRAINT audit_logs_member_id_fkey
 ALTER TABLE exemptions DROP CONSTRAINT IF EXISTS exemptions_aprovado_por_fkey;
 ALTER TABLE exemptions ADD CONSTRAINT exemptions_aprovado_por_fkey
   FOREIGN KEY (aprovado_por) REFERENCES members(id) ON DELETE SET NULL;
+
+-- Funcao para excluir o usuario por completo (membro + login no Auth).
+-- SECURITY DEFINER permite apagar de auth.users; a propria funcao valida
+-- que quem chama e admin e impede a auto-exclusao.
+CREATE OR REPLACE FUNCTION delete_member(target_id UUID)
+RETURNS void AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM admins WHERE member_id = auth.uid()) THEN
+    RAISE EXCEPTION 'Apenas admins podem excluir membros';
+  END IF;
+
+  IF target_id = auth.uid() THEN
+    RAISE EXCEPTION 'Voce nao pode excluir o proprio usuario';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM members WHERE id = target_id) THEN
+    RAISE EXCEPTION 'Membro nao encontrado';
+  END IF;
+
+  -- Apagar o usuario do Auth cascateia para members e todo o historico
+  DELETE FROM auth.users WHERE id = target_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE EXECUTE ON FUNCTION delete_member(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION delete_member(UUID) FROM anon;
+GRANT EXECUTE ON FUNCTION delete_member(UUID) TO authenticated;
