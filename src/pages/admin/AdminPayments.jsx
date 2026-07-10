@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CheckCircle, X, ExternalLink, ArrowLeft, Image as ImageIcon, FileText } from 'lucide-react'
+import { CheckCircle, X, ExternalLink, ArrowLeft, Image as ImageIcon, FileText, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuth } from '../../contexts/AuthContext'
 import { financeService } from '../../services/finance'
@@ -13,6 +13,7 @@ export default function AdminPayments() {
   const [loading, setLoading] = useState(true)
   const [selectedReceipt, setSelectedReceipt] = useState(null)
   const [processingPaymentId, setProcessingPaymentId] = useState(null)
+  const [cleaningReceipts, setCleaningReceipts] = useState(false)
 
   useEffect(() => {
     loadPayments()
@@ -79,6 +80,42 @@ export default function AdminPayments() {
       await loadPayments()
     } finally {
       setProcessingPaymentId(null)
+    }
+  }
+
+  const handleCleanupReceipts = async () => {
+    const resposta = prompt('Excluir comprovantes com mais de quantos meses?', '6')
+    if (resposta === null) return
+
+    const meses = parseInt(resposta, 10)
+    if (!Number.isInteger(meses) || meses < 1) {
+      alert('Informe um numero de meses valido (minimo 1).')
+      return
+    }
+
+    if (
+      !confirm(
+        `Excluir permanentemente todos os comprovantes com mais de ${meses} mes(es)?\n\nOs pagamentos continuam registrados no sistema - apenas o arquivo do comprovante e apagado.`
+      )
+    ) {
+      return
+    }
+
+    setCleaningReceipts(true)
+    try {
+      const { removedCount, error } = await financeService.cleanupOldReceipts(meses)
+      if (error) throw error
+
+      alert(
+        removedCount === 0
+          ? 'Nenhum comprovante antigo para excluir.'
+          : `${removedCount} comprovante(s) excluido(s)!`
+      )
+      await loadPayments()
+    } catch (error) {
+      alert(`Erro ao limpar comprovantes: ${error?.message || 'erro desconhecido'}`)
+    } finally {
+      setCleaningReceipts(false)
     }
   }
 
@@ -196,6 +233,15 @@ export default function AdminPayments() {
           <strong>{payments.length}</strong> pagamento(s) aguardando confirmacao
         </p>
       </div>
+
+      <button
+        onClick={handleCleanupReceipts}
+        disabled={cleaningReceipts}
+        className="w-full ui-btn-secondary text-xs md:text-sm"
+      >
+        <Trash2 size={16} />
+        {cleaningReceipts ? 'Limpando...' : 'Limpar comprovantes antigos'}
+      </button>
 
       {loading ? (
         <div className="ui-card p-8 text-center text-gray-600">Carregando pagamentos...</div>
