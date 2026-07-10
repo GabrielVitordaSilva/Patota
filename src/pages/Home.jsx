@@ -234,7 +234,10 @@ export default function Home() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-gray-900 text-white rounded-lg p-3">
-                    <p className="font-bold text-sm mb-2 text-center">TIME PRETO</p>
+                    <p className="font-bold text-sm text-center">TIME PRETO</p>
+                    {teams.media_preto > 0 && (
+                      <p className="text-[10px] text-center opacity-75 mb-2">Média {teams.media_preto}</p>
+                    )}
                     <div className="space-y-1">
                       {teams.preto?.map((jogador, i) => (
                         <div key={jogador.member_id} className="text-xs py-1 px-2 bg-gray-800 rounded flex items-center gap-2">
@@ -247,7 +250,10 @@ export default function Home() {
                   </div>
 
                   <div className="bg-white border-2 border-gray-300 rounded-lg p-3">
-                    <p className="font-bold text-sm mb-2 text-center text-gray-800">TIME BRANCO</p>
+                    <p className="font-bold text-sm text-center text-gray-800">TIME BRANCO</p>
+                    {teams.media_branco > 0 && (
+                      <p className="text-[10px] text-center text-gray-500 mb-2">Média {teams.media_branco}</p>
+                    )}
                     <div className="space-y-1">
                       {teams.branco?.map((jogador, i) => (
                         <div key={jogador.member_id} className="text-xs py-1 px-2 bg-gray-100 rounded flex items-center gap-2">

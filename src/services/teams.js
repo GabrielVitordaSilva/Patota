@@ -19,7 +19,7 @@ export const teamsService = {
     return now < limite
   },
 
-  // Gerar times automaticamente
+  // Gerar times automaticamente, equilibrados pelo overall dos cards
   async generateTeams(eventId, adminId) {
     try {
       const { data: confirmados, error: confirmadosError } = await supabase
@@ -39,32 +39,87 @@ export const teamsService = {
         return { error: 'Precisa de pelo menos 2 jogadores confirmados' }
       }
 
-      const shuffled = [...confirmados].sort(() => Math.random() - 0.5)
-      const goleiros = shuffled.filter((p) => p.members?.posicao === 'GOLEIRO')
-      const linha = shuffled.filter((p) => p.members?.posicao !== 'GOLEIRO')
+      // Overall de cada confirmado, calculado das avaliacoes dos cards
+      const memberIds = confirmados.map((p) => p.member_id)
+      const { data: ratings } = await supabase
+        .from('player_ratings')
+        .select('rated_member_id, ritmo, finalizacao, passe, drible, defesa, fisico')
+        .in('rated_member_id', memberIds)
+
+      const statKeys = ['ritmo', 'finalizacao', 'passe', 'drible', 'defesa', 'fisico']
+      const overallDe = {}
+      memberIds.forEach((id) => {
+        const recebidas = ratings?.filter((r) => r.rated_member_id === id) || []
+        if (recebidas.length === 0) {
+          overallDe[id] = null
+          return
+        }
+        const somaMedias = statKeys.reduce(
+          (sum, key) => sum + recebidas.reduce((s, r) => s + r[key], 0) / recebidas.length,
+          0
+        )
+        overallDe[id] = Math.round(somaMedias / statKeys.length)
+      })
+
+      // Quem ainda nao foi avaliado entra com a media do grupo, para nao desequilibrar
+      const avaliados = Object.values(overallDe).filter((v) => v !== null)
+      const mediaGrupo = avaliados.length ? avaliados.reduce((a, b) => a + b, 0) / avaliados.length : 70
+
+      // "forca" leva uma pequena variacao aleatoria para os times mudarem a cada sorteio
+      const jogadores = confirmados.map((p) => ({
+        ...p,
+        overall: overallDe[p.member_id] ?? Math.round(mediaGrupo),
+        forca: (overallDe[p.member_id] ?? mediaGrupo) + (Math.random() * 6 - 3)
+      }))
+
+      const goleiros = jogadores
+        .filter((p) => p.members?.posicao === 'GOLEIRO')
+        .sort((a, b) => b.forca - a.forca)
+      const linha = jogadores
+        .filter((p) => p.members?.posicao !== 'GOLEIRO')
+        .sort((a, b) => b.forca - a.forca)
 
       const timePreto = []
       const timeBranco = []
+      let somaPreto = 0
+      let somaBranco = 0
+      const maxPorTime = Math.ceil(jogadores.length / 2)
 
-      // Goleiros distribuidos alternadamente para cada time ter o seu
-      goleiros.forEach((p, i) => {
-        ;(i % 2 === 0 ? timePreto : timeBranco).push(p)
-      })
+      // Do mais forte ao mais fraco, cada um vai para o time com menor soma
+      // de forca (respeitando o tamanho maximo). Goleiros primeiro, entao
+      // cada time fica com o seu e o resto do elenco compensa a diferenca.
+      const escolherTime = (p) => {
+        const pretoCheio = timePreto.length >= maxPorTime
+        const brancoCheio = timeBranco.length >= maxPorTime
+        const vaiParaPreto = !pretoCheio && (brancoCheio || somaPreto <= somaBranco)
 
-      // Jogadores de linha completam equilibrando o tamanho dos times
-      linha.forEach((p) => {
-        ;(timePreto.length <= timeBranco.length ? timePreto : timeBranco).push(p)
-      })
+        if (vaiParaPreto) {
+          timePreto.push(p)
+          somaPreto += p.forca
+        } else {
+          timeBranco.push(p)
+          somaBranco += p.forca
+        }
+      }
+
+      goleiros.forEach(escolherTime)
+      linha.forEach(escolherTime)
 
       const toJogador = (p) => ({
         member_id: p.member_id,
         nome: p.members?.nome || 'Jogador',
-        posicao: p.members?.posicao === 'GOLEIRO' ? 'GOLEIRO' : 'LINHA'
+        posicao: p.members?.posicao === 'GOLEIRO' ? 'GOLEIRO' : 'LINHA',
+        overall: p.overall
       })
+
+      const mediaTime = (time) =>
+        time.length ? Math.round((time.reduce((sum, p) => sum + p.overall, 0) / time.length) * 10) / 10 : 0
 
       const times = {
         preto: timePreto.map(toJogador),
         branco: timeBranco.map(toJogador),
+        media_preto: mediaTime(timePreto),
+        media_branco: mediaTime(timeBranco),
         gerado_em: new Date().toISOString(),
         gerado_por: adminId
       }

@@ -224,7 +224,9 @@ export default function AdminEvents() {
         return
       }
 
-      alert(`Times gerados!\n\nTime Preto: ${data.preto.length}\nTime Branco: ${data.branco.length}`)
+      alert(
+        `Times gerados e equilibrados pelos cards!\n\nTime Preto: ${data.preto.length} jogadores (média ${data.media_preto})\nTime Branco: ${data.branco.length} jogadores (média ${data.media_branco})`
+      )
       loadEvents()
     } catch (error) {
       alert('Erro ao gerar times')
