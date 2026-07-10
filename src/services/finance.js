@@ -184,6 +184,54 @@ export const financeService = {
     return { data: data?.signedUrl || null, error }
   },
 
+  // Excluir comprovantes com mais de X meses (Admin).
+  // Percorre as pastas do bucket, remove os arquivos antigos e limpa a
+  // referencia nos pagamentos para nao sobrar link quebrado.
+  async cleanupOldReceipts(months = 6) {
+    const cutoff = new Date()
+    cutoff.setMonth(cutoff.getMonth() - months)
+
+    const bucket = supabase.storage.from('comprovantes')
+    const { data: rootEntries, error: listError } = await bucket.list('', { limit: 1000 })
+    if (listError) return { removedCount: 0, error: listError }
+
+    const oldPaths = []
+
+    for (const entry of rootEntries || []) {
+      if (entry.id) {
+        // Arquivo solto na raiz do bucket
+        if (new Date(entry.created_at) < cutoff) {
+          oldPaths.push(entry.name)
+        }
+      } else {
+        // Pasta (uma por membro, ou "comprovantes" do formato antigo)
+        const { data: files } = await bucket.list(entry.name, { limit: 1000 })
+        files?.forEach((file) => {
+          if (file.id && new Date(file.created_at) < cutoff) {
+            oldPaths.push(`${entry.name}/${file.name}`)
+          }
+        })
+      }
+    }
+
+    if (oldPaths.length === 0) {
+      return { removedCount: 0, error: null }
+    }
+
+    for (let i = 0; i < oldPaths.length; i += 100) {
+      const { error } = await bucket.remove(oldPaths.slice(i, i + 100))
+      if (error) return { removedCount: i, error }
+    }
+
+    await supabase
+      .from('payments')
+      .update({ comprovante_url: null })
+      .lt('criado_em', cutoff.toISOString())
+      .not('comprovante_url', 'is', null)
+
+    return { removedCount: oldPaths.length, error: null }
+  },
+
   // Gerar mensalidades do mes (Admin)
   async generateMonthlyDues(year, month) {
     const competencia = `${year}-${String(month).padStart(2, '0')}`

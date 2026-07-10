@@ -54,6 +54,25 @@ Foi exatamente isso que esta auditoria reforçou.
 3. Recomendado, em **Authentication → Settings**: ativar **confirmação de email**, **proteção contra senhas vazadas** (Leaked Password Protection) e o **CAPTCHA** nas telas de auth se um dia abrir cadastro público.
 4. Recomendado: manter **backups automáticos** habilitados (Database → Backups).
 
+## O que um membro comum (não-admin) pode enviar
+
+Exatamente e somente isto, garantido pelas policies do banco (não pela tela):
+
+- **Foto do próprio card** → upload apenas na pasta dele (`{seu-id}/...`) no bucket `avatars`; não consegue tocar na foto de outro membro.
+- **Comprovante do próprio pagamento** → upload apenas na pasta dele no bucket `comprovantes`; só ele e o admin conseguem abrir o arquivo.
+- Além de arquivos: confirmar presença (RSVP), avaliar os outros jogadores nos cards e registrar pagamento próprio (sempre `PENDENTE`).
+
+Membro comum **não** exclui arquivo nenhum, não lê comprovante dos outros, não escreve em nenhum outro bucket ou tabela administrativa.
+
+## Retenção de comprovantes
+
+O Supabase não apaga arquivos sozinho. A retenção é feita pelo admin no app:
+botão **"Limpar comprovantes antigos"** na aba Pagamentos — pergunta quantos
+meses manter (sugestão: 6), exclui os arquivos mais antigos que isso e limpa a
+referência nos pagamentos (o registro financeiro do pagamento é preservado;
+só o arquivo morre). Requer a migração `supabase-add-comprovantes-cleanup.sql`,
+que dá o direito de exclusão **apenas ao admin**.
+
 ## Limitações conhecidas (transparência)
 
 - **Emails visíveis para membros ativos**: o app é de grupo fechado e a lista de membros mostra email (usado pelo admin). Quem já é membro ativo vê os emails dos outros. Se quiser esconder, dá para restringir a coluna só para admins — me peça.
