@@ -58,7 +58,7 @@ Sistema completo para gestão de patota esportiva com controle de presenças, me
 4. Clique em "New Project"
 5. Escolha:
    - **Name:** patota-ccc
-   - **Database Password:** Patota2026@
+   - **Database Password:** gere uma senha longa, aleatória e exclusiva
    - **Region:** South America (São Paulo)
    - **Pricing Plan:** Free
 6. Clique em "Create new project"
@@ -67,39 +67,25 @@ Sistema completo para gestão de patota esportiva com controle de presenças, me
 #### 1.2. Executar SQL do Banco
 1. No painel do Supabase, vá em **SQL Editor** (ícone 🗄️ no menu lateral)
 2. Clique em "+ New query"
-3. Copie TODO o conteúdo do arquivo `supabase-schema.sql`
-4. Cole no editor
-5. Clique em "Run" (ou Ctrl+Enter)
-6. Aguarde aparecer "Success. No rows returned"
+3. Siga a sequência completa de [ORDEM-MIGRACOES.md](ORDEM-MIGRACOES.md), começando por `supabase-schema.sql`
+4. Clique em "Run" (ou Ctrl+Enter) para cada arquivo e confirme que não houve erro
+
+> **Importante:** as migrações posteriores, especialmente
+> `supabase-security-hardening.sql`, são obrigatórias para fechar policies RLS
+> antigas e configurar o Storage privado.
 
 #### 1.3. Criar Storage para Comprovantes
 1. Vá em **Storage** (ícone 📦 no menu lateral)
-2. Clique em "Create a new bucket"
-3. Configure:
-   - **Name:** comprovantes
-   - **Public bucket:** ✅ Marcado
-4. Clique em "Create bucket"
-5. Clique no bucket "comprovantes" criado
-6. Clique em "Policies" → "New Policy"
-7. Escolha "For full customization"
-8. Configure a policy:
-   - **Policy name:** public_upload
-   - **Allowed operation:** INSERT
-   - **Target roles:** authenticated
-   - **Policy definition:** `true`
-9. Clique em "Review" → "Save policy"
-10. Repita para SELECT:
-    - **Policy name:** public_read
-    - **Allowed operation:** SELECT
-    - **Target roles:** public
-    - **Policy definition:** `true`
+2. Os buckets privados `comprovantes` e `avatars`, seus limites e suas policies
+   são criados por `supabase-security-hardening.sql`
+3. Confirme que ambos aparecem como **privados**; não crie policies públicas
 
 #### 1.4. Obter Credenciais
 1. Vá em **Settings** (ícone ⚙️ no menu lateral)
 2. Clique em "API"
 3. Anote os valores:
    - **Project URL** (algo como: https://gfzfeuppwgyvaadtmfbd.supabase.co)
-   - **anon/public key** (ceyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmemZldXBwd2d5dmFhZHRtZmJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMTEyNTUsImV4cCI6MjA4Njc4NzI1NX0._6-_Ih4bUxby7WMki5NUJ1ZhqckatlujFqOhV7i5tAs)
+   - **anon/public key** (nunca use a `service_role` no frontend)
 
 #### 1.5. Criar Primeiro Admin
 1. Vá em **Authentication** → **Users**
@@ -217,13 +203,8 @@ git push -u origin main
 ## 🔧 Configurações Adicionais
 
 ### Alterar Chave PIX
-Edite em 3 lugares no código:
-
-1. `src/pages/Home.jsx` - linha ~56
-2. `src/pages/Finance.jsx` - linha ~36
-3. `src/pages/Rules.jsx` - linha ~5
-
-Substitua `'seupix@exemplo.com'` pela sua chave PIX real.
+Entre como administrador e acesse **Admin → Financeiro**. A chave é armazenada
+na tabela `config` e passa a valer em todas as telas.
 
 ### Adicionar Mais Admins
 Execute no SQL Editor do Supabase:
@@ -280,8 +261,8 @@ Entre como admin e:
 - Verifique se criou o primeiro admin corretamente
 
 ### Storage "not found"
-- Verifique se criou o bucket "comprovantes"
-- Confirme que marcou como "public"
+- Verifique se executou `supabase-security-hardening.sql`
+- Confirme que os buckets privados `comprovantes` e `avatars` existem
 - Verifique as policies de INSERT e SELECT
 
 ### PWA não instala
