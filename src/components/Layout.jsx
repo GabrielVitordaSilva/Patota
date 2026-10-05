@@ -1,79 +1,92 @@
-import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Home, Calendar, DollarSign, Trophy, Star, FileText, Settings, LogOut } from 'lucide-react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import {
+  CalendarDays,
+  ChevronDown,
+  CircleDollarSign,
+  FileText,
+  Home,
+  LogOut,
+  Settings,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trophy,
+  Users
+} from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+
+const mainNav = [
+  { path: '/', icon: Home, label: 'Visao geral' },
+  { path: '/events', icon: CalendarDays, label: 'Jogos' },
+  { path: '/finance', icon: CircleDollarSign, label: 'Financeiro' },
+  { path: '/ranking', icon: Trophy, label: 'Ranking' },
+  { path: '/cards', icon: Star, label: 'Elenco' },
+  { path: '/rules', icon: FileText, label: 'Regras' }
+]
 
 export default function Layout() {
   const location = useLocation()
   const { member, isAdmin, signOut } = useAuth()
-
-  const handleSignOut = async () => {
-    await signOut()
-  }
-
-  const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/events', icon: Calendar, label: 'Eventos' },
-    { path: '/finance', icon: DollarSign, label: 'Financeiro' },
-    { path: '/ranking', icon: Trophy, label: 'Ranking' },
-    { path: '/cards', icon: Star, label: 'Cards' },
-    { path: '/rules', icon: FileText, label: 'Regras' }
-  ]
-
-  if (isAdmin) {
-    navItems.push({ path: '/admin', icon: Settings, label: 'Admin' })
-  }
+  const navItems = isAdmin
+    ? [...mainNav, { path: '/admin', icon: Settings, label: 'Administracao' }]
+    : mainNav
+  const initials = member?.nome
+    ? member.nome.split(' ').slice(0, 2).map((name) => name[0]).join('').toUpperCase()
+    : 'PC'
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-emerald-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Patota CCC</h1>
-              <p className="text-sm text-emerald-100">Olá, {member?.nome}</p>
+    <div className="min-h-screen bg-app">
+      <header className="app-header">
+        <div className="app-header-inner">
+          <Link to="/" className="brand" aria-label="Patota CCC - inicio">
+            <span className="brand-mark"><span>p</span></span>
+            <span className="brand-copy">
+              <strong>Patota CCC</strong>
+              <small>Gestao da pelada</small>
+            </span>
+          </Link>
+
+          <nav className="desktop-nav" aria-label="Navegacao principal">
+            {navItems.map(({ path, label }) => (
+              <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'desktop-nav-link active' : 'desktop-nav-link'}>
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="profile-menu">
+            {isAdmin && <span className="admin-chip"><ShieldCheck size={14} /> Admin</span>}
+            <div className="avatar" aria-hidden="true">{initials}</div>
+            <div className="profile-copy">
+              <strong>{member?.nome || 'Membro da Patota'}</strong>
+              <span>{member?.posicao || 'Atleta'}</span>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-700 rounded-lg hover:bg-emerald-800 transition"
-            >
-              <LogOut size={20} />
-              <span>Sair</span>
+            <ChevronDown size={16} className="profile-chevron" />
+            <button onClick={signOut} className="icon-button" title="Sair" aria-label="Sair da conta">
+              <LogOut size={18} />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-4 pb-24">
+      <main className="app-main">
+        <div className="page-context">
+          <div>
+            <p className="eyebrow"><Sparkles size={14} /> Temporada atual</p>
+            <h1>{location.pathname === '/' ? `Ola, ${member?.nome?.split(' ')[0] || 'jogador'}` : navItems.find((item) => item.path === location.pathname)?.label}</h1>
+          </div>
+          <div className="season-pill"><Users size={15} /> Patota CCC · 2024</div>
+        </div>
         <Outlet />
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-        <div className="max-w-7xl mx-auto px-1">
-          <div className="flex items-center justify-around">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const isActive = location.pathname === item.path
-              
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex flex-col items-center gap-1 py-2 px-2 transition ${
-                    isActive
-                      ? 'text-emerald-600'
-                      : 'text-gray-600 hover:text-emerald-600'
-                  }`}
-                >
-                  <Icon size={22} />
-                  <span className="text-[10px] font-medium">{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
+      <nav className="mobile-nav" aria-label="Navegacao mobile">
+        {navItems.slice(0, isAdmin ? 7 : 6).map(({ path, icon: Icon, label }) => (
+          <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'mobile-nav-link active' : 'mobile-nav-link'}>
+            <Icon size={20} />
+            <span>{label === 'Visao geral' ? 'Inicio' : label}</span>
+          </NavLink>
+        ))}
       </nav>
     </div>
   )
