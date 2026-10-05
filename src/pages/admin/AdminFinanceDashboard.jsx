@@ -162,12 +162,12 @@ export default function AdminFinanceDashboard() {
               <span>Recebido</span>
               <span className="font-semibold">{percentualRecebido.toFixed(0)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-emerald-600 h-3 rounded-full transition-all"
-                style={{ width: `${percentualRecebido}%` }}
-              />
-            </div>
+            <progress
+              className="ui-progress"
+              value={percentualRecebido}
+              max="100"
+              aria-label={`${percentualRecebido.toFixed(0)}% das mensalidades recebidas`}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-sm">

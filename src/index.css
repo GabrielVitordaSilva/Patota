@@ -3,6 +3,24 @@
 @tailwind utilities;
 
 @layer components {
+  .ui-progress {
+    @apply block h-3 w-full overflow-hidden rounded-full bg-gray-200;
+    appearance: none;
+    border: 0;
+  }
+
+  .ui-progress::-webkit-progress-bar {
+    @apply rounded-full bg-gray-200;
+  }
+
+  .ui-progress::-webkit-progress-value {
+    @apply rounded-full bg-emerald-600;
+  }
+
+  .ui-progress::-moz-progress-bar {
+    @apply rounded-full bg-emerald-600;
+  }
+
   .ui-card {
     @apply bg-white rounded-xl shadow-md;
   }
