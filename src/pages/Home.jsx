@@ -124,7 +124,7 @@ export default function Home() {
 
     const texto = teamsService.generateWhatsAppText(nextEvent, teams)
     const url = `https://wa.me/?text=${encodeURIComponent(texto)}`
-    window.open(url, '_blank')
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   const copyPix = () => {

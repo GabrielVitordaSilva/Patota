@@ -29,7 +29,7 @@ Foi exatamente isso que esta auditoria reforçou.
 | 3 | Membro podia editar o próprio perfil e **se auto-ativar** ou trocar o email (a policy de auto-edição não limitava colunas) | **Alta** | Trigger no banco congela `id`, `email`, `ativo` e `criado_em` para quem não é admin |
 | 4 | Bucket de **comprovantes de pagamento público**: qualquer pessoa com o link abria dados financeiros | **Alta** | Bucket privado; cada membro só vê os próprios comprovantes, admin vê todos; exibição via URL assinada com validade de 1h |
 | 5 | Bucket de **fotos público** + upload liberado: qualquer membro podia sobrescrever a foto dos outros ou usar o bucket como depósito de arquivos | **Alta** | Bucket privado com URL assinada; upload só na pasta do próprio usuário (`{uid}/arquivo`); limite de 5MB e somente imagens, validado **no servidor** |
-| 6 | Pagamento podia ser inserido via API já com `status = 'CONFIRMADO'` | **Média** | Policy exige `status = 'PENDENTE'` em todo pagamento criado por membro |
+| 6 | Pagamento podia ser inserido via API com status, valor ou cobrança manipulados | **Alta** | Trigger força `PENDENTE`, confere que a cobrança é do usuário, usa o valor oficial do banco e exige comprovante na pasta do próprio UID |
 | 7 | Policy de admins autorreferente (risco de recursão/comportamento imprevisível) | **Média** | Checagens de permissão centralizadas nas funções `is_admin()` e `is_active_member()` (SECURITY DEFINER) |
 | 8 | "Desativar" membro não bloqueava acesso aos dados | **Média** | Membro inativo agora não lê nada além do próprio nome |
 
@@ -41,18 +41,39 @@ Foi exatamente isso que esta auditoria reforçou.
 - **Exclusão de membro** valida admin no servidor (função `delete_member`).
 - A **service_role key** (a chave perigosa) não é usada no app — nunca coloque ela no front-end.
 
+## SQL injection e XSS
+
+- As consultas usam o query builder do `@supabase/supabase-js`. Os valores são
+  parâmetros enviados ao PostgREST, e não SQL concatenado no navegador.
+- As funções PL/pgSQL do projeto não usam `EXECUTE` dinâmico.
+- O React escapa valores renderizados, e o projeto não utiliza APIs de injeção de
+  HTML. Uma Content Security Policy adiciona uma segunda camada contra XSS.
+- Rode `npm run security:check` para procurar JWT/service role versionados,
+  execução dinâmica, HTML sem escape e SQL dinâmico. Isso não substitui testes
+  reais das policies no ambiente Supabase.
+
 ## O que o F12 ainda "consegue" (e por que não importa)
 
 - **Ver a anon key e a URL do projeto** — por design; com as policies novas, essa chave sem login não lê nem escreve nada.
+- **Ver o token e os dados autorizados da própria sessão** — todo SPA precisa
+  entregar isso ao navegador. Para esconder até o token seria necessário trocar
+  a arquitetura por um backend/BFF com cookie `HttpOnly`; ainda assim, o usuário
+  sempre consegue ver as respostas destinadas a ele.
 - **Alterar a tela local** (ex: habilitar um botão de admin) — a chamada que o botão faz é barrada pelo banco; a pessoa só quebra a própria tela.
 - **Criar uma conta via API** — entra inativa, sem acesso a nenhum dado, e fica visível para o admin excluir.
 
 ## Ações necessárias no Supabase (checklist)
 
 1. **Executar `supabase-security-hardening.sql`** no SQL Editor — é ele que aplica tudo deste relatório. Pode rodar mais de uma vez sem problema.
-2. Conferir em **Storage → Policies** se o bucket `comprovantes` tem policies antigas criadas pelo dashboard e **remover as permissivas** (as novas se chamam "Comprovante leitura propria ou admin" e "Comprovante upload proprio").
-3. Recomendado, em **Authentication → Settings**: ativar **confirmação de email**, **proteção contra senhas vazadas** (Leaked Password Protection) e o **CAPTCHA** nas telas de auth se um dia abrir cadastro público.
-4. Recomendado: manter **backups automáticos** habilitados (Database → Backups).
+2. **Executar `supabase-security-check.sql`** — ele aborta se encontrar RLS
+   desabilitado, bucket público, policy anônima irrestrita, função interna
+   exposta ou trigger crítico ausente.
+3. Conferir em **Storage → Policies** se o bucket `comprovantes` tem policies antigas criadas pelo dashboard e **remover as permissivas** (as novas se chamam "Comprovante leitura propria ou admin" e "Comprovante upload proprio").
+4. Recomendado, em **Authentication → Settings**: ativar **confirmação de email**, **proteção contra senhas vazadas** (Leaked Password Protection) e o **CAPTCHA** nas telas de auth se um dia abrir cadastro público.
+5. Recomendado: manter **backups automáticos** habilitados (Database → Backups).
+6. Depois do deploy no Cloudflare Pages, conferir na aba **Network** do F12 se a
+   resposta HTML contém `Content-Security-Policy`, `X-Content-Type-Options` e
+   `X-Frame-Options`. Esses headers vêm de `public/_headers`.
 
 ## O que um membro comum (não-admin) pode enviar
 
@@ -78,7 +99,9 @@ que dá o direito de exclusão **apenas ao admin**.
 - **Emails visíveis para membros ativos**: o app é de grupo fechado e a lista de membros mostra email (usado pelo admin). Quem já é membro ativo vê os emails dos outros. Se quiser esconder, dá para restringir a coluna só para admins — me peça.
 - **Comprovantes antigos**: os enviados antes desta mudança foram salvos com URL pública no banco. Depois de rodar a migração o bucket fica privado e os links públicos antigos **param de funcionar fora do app**; dentro do app o admin continua vendo tudo (conversão automática para URL assinada).
 - **Fotos**: as URLs assinadas valem 1h; quem tiver uma URL assinada em mãos consegue ver aquela foto até expirar. É o modelo padrão do Supabase para conteúdo privado.
-- **RSVP fora do prazo**: o bloqueio de confirmação após o sorteio é validado só na tela; via API alguém conseguiria marcar "VOU" atrasado. Impacto baixo (não gera ponto nem escala no time), mas dá para travar no banco se quiser.
+- **F12 não pode ser ocultado**: código, chamadas, anon key e respostas permitidas
+  continuarão visíveis. A proteção correta é fazer cada chamada não autorizada
+  falhar no banco, mesmo quando for montada manualmente.
 
 ## Arquivos desta auditoria
 
@@ -87,3 +110,5 @@ que dá o direito de exclusão **apenas ao admin**.
 - `src/services/cards.js` / `src/pages/Cards.jsx` — fotos privadas com URL assinada.
 - `src/services/finance.js` / `src/pages/admin/AdminPayments.jsx` — comprovantes privados com URL assinada.
 - `src/pages/admin/AdminAddMember.jsx` — ativação automática do membro criado pelo admin.
+- `public/_headers` — CSP e headers defensivos usados pelo Cloudflare Pages.
+- `scripts/security-check.mjs` — verificação estática preventiva.

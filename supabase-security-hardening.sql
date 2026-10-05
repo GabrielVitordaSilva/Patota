@@ -27,6 +27,13 @@ RETURNS boolean AS $$
   SELECT EXISTS (SELECT 1 FROM public.members WHERE id = auth.uid() AND ativo = true);
 $$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
 
+-- Funcoes recebem EXECUTE de PUBLIC por padrao no PostgreSQL. Elas sao usadas
+-- pelas policies, mas nao precisam ficar chamaveis por visitantes anonimos.
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.is_active_member() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_active_member() TO authenticated;
+
 -- ============================================================
 -- 2) FIM DA LEITURA ANONIMA
 -- As policies antigas com USING (true) valiam para qualquer pessoa
@@ -68,7 +75,40 @@ DROP POLICY IF EXISTS "Membros podem atualizar próprio RSVP" ON event_rsvp;
 DROP POLICY IF EXISTS "Membro ativo atualiza proprio RSVP" ON event_rsvp;
 CREATE POLICY "Membro ativo atualiza proprio RSVP"
   ON event_rsvp FOR UPDATE TO authenticated
-  USING (auth.uid() = member_id AND public.is_active_member());
+  USING (auth.uid() = member_id AND public.is_active_member())
+  WITH CHECK (auth.uid() = member_id AND public.is_active_member());
+
+-- O prazo tambem precisa ser imposto no banco: esconder/desabilitar o botao no
+-- React nao impede uma chamada manual pelo console ou por outro cliente HTTP.
+CREATE OR REPLACE FUNCTION public.validate_event_rsvp()
+RETURNS TRIGGER AS $$
+DECLARE
+  confirmation_deadline timestamptz;
+  teams_already_generated boolean;
+BEGIN
+  SELECT data_limite_confirmacao, times_gerados
+    INTO confirmation_deadline, teams_already_generated
+    FROM public.events
+    WHERE id = NEW.event_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Evento inexistente';
+  END IF;
+
+  IF teams_already_generated OR confirmation_deadline IS NULL OR now() > confirmation_deadline THEN
+    RAISE EXCEPTION 'Confirmacoes encerradas para este evento';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE ALL ON FUNCTION public.validate_event_rsvp() FROM PUBLIC, anon, authenticated;
+
+DROP TRIGGER IF EXISTS trg_validate_event_rsvp ON event_rsvp;
+CREATE TRIGGER trg_validate_event_rsvp
+  BEFORE INSERT OR UPDATE ON event_rsvp
+  FOR EACH ROW EXECUTE FUNCTION public.validate_event_rsvp();
 
 DROP POLICY IF EXISTS "Todos podem ver presença" ON event_attendance;
 DROP POLICY IF EXISTS "Membros ativos veem presenca" ON event_attendance;
@@ -104,7 +144,8 @@ DROP POLICY IF EXISTS "Membro atualiza propria avaliacao" ON player_ratings;
 DROP POLICY IF EXISTS "Membro ativo atualiza propria avaliacao" ON player_ratings;
 CREATE POLICY "Membro ativo atualiza propria avaliacao"
   ON player_ratings FOR UPDATE TO authenticated
-  USING (auth.uid() = rater_member_id AND public.is_active_member());
+  USING (auth.uid() = rater_member_id AND public.is_active_member())
+  WITH CHECK (auth.uid() = rater_member_id AND public.is_active_member());
 
 -- ============================================================
 -- 3) PAGAMENTO NAO PODE NASCER CONFIRMADO
@@ -117,6 +158,58 @@ DROP POLICY IF EXISTS "Membro ativo cria pagamento pendente" ON payments;
 CREATE POLICY "Membro ativo cria pagamento pendente"
   ON payments FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = member_id AND status = 'PENDENTE' AND public.is_active_member());
+
+-- Nao confia em valor, referencia ou caminho enviados pelo navegador. O cliente
+-- pode ser alterado pelo DevTools; portanto o banco valida a propriedade da
+-- cobranca, fixa o valor oficial e exige comprovante na pasta do proprio membro.
+CREATE OR REPLACE FUNCTION public.validate_member_payment()
+RETURNS TRIGGER AS $$
+DECLARE
+  expected_value numeric(10, 2);
+BEGIN
+  IF public.is_admin() THEN
+    RETURN NEW;
+  END IF;
+
+  IF auth.uid() IS NULL OR NEW.member_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Pagamento deve pertencer ao usuario autenticado';
+  END IF;
+
+  NEW.status := 'PENDENTE';
+
+  IF NEW.due_id IS NOT NULL AND NEW.fine_id IS NULL THEN
+    SELECT valor INTO expected_value
+      FROM public.dues
+      WHERE id = NEW.due_id AND member_id = auth.uid() AND status = 'PENDENTE';
+  ELSIF NEW.fine_id IS NOT NULL AND NEW.due_id IS NULL THEN
+    SELECT valor INTO expected_value
+      FROM public.fines
+      WHERE id = NEW.fine_id AND member_id = auth.uid() AND pago = false;
+  ELSE
+    RAISE EXCEPTION 'Pagamento deve referenciar uma unica cobranca';
+  END IF;
+
+  IF expected_value IS NULL THEN
+    RAISE EXCEPTION 'Cobranca invalida ou ja quitada';
+  END IF;
+
+  NEW.valor := expected_value;
+
+  IF NEW.comprovante_url IS NULL
+     OR NEW.comprovante_url NOT LIKE auth.uid()::text || '/%' THEN
+    RAISE EXCEPTION 'Caminho de comprovante invalido';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE ALL ON FUNCTION public.validate_member_payment() FROM PUBLIC, anon, authenticated;
+
+DROP TRIGGER IF EXISTS trg_validate_member_payment ON payments;
+CREATE TRIGGER trg_validate_member_payment
+  BEFORE INSERT ON payments
+  FOR EACH ROW EXECUTE FUNCTION public.validate_member_payment();
 
 -- ============================================================
 -- 4) PERFIL PROPRIO NAO MUDA CAMPOS SENSIVEIS
@@ -137,6 +230,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE ALL ON FUNCTION public.protect_member_fields() FROM PUBLIC, anon, authenticated;
 
 DROP TRIGGER IF EXISTS trg_protect_member_fields ON members;
 CREATE TRIGGER trg_protect_member_fields
@@ -165,6 +260,8 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
 
 -- ============================================================
 -- 6) STORAGE PRIVADO

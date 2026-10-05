@@ -1,11 +1,40 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
+export default defineConfig(({ mode }) => {
+  const { VITE_SUPABASE_URL: supabaseUrl } = loadEnv(mode, process.cwd(), '')
+
+  return {
+    plugins: [
+      react(),
+      {
+        name: 'supabase-resource-hints',
+        transformIndexHtml() {
+          if (!supabaseUrl) return []
+
+          try {
+            const url = new URL(supabaseUrl)
+            if (!['http:', 'https:'].includes(url.protocol)) return []
+
+            return [
+              {
+                tag: 'link',
+                attrs: { rel: 'preconnect', href: url.origin, crossorigin: '' },
+                injectTo: 'head'
+              },
+              {
+                tag: 'link',
+                attrs: { rel: 'dns-prefetch', href: url.origin },
+                injectTo: 'head'
+              }
+            ]
+          } catch {
+            return []
+          }
+        }
+      },
+      VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
@@ -60,9 +89,9 @@ export default defineConfig({
           }
         ]
       }
-    })
-  ],
-  build: {
+      })
+    ],
+    build: {
     // Separa as libs em chunks proprios: o navegador baixa em paralelo e,
     // principalmente, mantem react/supabase/etc em cache entre deploys
     // (so o codigo do app muda de hash a cada versao nova).
@@ -82,6 +111,7 @@ export default defineConfig({
           return 'vendor'
         }
       }
+    }
     }
   }
 })
