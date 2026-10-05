@@ -17,7 +17,6 @@ banco em um estado parcial.
 11. `supabase-security-hardening.sql`
 12. `supabase-add-comprovantes-cleanup.sql`
 13. `supabase-indices-performance.sql`
-14. Execute `supabase-security-check.sql` para validar a instalação
 
 ## Verificações obrigatórias
 
