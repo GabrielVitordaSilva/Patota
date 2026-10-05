@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { ArrowRight, ShieldCheck, Users } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -31,45 +32,58 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-emerald-600 mb-2">Patota CCC</h1>
-            <p className="text-gray-600">Sistema de Gestão</p>
+    <div className="min-h-screen bg-[#f4f6fa] grid lg:grid-cols-[1.05fr_.95fr]">
+      <section className="hidden lg:flex relative overflow-hidden bg-[#172033] text-white p-14 flex-col justify-between">
+        <div className="absolute inset-0 opacity-[.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '42px 42px' }} />
+        <div className="relative flex items-center gap-3"><span className="brand-mark"><span>p</span></span><div><p className="font-bold">Patota CCC</p><p className="text-xs text-slate-400">Gestao da pelada</p></div></div>
+        <div className="relative max-w-lg">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-slate-300"><Users size={14} /> Feito para quem organiza e para quem joga</span>
+          <h1 className="mt-6 text-5xl font-bold tracking-[-.05em] leading-[1.08]">Sua pelada organizada, sem complicacao.</h1>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-slate-400">Jogos, presencas, mensalidades e ranking reunidos em um lugar simples para toda a patota.</p>
+        </div>
+        <p className="relative text-xs text-slate-500">Patota CCC · Temporada 2024</p>
+      </section>
+
+      <section className="flex items-center justify-center px-5 py-10 bg-white lg:bg-[#f4f6fa]">
+        <div className="max-w-sm w-full">
+          <div className="lg:hidden flex items-center gap-3 mb-12"><span className="brand-mark"><span>p</span></span><div><p className="font-bold text-slate-900">Patota CCC</p><p className="text-xs text-slate-500">Gestao da pelada</p></div></div>
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-[.12em] text-blue-600">Area do membro</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Bom ter voce de volta</h2>
+            <p className="mt-2 text-sm text-slate-500">Entre com seus dados para acessar a Patota CCC.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                E-mail
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="ui-input"
                 placeholder="seu@email.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
                 Senha
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="ui-input"
                 placeholder="••••••••"
                 required
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -77,13 +91,14 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full ui-btn-primary py-3"
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? 'Entrando...' : <><span>Entrar na Patota</span><ArrowRight size={17} /></>}
             </button>
           </form>
+          <div className="mt-7 pt-6 border-t border-slate-200 flex items-start gap-3 text-xs text-slate-500"><ShieldCheck size={17} className="text-emerald-600 shrink-0" /><p>Seu acesso e individual e protegido. Em caso de duvida, fale com a diretoria.</p></div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
