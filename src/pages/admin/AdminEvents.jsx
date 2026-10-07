@@ -181,7 +181,7 @@ export default function AdminEvents() {
     }
 
     if (!Number.isInteger(placarA) || placarA < 0 || !Number.isInteger(placarB) || placarB < 0) {
-      alert('Placar invalido. Use numeros inteiros maiores ou iguais a zero.')
+      alert('Placar invalido. Use números inteiros maiores ou iguais a zero.')
       return
     }
 
@@ -209,7 +209,7 @@ export default function AdminEvents() {
   }
 
   const handleGenerateTeams = async (eventId) => {
-    if (!confirm('Sortear os times agora? Isso encerrara as confirmacoes.')) return
+    if (!confirm('Sortear os times agora? Isso encerrará as confirmações.')) return
 
     try {
       const { data, error } = await teamsService.generateTeams(eventId, member.id)
@@ -229,12 +229,12 @@ export default function AdminEvents() {
   }
 
   const handleResetTeams = async (eventId) => {
-    if (!confirm('Resetar times e reabrir confirmacoes?')) return
+    if (!confirm('Resetar times e reabrir confirmações?')) return
 
     try {
       const { error } = await teamsService.resetTeams(eventId)
       if (error) throw error
-      alert('Times resetados! Confirmacoes reabertas.')
+      alert('Times resetados! Confirmações reabertas.')
       loadEvents()
     } catch (error) {
       alert('Erro ao resetar times')
@@ -267,7 +267,7 @@ export default function AdminEvents() {
       const { data } = await adminService.getEventDetails(eventId)
       setSelectedEvent(data)
     } catch (error) {
-      alert('Erro ao marcar presenca')
+      alert('Erro ao marcar presença')
     }
   }
 
@@ -276,7 +276,7 @@ export default function AdminEvents() {
       const { data } = await adminService.getEventDetails(event.id)
       const detalhes = data || event
 
-      // Todos os confirmados ja entram como presentes por padrao
+      // Todos os confirmados já entram como presentes por padrao
       const semRegistro = (detalhes.event_rsvp || [])
         .filter((rsvp) => rsvp.status === 'VOU')
         .filter((rsvp) => !(detalhes.event_attendance || []).some((a) => a.member_id === rsvp.member_id))
@@ -347,7 +347,7 @@ export default function AdminEvents() {
               disabled={saving}
               className="flex-1 ui-btn-primary"
             >
-              {saving ? 'Salvando...' : editingEventId ? 'Salvar Alteracoes' : 'Criar Evento'}
+              {saving ? 'Salvando...' : editingEventId ? 'Salvar Alterações' : 'Criar Evento'}
             </button>
             <button
               type="button"
@@ -368,7 +368,7 @@ export default function AdminEvents() {
   if (showScoreForm) {
     return (
       <div className="ui-card p-6">
-        <h2 className="text-xl font-bold mb-4">Lancar Placar</h2>
+        <h2 className="text-xl font-bold mb-4">Lançar Placar</h2>
         <form onSubmit={handleSaveScore} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -451,12 +451,12 @@ export default function AdminEvents() {
           Voltar
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Marcar Presenca</h2>
+        <h2 className="text-xl font-bold mb-4">Marcar Presença</h2>
 
         <div className="space-y-3">
           {selectedEvent.event_rsvp?.map((rsvp) => {
             const attendance = selectedEvent.event_attendance?.find((a) => a.member_id === rsvp.member_id)
-            // Quem confirmou ja aparece como presente por padrao
+            // Quem confirmou já aparece como presente por padrao
             const statusAtual = attendance?.status || (rsvp.status === 'VOU' ? 'PRESENTE' : null)
 
             return (
@@ -524,12 +524,12 @@ export default function AdminEvents() {
           <>
             {event.times_gerados ? (
               <div className="mb-3 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <p className="text-xs text-emerald-700 font-semibold">Times ja sorteados</p>
+                <p className="text-xs text-emerald-700 font-semibold">Times já sorteados</p>
               </div>
             ) : (
               <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-xs text-blue-700 font-semibold">
-                  Confirmacoes ate:{' '}
+                  Confirmações até:{' '}
                   {event.data_limite_confirmacao
                     ? new Date(event.data_limite_confirmacao).toLocaleString('pt-BR')
                     : 'sem limite'}
@@ -560,7 +560,7 @@ export default function AdminEvents() {
             className="ui-btn-primary text-xs md:text-sm"
           >
             <Users size={16} className="inline mr-1" />
-            Presenca
+            Presença
           </button>
 
           {event.tipo === 'JOGO' &&
@@ -623,7 +623,7 @@ export default function AdminEvents() {
       </button>
 
       <section className="space-y-4">
-        <h3 className="font-bold text-lg text-gray-800">Proximos eventos</h3>
+        <h3 className="font-bold text-lg text-gray-800">Próximos eventos</h3>
         {upcomingEvents.length === 0 ? (
           <p className="text-sm text-gray-600">Nenhum evento futuro.</p>
         ) : (
@@ -632,7 +632,7 @@ export default function AdminEvents() {
       </section>
 
       <section className="space-y-4">
-        <h3 className="font-bold text-lg text-gray-800">Historico de eventos</h3>
+        <h3 className="font-bold text-lg text-gray-800">Histórico de eventos</h3>
         {historyEvents.length === 0 ? (
           <p className="text-sm text-gray-600">Nenhum evento passado.</p>
         ) : (

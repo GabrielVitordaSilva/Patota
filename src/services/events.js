@@ -172,7 +172,7 @@ export const eventService = {
     return { error }
   },
 
-  // Lancar/atualizar placar de jogo
+  // Lançar/atualizar placar de jogo
   async updateEventScore(eventId, scoreData) {
     const { data, error } = await supabase
       .from('events')
@@ -218,12 +218,12 @@ export const eventService = {
       }
     }
 
-    // Pontos do ranking vem dos gols do time no placar, nao da presenca
+    // Pontos do ranking vem dos gols do time no placar, não da presença
 
     return { data, error }
   },
 
-  // Marcar varios membros como presentes de uma vez (padrao ao abrir a tela de presenca)
+  // Marcar varios membros como presentes de uma vez (padrao ao abrir a tela de presença)
   async markAllPresent(eventId, memberIds) {
     if (!memberIds || memberIds.length === 0) {
       return { data: null, error: null }

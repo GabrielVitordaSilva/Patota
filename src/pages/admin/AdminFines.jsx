@@ -51,7 +51,7 @@ export default function AdminFines() {
 
   const handleDelete = async (fine) => {
     const quem = fine.members?.nome || 'o membro'
-    if (!confirm(`Excluir a multa de R$ ${fine.valor.toFixed(2)} de ${quem}?\n\nEla some da tela dele e o lancamento correspondente sai do caixa.`)) return
+    if (!confirm(`Excluir a multa de R$ ${fine.valor.toFixed(2)} de ${quem}?\n\nEla some da tela dele e o lançamento correspondente sai do caixa.`)) return
 
     const { error } = await financeService.deleteFine(fine.id)
     if (error) {
@@ -75,7 +75,7 @@ export default function AdminFines() {
         </div>
       </div>
 
-      <p className="text-xs text-slate-500">Gerou uma multa sem querer? Edite o valor ou o tipo, ou exclua. Multas ja pagas ficam bloqueadas para nao desacertar o caixa.</p>
+      <p className="text-xs text-slate-500">Gerou uma multa sem querer? Edite o valor ou o tipo, ou exclua. Multas já pagas ficam bloqueadas para não desacertar o caixa.</p>
 
       {loading ? (
         <div className="ui-card p-8 text-center text-slate-500">Carregando multas...</div>
@@ -125,7 +125,7 @@ export default function AdminFines() {
               <input id="fine-valor" name="valor" type="number" step="0.01" min="0.01" defaultValue={editing.valor} className="ui-input" required />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5" htmlFor="fine-obs">Observacao</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5" htmlFor="fine-obs">Observação</label>
               <input id="fine-obs" name="obs" type="text" defaultValue={editing.obs || ''} className="ui-input" placeholder="Opcional" />
             </div>
             <div className="flex gap-2">

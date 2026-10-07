@@ -68,7 +68,7 @@ export default function AdminPayments() {
   }
 
   const handleRejectPayment = async (paymentId) => {
-    const motivo = prompt('Motivo da rejeicao (o membro vai ver esta mensagem):')
+    const motivo = prompt('Motivo da rejeição (o membro vai ver esta mensagem):')
     if (!motivo || !motivo.trim()) return
 
     setProcessingPaymentId(paymentId)
@@ -76,7 +76,7 @@ export default function AdminPayments() {
     try {
       const { error } = await financeService.rejectPayment(paymentId, motivo.trim())
       if (error) {
-        alert(`Nao foi possivel rejeitar: ${error.message}\n\nSe o erro citar "payments_status_check" ou "motivo_rejeicao", rode o arquivo supabase-add-payment-rejection-and-fines-admin.sql no Supabase.`)
+        alert(`Não foi possível rejeitar: ${error.message}\n\nSe o erro citar "payments_status_check" ou "motivo_rejeicao", rode o arquivo supabase-add-payment-rejection-and-fines-admin.sql no Supabase.`)
         return
       }
 
@@ -94,13 +94,13 @@ export default function AdminPayments() {
 
     const meses = parseInt(resposta, 10)
     if (!Number.isInteger(meses) || meses < 1) {
-      alert('Informe um numero de meses valido (minimo 1).')
+      alert('Informe um número de meses válido (mínimo 1).')
       return
     }
 
     if (
       !confirm(
-        `Excluir permanentemente todos os comprovantes com mais de ${meses} mes(es)?\n\nOs pagamentos continuam registrados no sistema - apenas o arquivo do comprovante e apagado.`
+        `Excluir permanentemente todos os comprovantes com mais de ${meses} mês(es)?\n\nOs pagamentos continuam registrados no sistema - apenas o arquivo do comprovante e apagado.`
       )
     ) {
       return
@@ -190,7 +190,7 @@ export default function AdminPayments() {
               <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center">
                 <FileText size={42} className="text-gray-500" />
                 <div>
-                  <p className="font-semibold text-gray-800">Visualizacao incorporada indisponivel para este arquivo.</p>
+                  <p className="font-semibold text-gray-800">Visualização incorporada indisponível para este arquivo.</p>
                   <p className="text-sm text-gray-500">Use o link abaixo para abrir o comprovante em outra aba sem perder esta tela.</p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function AdminPayments() {
     <div className="space-y-4">
       <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3">
         <p className="text-sm text-blue-800">
-          <strong>{payments.length}</strong> pagamento(s) aguardando confirmacao
+          <strong>{payments.length}</strong> pagamento(s) aguardando confirmação
         </p>
       </div>
 

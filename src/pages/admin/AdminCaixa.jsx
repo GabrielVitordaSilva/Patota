@@ -31,32 +31,32 @@ export default function AdminCaixa() {
       member.id
     )
 
-    alert('Saida lancada!')
+    alert('Saída lancada!')
     setShowAddForm(false)
     loadData()
   }
 
   return (
     <div className="space-y-6">
-      <div className="bg-blue-600 text-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-[#233f63] text-white rounded-xl border border-slate-200 p-6">
         <p className="text-sm mb-2">Saldo do Caixa</p>
         <p className="text-4xl font-bold">R$ {balance.toFixed(2)}</p>
       </div>
 
       {!showAddForm ? (
         <button onClick={() => setShowAddForm(true)} className="w-full ui-btn-danger rounded-xl font-bold">
-          Lancar Saida
+          Lançar Saída
         </button>
       ) : (
         <div className="ui-card p-6">
-          <h3 className="ui-title mb-4">Nova Saida</h3>
+          <h3 className="ui-title mb-4">Nova Saída</h3>
           <form onSubmit={handleAddCashOut} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Categoria</label>
               <select name="categoria" className="ui-input" required>
                 <option value="CAMPO">Campo</option>
                 <option value="MATERIAIS">Materiais</option>
-                <option value="CONFRATERNIZACAO">Confraternizacao</option>
+                <option value="CONFRATERNIZACAO">Confraternização</option>
                 <option value="OUTROS">Outros</option>
               </select>
             </div>
@@ -67,13 +67,13 @@ export default function AdminCaixa() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Observacao</label>
-              <input type="text" name="obs" className="ui-input" placeholder="Descricao da despesa" />
+              <label className="block text-sm font-medium mb-2">Observação</label>
+              <input type="text" name="obs" className="ui-input" placeholder="Descrição da despesa" />
             </div>
 
             <div className="flex gap-3">
               <button type="submit" className="flex-1 ui-btn-danger">
-                Lancar
+                Lançar
               </button>
               <button type="button" onClick={() => setShowAddForm(false)} className="flex-1 ui-btn-secondary">
                 Cancelar

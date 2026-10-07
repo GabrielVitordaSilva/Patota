@@ -130,7 +130,7 @@ export default function AdminScore({ event, onClose, onSuccess }) {
             </div>
 
             <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-3">
-              <p className="text-xs font-semibold text-emerald-800 mb-2">Distribuicao de Pontos (jogadores presentes):</p>
+              <p className="text-xs font-semibold text-emerald-800 mb-2">Distribuição de Pontos (jogadores presentes):</p>
               <div className="space-y-1 text-xs text-emerald-700">
                 <p>
                   Time Preto: <strong>+{placarPreto || 0} pontos cada</strong>

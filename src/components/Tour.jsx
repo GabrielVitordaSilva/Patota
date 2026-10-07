@@ -76,7 +76,7 @@ export default function Tour({ isAdmin }) {
     setPos({ left: x, top: y })
   }, [])
 
-  // mostra o passo atual: rola ate o alvo e posiciona
+  // mostra o passo atual: rola até o alvo e posiciona
   useEffect(() => {
     if (!aberto) return undefined
     const p = passos[atual]
@@ -133,7 +133,7 @@ export default function Tour({ isAdmin }) {
         </div>
         <div className="tour-botoes">
           {atual > 0 && <button type="button" className="ui-btn-secondary !min-h-8 !px-3 !text-xs" onClick={() => setAtual(atual - 1)}>Voltar</button>}
-          <button type="button" autoFocus className="ui-btn-primary !min-h-8 !px-3 !text-xs" onClick={() => (ultimo ? fechar() : setAtual(atual + 1))}>{ultimo ? 'Concluir' : 'Proximo'}</button>
+          <button type="button" autoFocus className="ui-btn-primary !min-h-8 !px-3 !text-xs" onClick={() => (ultimo ? fechar() : setAtual(atual + 1))}>{ultimo ? 'Concluir' : 'Próximo'}</button>
         </div>
       </div>
     </>

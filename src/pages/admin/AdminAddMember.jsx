@@ -23,7 +23,7 @@ export default function AdminAddMember({ onSuccess }) {
       if (error) {
         alert('Erro ao adicionar membro: ' + error.message)
       } else {
-        // Por seguranca todo cadastro novo entra inativo no banco;
+        // Por segurança todo cadastro novo entra inativo no banco;
         // como foi o admin que criou, ativa na sequencia
         let ativado = false
         const newUserId = data?.user?.id
@@ -35,7 +35,7 @@ export default function AdminAddMember({ onSuccess }) {
         alert(
           ativado
             ? 'Membro adicionado e ativado com sucesso!'
-            : 'Membro adicionado! Por seguranca ele entrou como INATIVO - use o botao "Ativar" na lista para liberar o acesso.'
+            : 'Membro adicionado! Por segurança ele entrou como INATIVO - use o botão "Ativar" na lista para liberar o acesso.'
         )
         setName('')
         setEmail('')
@@ -81,7 +81,7 @@ export default function AdminAddMember({ onSuccess }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Posicao</label>
+          <label className="block text-sm font-medium mb-2">Posição</label>
           <select
             value={posicao}
             onChange={(e) => setPosicao(e.target.value)}

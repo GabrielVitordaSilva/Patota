@@ -115,10 +115,10 @@ export default function AdminFinanceDashboard() {
           <p className="text-2xl font-bold">R$ {stats?.pendentesMensalidades?.toFixed(2)}</p>
         </div>
 
-        <div className="bg-blue-600 rounded-xl p-4 text-white">
+        <div className="bg-[#233f63] rounded-xl p-4 text-white">
           <div className="flex items-center gap-2 mb-2">
             <TrendingDown size={20} />
-            <span className="text-xs opacity-90">Recebido Mes</span>
+            <span className="text-xs opacity-90">Recebido Mês</span>
           </div>
           <p className="text-2xl font-bold">R$ {stats?.pagasMensalidades?.toFixed(2)}</p>
         </div>
@@ -155,7 +155,7 @@ export default function AdminFinanceDashboard() {
       )}
 
       <div className="ui-card p-4">
-        <h3 className="font-bold text-base mb-3">Mensalidades do Mes</h3>
+        <h3 className="font-bold text-base mb-3">Mensalidades do Mês</h3>
         <div className="space-y-3">
           <div>
             <div className="flex justify-between text-sm mb-1">
@@ -184,7 +184,7 @@ export default function AdminFinanceDashboard() {
       </div>
 
       <div className="ui-card p-4">
-        <h3 className="font-bold text-base mb-3">Configuracao da Chave PIX</h3>
+        <h3 className="font-bold text-base mb-3">Configuração da Chave PIX</h3>
         <form onSubmit={handleSavePixKey} className="space-y-3">
           <input
             type="text"

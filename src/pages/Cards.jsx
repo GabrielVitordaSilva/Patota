@@ -41,7 +41,7 @@ export default function Cards() {
 
       if (error) {
         setLoadError(
-          `Erro ao carregar cards: ${error.message}. Verifique se a migracao supabase-add-player-cards.sql foi executada no Supabase.`
+          `Erro ao carregar cards: ${error.message}. Verifique se a migração supabase-add-player-cards.sql foi executada no Supabase.`
         )
       }
 
@@ -97,7 +97,7 @@ export default function Cards() {
       setRatingTarget(null)
       await loadCards()
     } catch (error) {
-      alert(`Erro ao salvar avaliacao: ${error?.message || 'erro desconhecido'}`)
+      alert(`Erro ao salvar avaliação: ${error?.message || 'erro desconhecido'}`)
     } finally {
       setSaving(false)
     }
@@ -146,8 +146,8 @@ export default function Cards() {
 
       <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
         <p className="text-sm text-blue-800">
-          <strong>Como funciona:</strong> as notas do card sao a media das avaliacoes de toda a patota. Toque em
-          "Avaliar" para dar (ou atualizar) a sua nota para cada jogador. Voce pode colocar a sua foto no seu card.
+          <strong>Como funciona:</strong> as notas do card são a média das avaliações de toda a patota. Toque em
+          "Avaliar" para dar (ou atualizar) a sua nota para cada jogador. Você pode colocar a sua foto no seu card.
         </p>
       </div>
 
@@ -163,8 +163,8 @@ export default function Cards() {
               <div
                 className={`relative overflow-hidden rounded-xl p-4 pt-5 text-white  border-b-4 ${
                   isGoleiro
-                    ? 'bg-amber-600 border-amber-400'
-                    : 'bg-blue-700 border-blue-400'
+                    ? 'bg-[#7a5320] border-[#b5833a]'
+                    : 'bg-[#233f63] border-[#4a74a8]'
                 }`}
               >
                 {/* Topo: overall + foto + posicao */}
@@ -219,8 +219,8 @@ export default function Cards() {
 
                 <p className="relative text-[10px] text-center text-white/50 mt-3">
                   {card.avaliacoes === 0
-                    ? 'Ainda sem avaliacoes'
-                    : `Media de ${card.avaliacoes} avaliacao${card.avaliacoes > 1 ? 'es' : ''}`}
+                    ? 'Ainda sem avaliações'
+                    : `Média de ${card.avaliacoes} avaliação${card.avaliacoes > 1 ? 'es' : ''}`}
                 </p>
               </div>
 
@@ -282,7 +282,7 @@ export default function Cards() {
 
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={saving} className="flex-1 ui-btn-primary">
-                  {saving ? 'Salvando...' : 'Salvar Avaliacao'}
+                  {saving ? 'Salvando...' : 'Salvar Avaliação'}
                 </button>
                 <button type="button" onClick={() => setRatingTarget(null)} className="flex-1 ui-btn-secondary">
                   Cancelar

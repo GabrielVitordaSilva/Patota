@@ -3,25 +3,18 @@ import { Trophy, TrendingUp } from 'lucide-react'
 import { rankingService } from '../services/ranking'
 
 export default function Ranking() {
-  const [view, setView] = useState('geral')
   const [ranking, setRanking] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadRanking()
-  }, [view])
+  }, [])
 
   const loadRanking = async () => {
     setLoading(true)
     try {
-      if (view === 'geral') {
-        const { data } = await rankingService.getGeneralRanking()
-        setRanking(data || [])
-      } else {
-        const now = new Date()
-        const { data } = await rankingService.getMonthlyRanking(now.getFullYear(), now.getMonth() + 1)
-        setRanking(data || [])
-      }
+      const { data } = await rankingService.getGeneralRanking()
+      setRanking(data || [])
     } catch (error) {
       console.error('Error loading ranking:', error)
     } finally {
@@ -40,30 +33,6 @@ export default function Ranking() {
     <div className="space-y-6">
       <h1 className="text-lg font-bold text-slate-900">Ranking</h1>
 
-      {/* Toggle View */}
-      <div className="flex gap-2 bg-white rounded-xl p-2 border border-slate-200" data-tour="ranking">
-        <button
-          onClick={() => setView('geral')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition ${
-            view === 'geral'
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-600 hover:bg-gray-100'
-          }`}
-        >
-          Geral
-        </button>
-        <button
-          onClick={() => setView('mensal')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition ${
-            view === 'mensal'
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-600 hover:bg-gray-100'
-          }`}
-        >
-          Mensal
-        </button>
-      </div>
-
       {/* Ranking List */}
       {loading ? (
         <div className="text-center py-12">Carregando...</div>
@@ -73,7 +42,7 @@ export default function Ranking() {
           <p className="text-gray-600">Nenhum dado de ranking ainda</p>
         </div>
       ) : (
-        <div className="ui-card overflow-hidden">
+        <div className="ui-card overflow-hidden" data-tour="ranking">
           {ranking.map((member, index) => (
             <div
               key={member.member_id}

@@ -18,7 +18,7 @@ const getStatusBadge = (status) => {
   }
 }
 
-// Ultimo comprovante enviado para a cobranca: se foi recusado (e ainda nao
+// Último comprovante enviado para a cobrança: se foi recusado (e ainda não
 // ha um novo enviado), mostra o motivo escrito pelo admin.
 function PaymentNotice({ payments }) {
   const ordenados = [...(payments || [])].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em))
@@ -26,7 +26,7 @@ function PaymentNotice({ payments }) {
   if (!ultimo) return null
 
   if (ultimo.status === 'PENDENTE') {
-    return <p className="mb-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">Comprovante enviado. Aguardando conferencia do admin.</p>
+    return <p className="mb-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">Comprovante enviado. Aguardando conferência do admin.</p>
   }
 
   if (ultimo.status === 'REJEITADO') {
@@ -113,7 +113,7 @@ export default function Finance() {
       const due = dues.find((d) => d.id === dueId)
       await financeService.createPayment(member.id, dueId, due.valor, url)
 
-      alert('Comprovante enviado! Aguarde confirmacao do admin.')
+      alert('Comprovante enviado! Aguarde confirmação do admin.')
       loadData(member.id)
     } catch (error) {
       console.error('Error uploading file:', error)
@@ -137,7 +137,7 @@ export default function Finance() {
 
       await financeService.createFinePayment(member.id, fineId, valor, url)
 
-      alert('Comprovante enviado! Aguarde confirmacao do admin.')
+      alert('Comprovante enviado! Aguarde confirmação do admin.')
       loadData(member.id)
     } catch (error) {
       console.error('Error uploading file:', error)
@@ -171,7 +171,7 @@ export default function Finance() {
         {pendingDues.length === 0 ? (
           <div className="flex items-center gap-3 text-emerald-600">
             <CheckCircle size={24} />
-            <span>Todas as mensalidades estao em dia!</span>
+            <span>Todas as mensalidades estão em dia!</span>
           </div>
         ) : (
           <div className="space-y-3">
@@ -204,7 +204,7 @@ export default function Finance() {
 
         {dues.filter((d) => d.status !== 'PENDENTE').length > 0 && (
           <div className="mt-6 pt-6 border-t border-gray-200" data-tour="historico">
-            <h3 className="font-semibold text-gray-700 mb-3">Historico</h3>
+            <h3 className="font-semibold text-gray-700 mb-3">Histórico</h3>
             <div className="space-y-2">
               {dues
                 .filter((d) => d.status !== 'PENDENTE')
@@ -243,7 +243,7 @@ export default function Finance() {
                   <div className="flex-1">
                     <p className="font-semibold text-gray-800">
                       {fine.tipo === 'ATRASO' && 'Atraso'}
-                      {fine.tipo === 'FALTA_CONFIRMADA' && 'Falta Confirmada'}
+                      {fine.tipo === 'FALTA_CONFIRMADA' && 'Falta confirmada'}
                       {fine.tipo === 'CONVIDADO' && 'Convidado'}
                     </p>
                     {fine.events && (

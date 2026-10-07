@@ -68,13 +68,13 @@ export default function Home() {
       }))
     } catch (error) {
       console.error('Error confirming presence:', error)
-      alert('Nao foi possivel salvar sua resposta. Tente novamente.')
+      alert('Não foi possível salvar sua resposta. Tente novamente.')
     }
   }
 
   const handleConfirmPresence = async (event, status) => {
     if (!isOpen(event)) {
-      alert('O prazo para confirmacao encerrou!')
+      alert('O prazo para confirmação encerrou!')
       return
     }
 
@@ -132,7 +132,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-[2fr_1fr]">
           <div className="p-4 md:p-5">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-200">
-              <h2 className="ui-title">{index === 0 ? `Proximo: ${label}` : label}</h2>
+              <h2 className="ui-title">{index === 0 ? `Próximo: ${label}` : label}</h2>
               <span className={`badge ${open ? 'badge-ok' : ''}`}>{open ? 'Lista aberta' : 'Lista encerrada'}</span>
             </div>
             <p className="text-sm font-medium text-slate-500 first-letter:uppercase">{format(date, "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
@@ -140,9 +140,9 @@ export default function Home() {
               <p className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 tabular-nums">{format(date, 'HH:mm')}</p>
               <p className="pb-1.5 text-sm font-medium text-slate-600">{event.local}</p>
             </div>
-            {event.data_limite_confirmacao && open && <p className="mt-4 flex items-center gap-2 text-xs text-slate-500"><Clock size={14} className="text-blue-600" /> Responda ate {format(parseISO(event.data_limite_confirmacao), "dd/MM 'as' HH:mm")}</p>}
+            {event.data_limite_confirmacao && open && <p className="mt-4 flex items-center gap-2 text-xs text-slate-500"><Clock size={14} className="text-blue-600" /> Responda até {format(parseISO(event.data_limite_confirmacao), "dd/MM 'às' HH:mm")}</p>}
             <div className="mt-5 grid grid-cols-2 gap-2" data-tour={index === 0 ? 'confirmar' : undefined}>
-              {[['VOU', 'Vou'], ['NAO_VOU', 'Nao vou']].map(([status, text]) => (
+              {[['VOU', 'Vou'], ['NAO_VOU', 'Não vou']].map(([status, text]) => (
                 <button key={status} disabled={!open} onClick={() => handleConfirmPresence(event, status)} className={myRsvp === status ? 'ui-btn-primary' : 'ui-btn-secondary'}>{text}</button>
               ))}
             </div>
@@ -172,7 +172,7 @@ export default function Home() {
     <div className="space-y-4">
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Resumo" data-tour="kpis">
         <div className="ui-card p-3.5">
-          <div className="flex items-center justify-between gap-2"><span className="rotulo">Proximo evento</span>{quando && <span className={`badge ${quando[1]}`}>{quando[0]}</span>}</div>
+          <div className="flex items-center justify-between gap-2"><span className="rotulo">Próximo evento</span>{quando && <span className={`badge ${quando[1]}`}>{quando[0]}</span>}</div>
           <p className="mt-2 text-lg font-bold tracking-tight text-slate-900 capitalize">{eventDate ? format(eventDate, "EEE, dd MMM", { locale: ptBR }) : 'Sem agenda'}</p>
           <p className="text-[11px] text-slate-500">{eventDate ? `${format(eventDate, 'HH:mm')} · ${nextEvent.local}` : 'Novo evento em breve'}</p>
         </div>
@@ -184,17 +184,17 @@ export default function Home() {
         <div className="ui-card p-3.5">
           <div className="flex items-center justify-between gap-2"><span className="rotulo">Seu financeiro</span><span className={`badge ${pendingTotal > 0 ? 'badge-warn' : 'badge-ok'}`}>{pendingTotal > 0 ? 'Pendente' : 'Em dia'}</span></div>
           <p className="mt-2 text-lg font-bold tracking-tight text-slate-900">{pendingTotal > 0 ? `R$ ${pendingTotal.toFixed(2)}` : 'Tudo certo'}</p>
-          <p className="text-[11px] text-slate-500">{pendingTotal > 0 ? 'Valor aguardando pagamento' : 'Nenhuma pendencia'}</p>
+          <p className="text-[11px] text-slate-500">{pendingTotal > 0 ? 'Valor aguardando pagamento' : 'Nenhuma pendência'}</p>
         </div>
         <div className="ui-card p-3.5">
           <div className="flex items-center justify-between gap-2"><span className="rotulo">Sua resposta</span>{aguardando > 0 && <span className="badge badge-warn">Pendente</span>}</div>
           <p className="mt-2 text-lg font-bold tracking-tight text-slate-900">{aguardando > 0 ? `${aguardando} a confirmar` : 'Tudo respondido'}</p>
-          <p className="text-[11px] text-slate-500">Presenca nos proximos eventos</p>
+          <p className="text-[11px] text-slate-500">Presença nos próximos eventos</p>
         </div>
       </section>
 
       {events.length > 0 ? events.map(renderEvent) : (
-        <section className="ui-card p-8 text-center" data-tour="jogo"><Calendar className="mx-auto text-slate-400" /><h2 className="mt-3 font-bold text-slate-900">Nenhum evento agendado</h2><p className="mt-1 text-sm text-slate-500">A diretoria ainda nao publicou o proximo.</p></section>
+        <section className="ui-card p-8 text-center" data-tour="jogo"><Calendar className="mx-auto text-slate-400" /><h2 className="mt-3 font-bold text-slate-900">Nenhum evento agendado</h2><p className="mt-1 text-sm text-slate-500">A diretoria ainda não publicou o próximo.</p></section>
       )}
 
       <div className="grid md:grid-cols-[2fr_1fr] gap-4">
@@ -204,7 +204,7 @@ export default function Home() {
               {pendingTotal > 0 ? <AlertCircle className="text-amber-600 shrink-0" /> : <CheckCircle className="text-emerald-600 shrink-0" />}
               <div>
                 <h3 className="text-sm font-bold text-slate-900">{pendingTotal > 0 ? `R$ ${pendingTotal.toFixed(2)} pendentes` : 'Financeiro em dia'}</h3>
-                <p className="mt-0.5 text-xs text-slate-600">{pendingTotal > 0 ? 'Mensalidades ou multas aguardando pagamento.' : 'Voce nao possui mensalidades ou multas pendentes.'}</p>
+                <p className="mt-0.5 text-xs text-slate-600">{pendingTotal > 0 ? 'Mensalidades ou multas aguardando pagamento.' : 'Você não possui mensalidades ou multas pendentes.'}</p>
               </div>
             </div>
             <Link to="/finance" className="text-xs font-semibold text-blue-700 whitespace-nowrap">Detalhes</Link>
@@ -217,7 +217,7 @@ export default function Home() {
       {pendingConfirm && (
         <div className="fixed inset-0 bg-slate-950/60 flex items-end sm:items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-xl border border-slate-300 max-w-sm w-full p-6 animate-scale-in">
-            <h3 className="text-lg font-bold text-slate-900">Confirmar presenca?</h3>
+            <h3 className="text-lg font-bold text-slate-900">Confirmar presença?</h3>
             <p className="mt-2 text-sm text-slate-600">Ao confirmar, sua vaga fica reservada. Faltas sem aviso podem gerar multa de R$ 10,00.</p>
             <div className="mt-6 flex gap-2"><button onClick={() => setPendingConfirm(null)} className="flex-1 ui-btn-secondary">Cancelar</button><button onClick={confirmPresenceAfterModal} className="flex-1 ui-btn-primary">Confirmar</button></div>
           </div>

@@ -201,7 +201,7 @@ export default function Events() {
       <h1 className="text-lg font-bold text-slate-900">Eventos</h1>
 
       <div className="space-y-4" data-tour="eventos">
-        <h2 className="text-lg font-bold text-gray-700">Proximos eventos</h2>
+        <h2 className="text-lg font-bold text-gray-700">Próximos eventos</h2>
         {upcomingEvents.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
             <Calendar className="mx-auto text-gray-400 mb-3" size={48} />
@@ -213,11 +213,11 @@ export default function Events() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-gray-700">Historico</h2>
+        <h2 className="text-lg font-bold text-gray-700">Histórico</h2>
         {historyEvents.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
             <Calendar className="mx-auto text-gray-400 mb-3" size={48} />
-            <p className="text-gray-600">Ainda nao ha eventos passados</p>
+            <p className="text-gray-600">Ainda não ha eventos passados</p>
           </div>
         ) : (
           <div className="space-y-4">{historyEvents.map(renderEventCard)}</div>
