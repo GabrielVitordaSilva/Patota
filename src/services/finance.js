@@ -2,7 +2,7 @@ import { supabase } from './supabaseClient'
 import { storagePathFrom } from './storageUtils'
 
 export const financeService = {
-  // Obter mensalidades do usuario. O campo motivo_rejeicao vem da migracao
+  // Obter mensalidades do usuário. O campo motivo_rejeicao vem da migração
   // supabase-add-payment-rejection-and-fines-admin.sql; sem ela a consulta
   // cai para a versao antiga em vez de quebrar a tela.
   async getUserDues(memberId) {
@@ -18,7 +18,7 @@ export const financeService = {
     return query('id, valor, status, comprovante_url, criado_em')
   },
 
-  // Obter multas do usuario
+  // Obter multas do usuário
   async getUserFines(memberId) {
     const query = (campos) =>
       supabase
@@ -48,7 +48,7 @@ export const financeService = {
     return { data, error }
   },
 
-  // Editar multa (Admin). O lancamento no caixa criado junto com a multa
+  // Editar multa (Admin). O lançamento no caixa criado junto com a multa
   // acompanha o novo valor.
   async updateFine(fineId, { tipo, valor, obs }) {
     const { data, error } = await supabase
@@ -65,7 +65,7 @@ export const financeService = {
     return { data, error }
   },
 
-  // Excluir multa (Admin), junto com o lancamento que ela gerou no caixa
+  // Excluir multa (Admin), junto com o lançamento que ela gerou no caixa
   async deleteFine(fineId) {
     const { error } = await supabase.from('fines').delete().eq('id', fineId)
 
@@ -88,9 +88,9 @@ export const financeService = {
     return { data, error }
   },
 
-  // Obter pendencias do usuario
+  // Obter pendências do usuário
   async getUserPendencies(memberId) {
-    // As duas consultas nao dependem uma da outra: rodar em paralelo
+    // As duas consultas não dependem uma da outra: rodar em paralelo
     // corta o tempo total pela metade.
     const [{ data: dues }, { data: fines }] = await Promise.all([
       supabase
@@ -203,7 +203,7 @@ export const financeService = {
   },
 
   // Upload de comprovante. O bucket "comprovantes" e privado: o arquivo
-  // vai para a pasta do proprio membro e o banco guarda apenas o caminho.
+  // vai para a pasta do próprio membro e o banco guarda apenas o caminho.
   async uploadComprovante(file, memberId) {
     const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
     const filePath = `${memberId}/${Date.now()}.${fileExt}`
@@ -230,7 +230,7 @@ export const financeService = {
 
   // Excluir comprovantes com mais de X meses (Admin).
   // Percorre as pastas do bucket, remove os arquivos antigos e limpa a
-  // referencia nos pagamentos para nao sobrar link quebrado.
+  // referencia nos pagamentos para não sobrar link quebrado.
   async cleanupOldReceipts(months = 6) {
     const cutoff = new Date()
     cutoff.setMonth(cutoff.getMonth() - months)
@@ -276,7 +276,7 @@ export const financeService = {
     return { removedCount: oldPaths.length, error: null }
   },
 
-  // Gerar mensalidades do mes (Admin)
+  // Gerar mensalidades do mês (Admin)
   async generateMonthlyDues(year, month) {
     const competencia = `${year}-${String(month).padStart(2, '0')}`
     const vencimento = `${year}-${String(month).padStart(2, '0')}-10`
@@ -306,7 +306,7 @@ export const financeService = {
         member_id: member.id,
         competencia,
         vencimento,
-        valor: exemptIds.includes(member.id) ? 0 : 35,
+        valor: exemptIds.includes(member.id) ? 0 : 40,
         status: exemptIds.includes(member.id) ? 'ISENTO' : 'PENDENTE'
       })) || []
 
@@ -325,7 +325,7 @@ export const financeService = {
     return { data, error, generatedCount: data?.length || 0 }
   },
 
-  // Criar isencao (Admin)
+  // Criar isenção (Admin)
   async createExemption(memberId, competencia, motivo, adminId) {
     const { data, error } = await supabase
       .from('exemptions')
@@ -375,7 +375,7 @@ export const financeService = {
     return { balance, error: null }
   },
 
-  // Lancar saida no caixa (Admin)
+  // Lançar saída no caixa (Admin)
   async createCashOut(categoria, valor, obs, adminId) {
     const { data, error } = await supabase
       .from('cash_ledger')

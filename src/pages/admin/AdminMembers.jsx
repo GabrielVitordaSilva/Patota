@@ -88,7 +88,7 @@ export default function AdminMembers() {
   const handleDeleteMember = async (member) => {
     if (
       !confirm(
-        `Excluir ${member.nome}?\n\nIsso apaga o usuario por completo: login, pontos, presencas, mensalidades, multas e pagamentos. O email fica livre para um novo cadastro.\n\nEssa acao nao pode ser desfeita. Se quiser apenas afastar o membro, use "Desativar".`
+        `Excluir ${member.nome}?\n\nIsso apaga o usuário por completo: login, pontos, presenças, mensalidades, multas e pagamentos. O email fica livre para um novo cadastro.\n\nEssa acao não pode ser desfeita. Se quiser apenas afastar o membro, use "Desativar".`
       )
     ) {
       return
@@ -98,7 +98,7 @@ export default function AdminMembers() {
 
     if (error) {
       const hint = error.message?.includes('delete_member')
-        ? '\n\nExecute a migracao supabase-add-admin-crud.sql no SQL Editor do Supabase.'
+        ? '\n\nExecute a migração supabase-add-admin-crud.sql no SQL Editor do Supabase.'
         : ''
       alert(`Erro ao excluir membro: ${error.message}${hint}`)
       return
@@ -109,19 +109,19 @@ export default function AdminMembers() {
   }
 
   const handleCreateExemption = async (memberId) => {
-    const motivo = prompt('Motivo da isencao (LESAO ou TRABALHO):')
+    const motivo = prompt('Motivo da isenção (LESAO ou TRABALHO):')
     if (!motivo) return
 
     const now = new Date()
     const competencia = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
     await financeService.createExemption(memberId, competencia, motivo.toUpperCase(), currentMember.id)
-    alert('Isencao criada!')
+    alert('Isenção criada!')
     loadMemberDues(memberId)
   }
 
   const handleGenerateDues = async () => {
-    if (!confirm('Gerar mensalidades do mes atual para todos os membros ativos?')) return
+    if (!confirm('Gerar mensalidades do mês atual para todos os membros ativos?')) return
 
     const now = new Date()
     const { error, generatedCount } = await financeService.generateMonthlyDues(now.getFullYear(), now.getMonth() + 1)
@@ -133,7 +133,7 @@ export default function AdminMembers() {
     }
 
     if (!generatedCount) {
-      alert('Nenhuma mensalidade nova foi criada. As mensalidades deste mes ja existem.')
+      alert('Nenhuma mensalidade nova foi criada. As mensalidades deste mês já existem.')
       return
     }
 
@@ -147,7 +147,7 @@ export default function AdminMembers() {
         onClick={handleGenerateDues}
         className="w-full ui-btn-primary rounded-xl font-bold text-sm md:text-base"
       >
-        Gerar Mensalidades do Mes
+        Gerar Mensalidades do Mês
       </button>
 
       <AdminAddMember onSuccess={loadMembers} />
@@ -266,7 +266,7 @@ export default function AdminMembers() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Posicao</label>
+                <label className="block text-sm font-medium mb-2">Posição</label>
                 <select
                   value={editForm.posicao}
                   onChange={(e) => setEditForm((prev) => ({ ...prev, posicao: e.target.value }))}
@@ -281,7 +281,7 @@ export default function AdminMembers() {
                 <label className="block text-sm font-medium mb-2">Email (login)</label>
                 <input type="email" value={editingMember.email} className="ui-input bg-gray-100" disabled />
                 <p className="text-xs text-gray-500 mt-1">
-                  O email de login e gerenciado pelo Supabase Auth e nao pode ser alterado por aqui.
+                  O email de login é gerenciado pelo Supabase Auth e não pode ser alterado por aqui.
                 </p>
               </div>
 

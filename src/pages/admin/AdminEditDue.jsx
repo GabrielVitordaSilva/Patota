@@ -61,7 +61,7 @@ export default function AdminEditDue({ due, onClose, onSuccess }) {
               className="ui-input"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">Valor original: R$ 35,00</p>
+            <p className="text-xs text-gray-500 mt-1">Valor original: R$ 40,00</p>
           </div>
 
           <div>

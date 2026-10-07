@@ -35,15 +35,15 @@ export const adminService = {
     return { data, error }
   },
 
-  // Excluir o usuario por completo: login no Auth, membro e todo o historico.
+  // Excluir o usuário por completo: login no Auth, membro e todo o histórico.
   // Usa a funcao delete_member do banco (SECURITY DEFINER) porque o cliente
-  // nao tem permissao para apagar de auth.users diretamente.
+  // não tem permissao para apagar de auth.users diretamente.
   async deleteMember(memberId) {
     const { error } = await supabase.rpc('delete_member', { target_id: memberId })
     return { error }
   },
 
-  // Lancamentos de pontos do ranking (sem os pontos antigos de presenca)
+  // Lancamentos de pontos do ranking (sem os pontos antigos de presença)
   async getPointsLedger() {
     const { data, error } = await supabase
       .from('points_ledger')
@@ -78,7 +78,7 @@ export const adminService = {
     return { data, error }
   },
 
-  // Excluir um lancamento de pontos
+  // Excluir um lançamento de pontos
   async deletePointsEntry(entryId) {
     const { error } = await supabase
       .from('points_ledger')

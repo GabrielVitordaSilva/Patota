@@ -28,7 +28,7 @@ export default function AdminRanking() {
 
       if (ledgerResult.error) {
         setLoadError(
-          `Erro ao carregar pontos: ${ledgerResult.error.message}. Verifique se a migracao supabase-add-admin-crud.sql foi executada no Supabase.`
+          `Erro ao carregar pontos: ${ledgerResult.error.message}. Verifique se a migração supabase-add-admin-crud.sql foi executada no Supabase.`
         )
       }
 
@@ -72,7 +72,7 @@ export default function AdminRanking() {
 
     const valor = parseInt(pontos, 10)
     if (!Number.isInteger(valor) || valor === 0) {
-      alert('Informe um numero de pontos diferente de zero. Use valor negativo para remover pontos.')
+      alert('Informe um número de pontos diferente de zero. Use valor negativo para remover pontos.')
       return
     }
 
@@ -92,11 +92,11 @@ export default function AdminRanking() {
   }
 
   const handleDeleteEntry = async (entry) => {
-    if (!confirm(`Excluir este lancamento de ${entry.pontos} ponto(s)? O total do jogador sera recalculado.`)) return
+    if (!confirm(`Excluir este lançamento de ${entry.pontos} ponto(s)? O total do jogador será recalculado.`)) return
 
     const { error } = await adminService.deletePointsEntry(entry.id)
     if (error) {
-      alert(`Erro ao excluir lancamento: ${error.message}`)
+      alert(`Erro ao excluir lançamento: ${error.message}`)
       return
     }
 
@@ -127,7 +127,7 @@ export default function AdminRanking() {
       <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
         <p className="text-sm text-blue-800">
           <strong>Ajuste manual:</strong> use "Ajustar" para somar ou remover pontos de um jogador (valores
-          negativos removem). Em "Historico" voce pode excluir lancamentos errados, inclusive de placares.
+          negativos removem). Em "Histórico" você pode excluir lancamentos errados, inclusive de placares.
         </p>
       </div>
 
@@ -163,7 +163,7 @@ export default function AdminRanking() {
                   </button>
                   <button onClick={() => setHistoryMember(member)} className="ui-btn-secondary text-xs md:text-sm">
                     <History size={14} className="inline mr-1" />
-                    Historico
+                    Histórico
                   </button>
                 </div>
               </div>
@@ -209,7 +209,7 @@ export default function AdminRanking() {
                   value={obs}
                   onChange={(e) => setObs(e.target.value)}
                   className="ui-input"
-                  placeholder="Ex: correcao de placar"
+                  placeholder="Ex: correção de placar"
                 />
               </div>
 
@@ -230,7 +230,7 @@ export default function AdminRanking() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full my-8">
             <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 p-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-800 truncate">Historico - {historyMember.nome}</h3>
+              <h3 className="text-lg font-bold text-gray-800 truncate">Histórico - {historyMember.nome}</h3>
               <button onClick={() => setHistoryMember(null)} className="text-gray-500 hover:text-gray-700">
                 <X size={24} />
               </button>
@@ -238,7 +238,7 @@ export default function AdminRanking() {
 
             <div className="p-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
               {historyEntries.length === 0 ? (
-                <p className="text-sm text-gray-600">Nenhum lancamento de pontos para este membro.</p>
+                <p className="text-sm text-gray-600">Nenhum lançamento de pontos para este membro.</p>
               ) : (
                 historyEntries.map((entry) => (
                   <div key={entry.id} className="border border-gray-200 rounded-lg p-3 flex items-center gap-3">
@@ -261,7 +261,7 @@ export default function AdminRanking() {
                     <button
                       onClick={() => handleDeleteEntry(entry)}
                       className="text-red-500 hover:text-red-700 p-1"
-                      title="Excluir lancamento"
+                      title="Excluir lançamento"
                     >
                       <Trash2 size={18} />
                     </button>

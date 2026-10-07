@@ -35,46 +35,7 @@ export const rankingService = {
     return { data: rankingArray, error: null }
   },
 
-  // Obter ranking mensal
-  async getMonthlyRanking(year, month) {
-    const startDate = new Date(year, month - 1, 1)
-    const endDate = new Date(year, month, 0)
-
-    const { data, error } = await supabase
-      .from('points_ledger')
-      .select(
-        `
-        member_id,
-        pontos,
-        gols,
-        members (nome)
-      `
-      )
-      .neq('motivo', 'PRESENCA_JOGO')
-      .gte('criado_em', startDate.toISOString())
-      .lte('criado_em', endDate.toISOString())
-
-    if (error) return { data: [], error }
-
-    const ranking = {}
-    data?.forEach((entry) => {
-      if (!ranking[entry.member_id]) {
-        ranking[entry.member_id] = {
-          member_id: entry.member_id,
-          nome: entry.members.nome,
-          pontos: 0,
-          totalGols: 0
-        }
-      }
-      ranking[entry.member_id].pontos += entry.pontos
-      ranking[entry.member_id].totalGols += entry.gols || 0
-    })
-
-    const rankingArray = Object.values(ranking).sort((a, b) => b.pontos - a.pontos)
-    return { data: rankingArray, error: null }
-  },
-
-  // Obter estatisticas detalhadas do usuario
+  // Obter estatisticas detalhadas do usuário
   async getUserStats(memberId) {
     const { data: points } = await supabase
       .from('points_ledger')

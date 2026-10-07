@@ -4,9 +4,9 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 
-// Code splitting por rota: cada pagina vira um arquivo separado que so e
-// baixado quando o usuario navega ate ela. O painel Admin (o maior de todos)
-// nao entra mais no carregamento inicial de quem nem e admin.
+// Code splitting por rota: cada página vira um arquivo separado que so e
+// baixado quando o usuário navega até ela. O painel Admin (o maior de todos)
+// não entra mais no carregamento inicial de quem nem e admin.
 const Home = lazy(() => import('./pages/Home'))
 const Events = lazy(() => import('./pages/Events'))
 const Finance = lazy(() => import('./pages/Finance'))

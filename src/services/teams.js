@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient'
 
 export const teamsService = {
-  // Verificar se confirmacoes estao abertas
+  // Verificar se confirmações estão abertas
   async isConfirmationOpen(eventId) {
     const { data } = await supabase
       .from('events')
@@ -39,7 +39,7 @@ export const teamsService = {
         return { error: 'Precisa de pelo menos 2 jogadores confirmados' }
       }
 
-      // Overall de cada confirmado, calculado das avaliacoes dos cards
+      // Overall de cada confirmado, calculado das avaliações dos cards
       const memberIds = confirmados.map((p) => p.member_id)
       const { data: ratings } = await supabase
         .from('player_ratings')
@@ -61,7 +61,7 @@ export const teamsService = {
         overallDe[id] = Math.round(somaMedias / statKeys.length)
       })
 
-      // Quem ainda nao foi avaliado entra com a media do grupo, para nao desequilibrar
+      // Quem ainda não foi avaliado entra com a média do grupo, para não desequilibrar
       const avaliados = Object.values(overallDe).filter((v) => v !== null)
       const mediaGrupo = avaliados.length ? avaliados.reduce((a, b) => a + b, 0) / avaliados.length : 70
 
@@ -180,7 +180,7 @@ export const teamsService = {
 
       if (eventError) return { error: eventError.message }
       if (!event || !event.times_gerados) {
-        return { error: 'Times nao foram gerados ainda' }
+        return { error: 'Times não foram gerados ainda' }
       }
 
       const times = event.times_json || {}
@@ -197,7 +197,7 @@ export const teamsService = {
         statusPorMembro[a.member_id] = a.status
       })
 
-      // Sem registro de presenca conta como presente (padrao da chamada)
+      // Sem registro de presença conta como presente (padrao da chamada)
       const estevePresente = (memberId) => {
         const status = statusPorMembro[memberId]
         return status !== 'AUSENTE' && status !== 'JUSTIFICADO'

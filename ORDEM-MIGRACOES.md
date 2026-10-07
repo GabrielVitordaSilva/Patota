@@ -18,6 +18,7 @@ banco em um estado parcial.
 12. `supabase-add-comprovantes-cleanup.sql`
 13. `supabase-indices-performance.sql`
 14. `supabase-add-payment-rejection-and-fines-admin.sql`
+15. `supabase-add-notifications-and-auto-dues.sql`
 
 ## Verificações obrigatórias
 

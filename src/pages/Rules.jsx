@@ -27,12 +27,12 @@ export default function Rules() {
     <div className="space-y-6">
       <h1 className="text-lg font-bold text-slate-900">Regras CCC</h1>
 
-      <div className="bg-blue-600 text-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-[#233f63] text-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-xl font-bold mb-3">Chave PIX</h2>
         <p className="mb-4 font-mono text-lg break-all">{pixKey}</p>
         <button
           onClick={copyPix}
-          className="w-full bg-white text-emerald-600 py-3 rounded-lg font-bold hover:bg-emerald-50 transition"
+          className="w-full bg-white text-[#233f63] py-3 rounded-lg font-bold hover:bg-slate-100 transition"
         >
           Copiar Chave
         </button>
@@ -47,7 +47,7 @@ export default function Rules() {
         <div className="space-y-3">
           <div className="flex justify-between items-center py-2 border-b border-gray-100">
             <span className="text-gray-700">Valor</span>
-            <span className="font-bold text-emerald-600 text-xl">R$ 35,00</span>
+            <span className="font-bold text-emerald-600 text-xl">R$ 40,00</span>
           </div>
           <div className="flex justify-between items-center py-2 border-b border-gray-100">
             <span className="text-gray-700">Vencimento</span>
@@ -55,7 +55,7 @@ export default function Rules() {
           </div>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
             <p className="text-sm text-blue-800">
-              <strong>Isencao:</strong> Lesao ou trabalho podem isentar a mensalidade do mes. Fale com um admin.
+              <strong>Isenção:</strong> Lesão ou trabalho podem isentar a mensalidade do mês. Fale com um admin.
             </p>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function Rules() {
 
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <div>
-              <p className="font-semibold text-gray-800">Falta Confirmada</p>
+              <p className="font-semibold text-gray-800">Falta confirmada</p>
               <p className="text-sm text-gray-600">Confirmar "Vou" e faltar</p>
             </div>
             <span className="font-bold text-orange-600">R$ 10,00</span>
@@ -104,7 +104,7 @@ export default function Rules() {
           <div className="flex justify-between items-center py-3">
             <div>
               <p className="font-semibold text-gray-800">Gols do seu time</p>
-              <p className="text-sm text-gray-600">Presente no jogo, voce ganha os gols que o seu time marcou</p>
+              <p className="text-sm text-gray-600">Presente no jogo, você ganha os gols que o seu time marcou</p>
             </div>
             <span className="font-bold text-emerald-600">+1 ponto por gol</span>
           </div>
@@ -112,19 +112,19 @@ export default function Rules() {
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
           <p className="text-sm text-yellow-800">
-            <strong>Ranking:</strong> Acompanhe sua posicao na aba Ranking. Quanto mais voce joga, mais pontos acumula!
+            <strong>Ranking:</strong> Acompanhe sua posição na aba Ranking. Quanto mais você joga, mais pontos acumula!
           </p>
         </div>
       </div>
 
       <div className="bg-gray-100 rounded-xl p-6">
-        <h3 className="font-bold text-gray-800 mb-3">Observacoes Importantes</h3>
+        <h3 className="font-bold text-gray-800 mb-3">Observações Importantes</h3>
         <ul className="space-y-2 text-sm text-gray-700">
           <li>Todas as multas entram no caixa da patota</li>
-          <li>O dinheiro do caixa e usado para despesas coletivas (campo, materiais, etc)</li>
+          <li>O dinheiro do caixa é usado para despesas coletivas (campo, materiais, etc)</li>
           <li>Mantenha seus pagamentos em dia para evitar bloqueios</li>
-          <li>Sempre confirme sua presenca com antecedencia</li>
-          <li>Em caso de duvidas, fale com os administradores</li>
+          <li>Sempre confirme sua presença com antecedência</li>
+          <li>Em caso de dúvidas, fale com os administradores</li>
         </ul>
       </div>
     </div>

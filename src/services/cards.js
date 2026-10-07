@@ -3,7 +3,7 @@ import { storagePathFrom } from './storageUtils'
 
 export const STAT_LABELS = [
   { key: 'ritmo', sigla: 'RIT', label: 'Ritmo' },
-  { key: 'finalizacao', sigla: 'FIN', label: 'Finalizacao' },
+  { key: 'finalizacao', sigla: 'FIN', label: 'Finalização' },
   { key: 'passe', sigla: 'PAS', label: 'Passe' },
   { key: 'drible', sigla: 'DRI', label: 'Drible' },
   { key: 'defesa', sigla: 'DEF', label: 'Defesa' },
@@ -12,7 +12,7 @@ export const STAT_LABELS = [
 
 export const cardsService = {
   // Membros ativos + todas as avaliacoes.
-  // Os cards nascem do cadastro de membros: nao precisa configurar nada.
+  // Os cards nascem do cadastro de membros: não precisa configurar nada.
   async getPlayerCards() {
     const [membersResult, ratingsResult] = await Promise.all([
       supabase.from('members').select('id, nome, posicao, foto_url').eq('ativo', true).order('nome'),
@@ -26,7 +26,7 @@ export const cardsService = {
     }
   },
 
-  // Criar ou atualizar a minha avaliacao de um jogador
+  // Criar ou atualizar a minha avaliação de um jogador
   async rateMember(raterId, ratedId, stats) {
     const { data, error } = await supabase
       .from('player_ratings')
@@ -44,7 +44,7 @@ export const cardsService = {
   },
 
   // Upload da foto do card. O bucket "avatars" e privado: o arquivo vai
-  // para a pasta do proprio membro e o banco guarda apenas o caminho.
+  // para a pasta do próprio membro e o banco guarda apenas o caminho.
   async uploadPhoto(memberId, file) {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
     const filePath = `${memberId}/${Date.now()}.${ext}`
