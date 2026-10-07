@@ -1,9 +1,10 @@
 // Passos do guia "Como usar" por tela. alvo = seletor CSS (null = caixa centralizada).
 // Passos cujo alvo nao existe na tela (ex.: botoes so de admin) sao pulados.
 const comuns = (isAdmin) => [
-  ['[data-tour="menu"]', 'Menu principal', 'Visao geral: o proximo jogo e o seu resumo. Jogos: agenda e historico. Financeiro: mensalidades e multas. Ranking: pontuacao da temporada. Elenco: cards dos jogadores. Regras: valores e pontuacao.' + (isAdmin ? ' Administracao: eventos, pagamentos, caixa, membros e ranking.' : '')],
+  ['[data-tour="menu"]', 'Menu principal', 'Visao geral: o proximo jogo e o seu resumo. Jogos: agenda e historico. Financeiro: mensalidades e multas. Ranking: pontuacao da temporada. Elenco: cards dos jogadores.' + (isAdmin ? ' Administracao: eventos, pagamentos, caixa, membros e ranking.' : '')],
+  ['[data-tour="regras"]', 'Regras', 'Abre as regras da patota: valores de mensalidade, multas e como os pontos sao contados.'],
   ['[data-tour="perfil"]', 'Sua conta', 'Mostra quem esta logado. O icone de seta encerra a sessao.'],
-  ['[data-tour="ajuda"]', 'Guia sempre a mao', 'Cada tela tem o seu guia. Clique em Como usar sempre que quiser rever. O botao ao lado troca entre tema claro e escuro.']
+  ['[data-tour="ajuda"]', 'Guia sempre a mao', 'Cada tela tem o seu guia. Clique em Como usar sempre que quiser rever. ']
 ]
 
 export function getSteps(pathname, isAdmin) {
@@ -13,8 +14,8 @@ export function getSteps(pathname, isAdmin) {
       return [
         [null, 'Como usar a Patota', 'Esta tela reune o proximo jogo, a sua presenca e a sua situacao financeira. O guia leva menos de um minuto.'],
         ['[data-tour="kpis"]', 'Resumo em quatro numeros', 'Quando e o proximo jogo, quantos jogadores ja confirmaram, quanto voce tem pendente e qual e o seu status.'],
-        ['[data-tour="jogo"]', 'Proximo jogo', 'Dia, horario e local. Enquanto a lista estiver aberta, o selo "Lista aberta" aparece no canto.'],
-        ['[data-tour="confirmar"]', 'Confirmar presenca', 'Toque em "Vou" ou "Nao vou". Voce pode trocar a resposta enquanto a lista estiver aberta. Falta sem aviso pode gerar multa (veja Regras). A lista fecha automaticamente antes do jogo.'],
+        ['[data-tour="jogo"]', 'Seus eventos', 'Cada jogo ou evento interno agendado ganha o seu proprio card, com dia, horario e local. Enquanto a lista estiver aberta, o selo "Lista aberta" aparece no canto. Responda em cada um separadamente.'],
+        ['[data-tour="confirmar"]', 'Confirmar presenca', 'Em cada evento, toque em "Vou" ou "Nao vou". Voce pode trocar a resposta enquanto a lista estiver aberta. Falta sem aviso pode gerar multa (veja Regras). A lista fecha automaticamente antes do jogo.'],
         ['[data-tour="times"]', 'Times sorteados', 'Quando a diretoria sorteia, a escalacao aparece aqui. O botao Compartilhar envia para o WhatsApp.'],
         ['[data-tour="financeiro"]', 'Financeiro', 'Mostra o que esta pendente. Se houver valor em aberto, copie a chave PIX por aqui e anexe o comprovante em Financeiro.'],
         ...c
@@ -22,7 +23,7 @@ export function getSteps(pathname, isAdmin) {
     case '/events':
       return [
         [null, 'Jogos', 'Lista os proximos eventos e o historico, com quem confirmou e os placares.'],
-        ['[data-tour="eventos"]', 'Eventos', 'Cada card mostra tipo, data, local e quantos confirmaram. Jogos ja realizados mostram o placar.'],
+        ['[data-tour="eventos"]', 'Eventos', 'Cada card mostra tipo, data, local e quantos confirmaram. Jogos ja realizados mostram o placar e quem jogou em cada time (preto e branco).'],
         ...c
       ]
     case '/finance':
@@ -45,11 +46,6 @@ export function getSteps(pathname, isAdmin) {
         ['[data-tour="cards"]', 'Cards', 'Mostram posicao, nota geral e atributos. Voce pode avaliar os colegas e trocar a sua foto.'],
         ...c
       ]
-    case '/rules':
-      return [
-        [null, 'Regras', 'Valores de mensalidade, multas e como os pontos sao contados.'],
-        ...c
-      ]
     case '/admin':
       return [
         [null, 'Painel de administracao', 'Daqui a diretoria cuida de eventos, pagamentos, caixa, membros e ranking.'],
@@ -58,7 +54,8 @@ export function getSteps(pathname, isAdmin) {
         ['[data-tour="admin-ranking"]', 'Ranking', 'Use "Ajustar" para somar ou remover pontos em correcoes, sempre com observacao.'],
         ['[data-tour="admin-caixa"]', 'Caixa', 'Registre saidas (materiais, campo, confraternizacao) e acompanhe o saldo.'],
         ['[data-tour="admin-members"]', 'Membros', 'Adicione jogadores, edite posicao e valor, ative ou desative. Quem acabou de se cadastrar so entra depois de ativado.'],
-        ['[data-tour="admin-payments"]', 'Pagamentos', 'Abra o comprovante enviado pelo membro e confirme ou rejeite.'],
+        ['[data-tour="admin-payments"]', 'Pagamentos', 'Abra o comprovante enviado pelo membro e confirme ou rejeite. Ao rejeitar, o motivo que voce escrever aparece para o membro na tela Financeiro, e ele pode enviar outro comprovante.'],
+        ['[data-tour="admin-fines"]', 'Multas', 'Veja todas as multas. Gerou uma sem querer? Edite o valor ou o tipo, ou exclua. Multas ja pagas ficam bloqueadas.'],
         ...c
       ]
     default:

@@ -129,7 +129,7 @@ export default function Events() {
               event.tipo === 'JOGO' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
             }`}
           >
-            {event.tipo}
+            {event.tipo === 'JOGO' ? 'Jogo' : event.tipo === 'INTERNO' ? 'Evento interno' : event.tipo}
           </span>
           <h3 className="text-lg font-bold text-gray-800">
             {format(parseISO(event.data_hora), "EEEE, dd 'de' MMMM", { locale: ptBR })}
@@ -160,6 +160,22 @@ export default function Events() {
         <span className={`inline-block mb-4 px-3 py-1 rounded-full text-xs font-semibold ${resultBadge.className}`}>
           {resultBadge.label}
         </span>
+      )}
+
+      {event.times_json && (event.times_json.preto?.length > 0 || event.times_json.branco?.length > 0) && (
+        <div className="border-t border-gray-200 pt-4 mb-4">
+          <p className="text-sm font-semibold text-gray-700 mb-2">Times:</p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[['Time preto', event.times_json.preto, 'bg-slate-900 text-white'], ['Time branco', event.times_json.branco, 'bg-white text-slate-900 border border-slate-300']].map(([nome, jogadores, estilo]) => (
+              <div key={nome} className={`rounded-lg p-3 ${estilo}`}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-2">{nome}</p>
+                <ul className="space-y-1 text-sm">
+                  {(jogadores || []).map((jogador) => <li key={jogador.member_id}>{jogador.nome}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {event.event_rsvp && event.event_rsvp.length > 0 && (

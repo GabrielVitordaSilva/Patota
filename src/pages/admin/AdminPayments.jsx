@@ -68,14 +68,19 @@ export default function AdminPayments() {
   }
 
   const handleRejectPayment = async (paymentId) => {
-    const motivo = prompt('Motivo da rejeicao:')
-    if (!motivo) return
+    const motivo = prompt('Motivo da rejeicao (o membro vai ver esta mensagem):')
+    if (!motivo || !motivo.trim()) return
 
     setProcessingPaymentId(paymentId)
 
     try {
-      await supabase.from('payments').delete().eq('id', paymentId)
-      alert(`Pagamento rejeitado! Avise o membro sobre: ${motivo}`)
+      const { error } = await financeService.rejectPayment(paymentId, motivo.trim())
+      if (error) {
+        alert(`Nao foi possivel rejeitar: ${error.message}\n\nSe o erro citar "payments_status_check" ou "motivo_rejeicao", rode o arquivo supabase-add-payment-rejection-and-fines-admin.sql no Supabase.`)
+        return
+      }
+
+      alert('Pagamento rejeitado. O membro vai ver o motivo na tela Financeiro.')
       setSelectedReceipt(null)
       await loadPayments()
     } finally {
