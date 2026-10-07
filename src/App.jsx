@@ -13,6 +13,7 @@ const Finance = lazy(() => import('./pages/Finance'))
 const Ranking = lazy(() => import('./pages/Ranking'))
 const Cards = lazy(() => import('./pages/Cards'))
 const Rules = lazy(() => import('./pages/Rules'))
+const Help = lazy(() => import('./pages/Help'))
 const Admin = lazy(() => import('./pages/admin/Admin'))
 
 function ScreenLoader() {
@@ -74,6 +75,14 @@ function App() {
               element={
                 <Suspense fallback={<PageLoader />}>
                   <Home />
+                </Suspense>
+              }
+            />
+            <Route
+              path="help"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <Help />
                 </Suspense>
               }
             />

@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CircleDollarSign,
   FileText,
+  HelpCircle,
   Home,
   LogOut,
   Settings,
@@ -18,7 +19,8 @@ const mainNav = [
   { path: '/finance', icon: CircleDollarSign, label: 'Financeiro' },
   { path: '/ranking', icon: Trophy, label: 'Ranking' },
   { path: '/cards', icon: Star, label: 'Elenco' },
-  { path: '/rules', icon: FileText, label: 'Regras' }
+  { path: '/rules', icon: FileText, label: 'Regras' },
+  { path: '/help', icon: HelpCircle, label: 'Como usar' }
 ]
 
 export default function Layout() {
@@ -77,7 +79,7 @@ export default function Layout() {
       </main>
 
       <nav className="mobile-nav" aria-label="Navegacao mobile">
-        {navItems.slice(0, isAdmin ? 7 : 6).map(({ path, icon: Icon, label }) => (
+        {navItems.slice(0, isAdmin ? 8 : 7).map(({ path, icon: Icon, label }) => (
           <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'mobile-nav-link active' : 'mobile-nav-link'}>
             <Icon size={20} />
             <span>{label === 'Visao geral' ? 'Inicio' : label}</span>

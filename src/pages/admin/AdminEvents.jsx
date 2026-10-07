@@ -32,7 +32,6 @@ export default function AdminEvents() {
   const [formState, setFormState] = useState({
     tipo: 'JOGO',
     data_hora: '',
-    data_limite_confirmacao: '',
     local: ''
   })
   const [scoreFormState, setScoreFormState] = useState({
@@ -105,7 +104,6 @@ export default function AdminEvents() {
     setFormState({
       tipo: 'JOGO',
       data_hora: '',
-      data_limite_confirmacao: '',
       local: ''
     })
     setShowEventForm(true)
@@ -116,7 +114,6 @@ export default function AdminEvents() {
     setFormState({
       tipo: event.tipo || 'JOGO',
       data_hora: toDatetimeLocal(event.data_hora),
-      data_limite_confirmacao: toDatetimeLocal(event.data_limite_confirmacao),
       local: event.local || ''
     })
     setShowEventForm(true)
@@ -143,7 +140,6 @@ export default function AdminEvents() {
         const { error } = await eventService.updateEvent(editingEventId, {
           tipo: formState.tipo,
           data_hora: formState.data_hora,
-          data_limite_confirmacao: formState.data_limite_confirmacao || null,
           local: formState.local
         })
 
@@ -153,7 +149,6 @@ export default function AdminEvents() {
         const { error } = await eventService.createEvent({
           tipo: formState.tipo,
           data_hora: formState.data_hora,
-          data_limite_confirmacao: formState.data_limite_confirmacao || null,
           local: formState.local,
           criado_por: member.id
         })
@@ -334,20 +329,6 @@ export default function AdminEvents() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Limite de Confirmacoes (Opcional)</label>
-            <input
-              type="datetime-local"
-              name="data_limite_confirmacao"
-              className="w-full px-4 py-2 border rounded-lg"
-              value={formState.data_limite_confirmacao}
-              onChange={(e) => setFormState((prev) => ({ ...prev, data_limite_confirmacao: e.target.value }))}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Se deixar vazio, o sistema calcula automaticamente (sexta 18h ou 24h antes).
-            </p>
-          </div>
-
-          <div>
             <label className="block text-sm font-medium mb-2">Local</label>
             <input
               type="text"
@@ -485,7 +466,7 @@ export default function AdminEvents() {
                   <button
                     onClick={() => handleMarkAttendance(selectedEvent.id, rsvp.member_id, 'PRESENTE')}
                     className={`py-2 rounded-lg text-sm font-semibold ${
-                      statusAtual === 'PRESENTE' ? 'bg-blue-800 text-white' : 'bg-gray-100 text-gray-700'
+                      statusAtual === 'PRESENTE' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     <Check size={16} className="mx-auto" />
