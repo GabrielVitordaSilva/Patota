@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLiveData } from '../hooks'
 import { Calendar, MapPin, Users } from 'lucide-react'
 import { eventService } from '../services/events'
 import { format, parseISO } from 'date-fns'
@@ -11,6 +12,8 @@ export default function Events() {
   useEffect(() => {
     loadEvents()
   }, [])
+
+  useLiveData(['events', 'event_rsvp', 'event_attendance'], () => loadEvents())
 
   const loadEvents = async () => {
     try {

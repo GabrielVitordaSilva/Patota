@@ -3,7 +3,7 @@
 const comuns = (isAdmin) => [
   ['[data-tour="menu"]', 'Menu principal', 'Visão geral: o próximo jogo é o seu resumo. Jogos: agenda e histórico. Financeiro: mensalidades e multas. Ranking: pontuação da temporada. Elenco: cards dos jogadores.' + (isAdmin ? ' Administração: eventos, pagamentos, caixa, membros e ranking.' : '')],
   ['[data-tour="regras"]', 'Regras', 'Abre as regras da patota: valores de mensalidade, multas e como os pontos são contados.'],
-  ['[data-tour="notificacoes"]', 'Notificações', 'O sino avisa quando há um novo jogo ou evento, uma nova mensalidade, uma multa ou a resposta do admin ao seu comprovante. O número vermelho mostra quantas você ainda não leu; ao tocar em uma, você vai direto para a tela certa.'],
+  ['[data-tour="notificacoes"]', 'Notificações', 'O sino avisa quando há um novo jogo ou evento, uma nova mensalidade, uma multa ou a resposta do admin ao seu comprovante. O número vermelho mostra quantas você ainda não leu; ao tocar em uma, você vai direto para a tela certa. Dentro do sino, o botão "Ativar avisos" faz as notificações chegarem no celular mesmo com o app fechado. No iPhone, isso só funciona com o app instalado na Tela de Início.'],
   ['[data-tour="perfil"]', 'Sua conta', 'Mostra quem está logado. O ícone de seta encerra a sessão.'],
   ['[data-tour="ajuda"]', 'Guia sempre à mão', 'Cada tela tem o seu guia. Clique em Como usar sempre que quiser rever. ']
 ]

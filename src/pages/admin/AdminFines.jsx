@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { Pencil, Trash2, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { financeService } from '../../services/finance'
@@ -16,8 +17,10 @@ export default function AdminFines() {
     loadFines()
   }, [])
 
-  const loadFines = async () => {
-    setLoading(true)
+  useLiveData(['fines', 'members'], () => loadFines(true))
+
+  const loadFines = async (silent = false) => {
+    if (!silent) setLoading(true)
     const { data } = await financeService.getAllFines()
     setFines(data || [])
     setLoading(false)

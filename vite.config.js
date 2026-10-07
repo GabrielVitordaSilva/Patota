@@ -65,29 +65,12 @@ export default defineConfig(({ mode }) => {
           }
         ]
       },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
-        // Cacheia comprovantes/imagens do Storage do Supabase no dispositivo:
-        // abre instantaneo nas proximas visualizacoes e economiza dados moveis.
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'supabase-storage',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 30 * 24 * 60 * 60
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+      // Service worker proprio (src/sw.js): cache offline + notificacoes push
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       }
       })
     ],

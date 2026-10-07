@@ -19,6 +19,7 @@ banco em um estado parcial.
 13. `supabase-indices-performance.sql`
 14. `supabase-add-payment-rejection-and-fines-admin.sql`
 15. `supabase-add-notifications-and-auto-dues.sql`
+16. `supabase-add-push-and-realtime.sql` (e publicar a função `supabase/functions/send-push`)
 
 ## Verificações obrigatórias
 

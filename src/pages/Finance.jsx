@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../hooks'
 import { CheckCircle, Upload } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { configService } from '../services/config'
@@ -64,6 +65,11 @@ export default function Finance() {
     setLoading(true)
     loadData(member.id)
   }, [member?.id])
+
+  useLiveData(['dues', 'fines', 'payments', 'config'], () => {
+    if (member?.id) loadData(member.id)
+    loadPixKey()
+  })
 
   const loadData = async (memberId) => {
     if (!memberId) {

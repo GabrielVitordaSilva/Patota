@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLiveData } from '../hooks'
 import { User, Star, Camera, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { cardsService, STAT_LABELS } from '../services/cards'
@@ -33,8 +34,10 @@ export default function Cards() {
     loadCards()
   }, [])
 
-  const loadCards = async () => {
-    setLoading(true)
+  useLiveData(['player_ratings', 'members'], () => loadCards(true))
+
+  const loadCards = async (silent = false) => {
+    if (!silent) setLoading(true)
     setLoadError('')
     try {
       const { members: membersData, ratings: ratingsData, error } = await cardsService.getPlayerCards()

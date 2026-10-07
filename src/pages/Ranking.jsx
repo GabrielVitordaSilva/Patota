@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../hooks'
 import { Trophy, TrendingUp } from 'lucide-react'
 import { rankingService } from '../services/ranking'
 
@@ -10,8 +11,10 @@ export default function Ranking() {
     loadRanking()
   }, [])
 
-  const loadRanking = async () => {
-    setLoading(true)
+  useLiveData(['points_ledger', 'events'], () => loadRanking(true))
+
+  const loadRanking = async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const { data } = await rankingService.getGeneralRanking()
       setRanking(data || [])

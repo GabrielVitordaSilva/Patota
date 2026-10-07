@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { Plus, Check, X, Clock, Stethoscope, Pencil, Trash2, Users, Shuffle, RotateCcw, Trophy } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { eventService } from '../../services/events'
@@ -45,8 +46,10 @@ export default function AdminEvents() {
     loadEvents()
   }, [])
 
-  const loadEvents = async () => {
-    setLoading(true)
+  useLiveData(['events', 'event_rsvp', 'event_attendance'], () => loadEvents(true))
+
+  const loadEvents = async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const { data } = await eventService.getAllEvents()
       setEvents(data || [])
