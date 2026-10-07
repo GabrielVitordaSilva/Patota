@@ -164,13 +164,13 @@ export default function Cards() {
                 className={`relative overflow-hidden rounded-xl p-4 pt-5 text-white  border-b-4 ${
                   isGoleiro
                     ? 'bg-clay-600 border-clay-400'
-                    : 'bg-blue-800 border-blue-400'
+                    : 'bg-blue-600 border-blue-400'
                 }`}
               >
                 {/* Topo: overall + foto + posicao */}
                 <div className="relative flex items-start gap-3">
                   <div className="shrink-0 text-center">
-                    <p className="font-display text-6xl font-bold leading-none text-[#f3eee2]">
+                    <p className="font-display text-6xl font-bold leading-none text-white">
                       {card.overall ?? '--'}
                     </p>
                     <span className="mt-1 inline-block rounded px-2 py-0.5 text-[10px] font-bold tracking-widest bg-white/15">

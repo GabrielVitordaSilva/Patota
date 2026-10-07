@@ -46,7 +46,7 @@ export default function Ranking() {
           onClick={() => setView('geral')}
           className={`flex-1 py-3 rounded-lg font-semibold transition ${
             view === 'geral'
-              ? 'bg-blue-800 text-white'
+              ? 'bg-blue-600 text-white'
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
@@ -56,7 +56,7 @@ export default function Ranking() {
           onClick={() => setView('mensal')}
           className={`flex-1 py-3 rounded-lg font-semibold transition ${
             view === 'mensal'
-              ? 'bg-blue-800 text-white'
+              ? 'bg-blue-600 text-white'
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >

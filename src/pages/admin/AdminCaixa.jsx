@@ -38,7 +38,7 @@ export default function AdminCaixa() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-blue-800 text-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-blue-600 text-white rounded-xl border border-slate-200 p-6">
         <p className="text-sm mb-2">Saldo do Caixa</p>
         <p className="text-4xl font-bold">R$ {balance.toFixed(2)}</p>
       </div>

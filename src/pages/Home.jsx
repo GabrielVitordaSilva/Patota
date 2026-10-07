@@ -139,44 +139,44 @@ export default function Home() {
   const confirmed = nextEvent?.event_rsvp?.filter((r) => r.status === 'VOU').length || 0
   const pendingTotal = pendencies?.total || 0
 
-  const statusLabel = userRsvp === 'VOU' ? 'Confirmado' : userRsvp === 'NAO_VOU' ? 'Ausente' : userRsvp === 'TALVEZ' ? 'Talvez' : 'A confirmar'
+  const statusLabel = userRsvp === 'VOU' ? 'Confirmado' : userRsvp === 'NAO_VOU' ? 'Ausente' : 'A confirmar'
   const eventDate = nextEvent ? parseISO(nextEvent.data_hora) : null
 
   return (
     <div className="space-y-5">
       {nextEvent ? (
-        <section className="rounded-xl overflow-hidden border border-slate-900 bg-[#123120] text-[#f3eee2]">
+        <section className="rounded-xl overflow-hidden border border-blue-200 bg-blue-100 text-slate-900">
           <div className="grid lg:grid-cols-[1.5fr_1fr]">
             <div className="p-5 md:p-8">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#9db9a3]">Proxima pelada</p>
-                <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${confirmationOpen ? 'bg-[#f3eee2] text-[#123120]' : 'border border-white/30 text-[#b7cabb]'}`}>{confirmationOpen ? 'Lista aberta' : 'Lista encerrada'}</span>
+                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-blue-800">Proxima pelada</p>
+                <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${confirmationOpen ? 'bg-blue-700 text-white' : 'border border-slate-300 text-slate-600'}`}>{confirmationOpen ? 'Lista aberta' : 'Lista encerrada'}</span>
               </div>
 
               <div className="mt-5 flex items-end gap-5">
                 <p className="font-display text-7xl md:text-8xl font-bold leading-[.85] tabular-nums">{format(eventDate, 'HH:mm')}</p>
                 <div className="pb-1 min-w-0">
                   <p className="font-display text-2xl md:text-3xl font-semibold uppercase leading-none capitalize">{format(eventDate, "EEE, dd/MM", { locale: ptBR })}</p>
-                  <p className="mt-1.5 text-sm text-[#b7cabb] truncate">{nextEvent.local}</p>
+                  <p className="mt-1.5 text-sm text-slate-600 truncate">{nextEvent.local}</p>
                 </div>
               </div>
 
-              {dataLimite && confirmationOpen && <p className="mt-6 flex items-center gap-2 text-xs text-[#b7cabb]"><Clock size={14} /> Responda ate {format(parseISO(dataLimite), "dd/MM 'as' HH:mm")}</p>}
+              {dataLimite && confirmationOpen && <p className="mt-6 flex items-center gap-2 text-xs text-slate-600"><Clock size={14} /> Responda ate {format(parseISO(dataLimite), "dd/MM 'as' HH:mm")}</p>}
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {[['VOU', 'Vou'], ['TALVEZ', 'Talvez'], ['NAO_VOU', 'Nao vou']].map(([status, label]) => (
-                  <button key={status} disabled={!confirmationOpen} onClick={() => handleConfirmPresence(status)} className={`ui-btn text-sm border ${userRsvp === status ? 'bg-[#f3eee2] text-[#123120] border-[#f3eee2]' : 'border-white/25 text-[#f3eee2] hover:bg-white/10'}`}>{label}</button>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {[['VOU', 'Vou'], ['NAO_VOU', 'Nao vou']].map(([status, label]) => (
+                  <button key={status} disabled={!confirmationOpen} onClick={() => handleConfirmPresence(status)} className={`ui-btn text-sm border ${userRsvp === status ? 'bg-blue-700 text-white border-blue-700' : 'bg-white border-blue-300 text-slate-800 hover:bg-blue-50'}`}>{label}</button>
                 ))}
               </div>
             </div>
 
-            <aside className="p-5 md:p-8 border-t lg:border-t-0 lg:border-l border-white/15 bg-black/15">
-              <dl className="grid grid-cols-3 lg:grid-cols-1 gap-4 lg:gap-0 lg:divide-y divide-white/15">
-                <div className="lg:py-4 lg:pt-0"><dt className="text-[11px] uppercase tracking-wider text-[#9db9a3]">Confirmados</dt><dd className="mt-1 font-display text-4xl font-bold leading-none tabular-nums">{confirmed}<span className="text-lg text-[#9db9a3]"> / 16</span></dd></div>
-                <div className="lg:py-4"><dt className="text-[11px] uppercase tracking-wider text-[#9db9a3]">Times</dt><dd className="mt-1 font-display text-2xl font-semibold uppercase leading-none">{teams ? 'Sorteados' : 'Aguardando'}</dd></div>
-                <div className="lg:py-4 lg:pb-0"><dt className="text-[11px] uppercase tracking-wider text-[#9db9a3]">Sua resposta</dt><dd className="mt-1 font-display text-2xl font-semibold uppercase leading-none">{statusLabel}</dd></div>
+            <aside className="p-5 md:p-8 border-t lg:border-t-0 lg:border-l border-blue-200 bg-white/55">
+              <dl className="grid grid-cols-3 lg:grid-cols-1 gap-4 lg:gap-0 lg:divide-y divide-blue-200">
+                <div className="lg:py-4 lg:pt-0"><dt className="text-[11px] uppercase tracking-wider text-blue-800">Confirmados</dt><dd className="mt-1 font-display text-4xl font-bold leading-none tabular-nums">{confirmed}<span className="text-lg text-blue-800"> / 16</span></dd></div>
+                <div className="lg:py-4"><dt className="text-[11px] uppercase tracking-wider text-blue-800">Times</dt><dd className="mt-1 font-display text-2xl font-semibold uppercase leading-none">{teams ? 'Sorteados' : 'Aguardando'}</dd></div>
+                <div className="lg:py-4 lg:pb-0"><dt className="text-[11px] uppercase tracking-wider text-blue-800">Sua resposta</dt><dd className="mt-1 font-display text-2xl font-semibold uppercase leading-none">{statusLabel}</dd></div>
               </dl>
-              <Link to="/events" className="mt-6 hidden lg:flex items-center justify-center gap-2 min-h-10 rounded-lg border border-white/25 text-sm font-semibold hover:bg-white/10"><Calendar size={16} /> Agenda completa</Link>
+              <Link to="/events" className="mt-6 hidden lg:flex items-center justify-center gap-2 min-h-10 rounded-lg border border-blue-300 bg-white text-sm font-semibold hover:bg-blue-50"><Calendar size={16} /> Agenda completa</Link>
             </aside>
           </div>
         </section>
