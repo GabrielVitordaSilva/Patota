@@ -20,6 +20,7 @@ banco em um estado parcial.
 14. `supabase-add-payment-rejection-and-fines-admin.sql`
 15. `supabase-add-notifications-and-auto-dues.sql`
 16. `supabase-add-push-and-realtime.sql` (e publicar a função `supabase/functions/send-push`)
+17. Publicar a função `supabase/functions/delete-member` (exclusão de membros; substitui o `delete_member` em SQL)
 
 ## Verificações obrigatórias
 

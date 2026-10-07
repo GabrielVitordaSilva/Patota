@@ -91,7 +91,7 @@ export default function AdminMembers() {
   const handleDeleteMember = async (member) => {
     if (
       !confirm(
-        `Excluir ${member.nome}?\n\nIsso apaga o usuário por completo: login, pontos, presenças, mensalidades, multas e pagamentos. O email fica livre para um novo cadastro.\n\nEssa acao não pode ser desfeita. Se quiser apenas afastar o membro, use "Desativar".`
+        `Excluir ${member.nome}?\n\nIsso apaga o usuário por completo: login, pontos, presenças, mensalidades, multas e pagamentos. O email fica livre para um novo cadastro.\n\nEssa ação não pode ser desfeita. Se quiser apenas afastar o membro, use "Desativar".`
       )
     ) {
       return
@@ -100,14 +100,11 @@ export default function AdminMembers() {
     const { error } = await adminService.deleteMember(member.id)
 
     if (error) {
-      const hint = error.message?.includes('delete_member')
-        ? '\n\nExecute a migração supabase-add-admin-crud.sql no SQL Editor do Supabase.'
-        : ''
-      alert(`Erro ao excluir membro: ${error.message}${hint}`)
+      alert(`Erro ao excluir membro: ${error.message}`)
       return
     }
 
-    alert('Membro excluido!')
+    alert('Membro excluído!')
     loadMembers()
   }
 

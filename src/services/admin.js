@@ -36,11 +36,21 @@ export const adminService = {
   },
 
   // Excluir o usuário por completo: login no Auth, membro e todo o histórico.
-  // Usa a funcao delete_member do banco (SECURITY DEFINER) porque o cliente
-  // não tem permissao para apagar de auth.users diretamente.
+  // A Edge Function "delete-member" confere se quem chama e admin e usa a API
+  // de administracao do Auth (o navegador nao pode apagar de auth.users).
   async deleteMember(memberId) {
-    const { error } = await supabase.rpc('delete_member', { target_id: memberId })
-    return { error }
+    const { error } = await supabase.functions.invoke('delete-member', { body: { target_id: memberId } })
+    if (!error) return { error: null }
+
+    // O corpo da resposta traz a mensagem em portugues escrita pela funcao
+    let message = 'Não foi possível excluir o membro.'
+    try {
+      const body = await error.context?.json?.()
+      if (body?.error) message = body.error
+    } catch {
+      /* mantem a mensagem padrao */
+    }
+    return { error: new Error(message) }
   },
 
   // Lancamentos de pontos do ranking (sem os pontos antigos de presença)
