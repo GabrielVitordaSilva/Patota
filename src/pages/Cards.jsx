@@ -161,19 +161,16 @@ export default function Cards() {
           return (
             <div key={card.id} className="space-y-2">
               <div
-                className={`relative overflow-hidden rounded-2xl p-4 pt-5 text-white shadow-xl ring-1 ring-white/10 bg-gradient-to-br ${
+                className={`relative overflow-hidden rounded-xl p-4 pt-5 text-white  border-b-4 ${
                   isGoleiro
-                    ? 'from-blue-600 via-blue-900 to-slate-950'
-                    : 'from-slate-600 via-gray-900 to-black'
+                    ? 'bg-clay-600 border-clay-400'
+                    : 'bg-blue-800 border-blue-400'
                 }`}
               >
-                {/* Brilho diagonal de fundo */}
-                <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-
                 {/* Topo: overall + foto + posicao */}
                 <div className="relative flex items-start gap-3">
                   <div className="shrink-0 text-center">
-                    <p className="text-5xl font-black leading-none tracking-tight bg-gradient-to-b from-yellow-200 to-yellow-400 bg-clip-text text-transparent drop-shadow">
+                    <p className="font-display text-6xl font-bold leading-none text-[#f3eee2]">
                       {card.overall ?? '--'}
                     </p>
                     <span className="mt-1 inline-block rounded px-2 py-0.5 text-[10px] font-bold tracking-widest bg-white/15">
@@ -186,7 +183,7 @@ export default function Cards() {
                       <img
                         src={photoUrls[card.id]}
                         alt={card.nome}
-                        className="w-24 h-24 rounded-full object-cover border-2 border-white/50 shadow-lg ring-2 ring-yellow-400/30"
+                        className="w-24 h-24 rounded-full object-cover border-2 border-white/50"
                       />
                     ) : (
                       <div className="w-24 h-24 rounded-full border-2 border-dashed border-white/40 bg-white/5 flex items-center justify-center">
@@ -199,11 +196,11 @@ export default function Cards() {
                 </div>
 
                 {/* Nome */}
-                <p className="relative mt-3 text-center font-extrabold text-lg uppercase tracking-wide truncate">
+                <p className="relative mt-3 text-center font-display font-bold text-2xl uppercase tracking-wide truncate">
                   {card.nome}
                 </p>
 
-                <div className="relative my-3 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                <div className="relative my-3 h-px bg-white/25" />
 
                 {/* Estatisticas: valor colado na sigla */}
                 <div className="relative grid grid-cols-2 gap-x-4 gap-y-2">
@@ -257,7 +254,7 @@ export default function Cards() {
 
       {ratingTarget && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full my-8">
+          <div className="bg-white rounded-2xl shadow-lg max-w-md w-full my-8">
             <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 p-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-800 truncate">Avaliar {ratingTarget.nome}</h3>
               <button onClick={() => setRatingTarget(null)} className="text-gray-500 hover:text-gray-700">

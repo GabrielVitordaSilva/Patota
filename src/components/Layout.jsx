@@ -1,17 +1,14 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   CalendarDays,
-  ChevronDown,
   CircleDollarSign,
   FileText,
   Home,
   LogOut,
   Settings,
   ShieldCheck,
-  Sparkles,
   Star,
   Trophy,
-  Users
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -61,7 +58,6 @@ export default function Layout() {
               <strong>{member?.nome || 'Membro da Patota'}</strong>
               <span>{member?.posicao || 'Atleta'}</span>
             </div>
-            <ChevronDown size={16} className="profile-chevron" />
             <button onClick={signOut} className="icon-button" title="Sair" aria-label="Sair da conta">
               <LogOut size={18} />
             </button>
@@ -72,10 +68,10 @@ export default function Layout() {
       <main className="app-main">
         <div className="page-context">
           <div>
-            <p className="eyebrow"><Sparkles size={14} /> Temporada atual</p>
+            <p className="eyebrow">Temporada {new Date().getFullYear()}</p>
             <h1>{location.pathname === '/' ? `Ola, ${member?.nome?.split(' ')[0] || 'jogador'}` : navItems.find((item) => item.path === location.pathname)?.label}</h1>
           </div>
-          <div className="season-pill"><Users size={15} /> Patota CCC · 2024</div>
+          <div className="season-pill">Patota CCC</div>
         </div>
         <Outlet />
       </main>

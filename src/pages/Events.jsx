@@ -121,7 +121,7 @@ export default function Events() {
     const scoreView = getScoreView(event)
 
     return (
-    <div key={event.id} className="bg-white rounded-xl shadow-md p-6">
+    <div key={event.id} className="bg-white rounded-xl border border-slate-200 p-6">
       <div className="flex items-start justify-between mb-3">
         <div>
           <span
@@ -187,7 +187,7 @@ export default function Events() {
       <div className="space-y-4">
         <h2 className="text-lg font-bold text-gray-700">Proximos eventos</h2>
         {upcomingEvents.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
             <Calendar className="mx-auto text-gray-400 mb-3" size={48} />
             <p className="text-gray-600">Nenhum evento agendado no momento</p>
           </div>
@@ -199,7 +199,7 @@ export default function Events() {
       <div className="space-y-4">
         <h2 className="text-lg font-bold text-gray-700">Historico</h2>
         {historyEvents.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
             <Calendar className="mx-auto text-gray-400 mb-3" size={48} />
             <p className="text-gray-600">Ainda nao ha eventos passados</p>
           </div>

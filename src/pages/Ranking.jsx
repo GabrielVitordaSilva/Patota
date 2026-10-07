@@ -41,12 +41,12 @@ export default function Ranking() {
       <h1 className="text-2xl font-bold text-gray-800">Ranking</h1>
 
       {/* Toggle View */}
-      <div className="flex gap-2 bg-white rounded-xl p-2 shadow-md">
+      <div className="flex gap-2 bg-white rounded-xl p-2 border border-slate-200">
         <button
           onClick={() => setView('geral')}
           className={`flex-1 py-3 rounded-lg font-semibold transition ${
             view === 'geral'
-              ? 'bg-emerald-600 text-white'
+              ? 'bg-blue-800 text-white'
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
@@ -56,7 +56,7 @@ export default function Ranking() {
           onClick={() => setView('mensal')}
           className={`flex-1 py-3 rounded-lg font-semibold transition ${
             view === 'mensal'
-              ? 'bg-emerald-600 text-white'
+              ? 'bg-blue-800 text-white'
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
@@ -78,7 +78,7 @@ export default function Ranking() {
             <div
               key={member.member_id}
               className={`flex items-center gap-4 p-4 border-b border-gray-100 last:border-b-0 ${
-                index < 3 ? 'bg-gradient-to-r from-yellow-50 to-transparent' : ''
+                index < 3 ? 'bg-amber-50' : ''
               }`}
             >
               <div className="text-2xl font-bold w-12 text-center">

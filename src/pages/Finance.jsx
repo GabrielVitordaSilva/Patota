@@ -136,7 +136,7 @@ export default function Finance() {
 
       <button
         onClick={copyPix}
-        className="w-full ui-btn-primary rounded-xl font-bold text-lg shadow-md"
+        className="w-full ui-btn-primary rounded-xl font-bold text-lg border border-slate-200"
       >
         Copiar Chave PIX
       </button>

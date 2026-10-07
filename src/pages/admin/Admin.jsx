@@ -24,7 +24,7 @@ export default function Admin() {
       <h1 className="text-xl md:text-2xl font-bold text-gray-800">Painel Admin</h1>
 
       {/* Tabs - Responsivo */}
-      <div className="bg-white rounded-xl shadow-md p-2">
+      <div className="bg-white rounded-xl border border-slate-200 p-2">
         <div className="grid grid-cols-3 md:grid-cols-6 gap-1 md:gap-2">
           {tabs.map((tab) => {
             const Icon = tab.icon
@@ -34,7 +34,7 @@ export default function Admin() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`min-h-12 flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-xs md:text-sm font-semibold transition ${
                   activeTab === tab.id
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-blue-800 text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
