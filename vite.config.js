@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => {
         name: 'Patota CCC',
         short_name: 'CCC',
         description: 'Sistema de gestão da Patota CCC',
-        theme_color: '#10b981',
+        theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
         scope: '/',

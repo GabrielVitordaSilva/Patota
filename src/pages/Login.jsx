@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Moon, Sun } from 'lucide-react'
+import { useTheme } from '../hooks'
+import { Logo } from '../components/Layout'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -10,6 +12,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const { signIn } = useAuth()
   const navigate = useNavigate()
+  const { alternar } = useTheme()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,47 +35,32 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f5ee] grid lg:grid-cols-[1.05fr_.95fr]">
-      <section className="hidden lg:flex relative overflow-hidden bg-blue-100 text-slate-900 p-14 flex-col justify-between border-r border-blue-200">
-        <svg className="absolute inset-0 w-full h-full opacity-60" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#fffefb" strokeWidth="2" aria-hidden="true">
-          <rect x="30" y="30" width="340" height="540" /><line x1="30" y1="300" x2="370" y2="300" /><circle cx="200" cy="300" r="60" /><rect x="110" y="30" width="180" height="80" /><rect x="110" y="490" width="180" height="80" />
-        </svg>
-        <div className="relative flex items-center gap-3"><span className="brand-mark"><span>p</span></span><p className="font-display text-2xl font-bold uppercase tracking-wider">Patota CCC</p></div>
-        <div className="relative max-w-lg">
-          <h1 className="font-display text-7xl font-bold uppercase leading-[.9]">Bola rolando,<br />contas em dia.</h1>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-slate-600">Presenca, times, mensalidades e ranking da pelada num so lugar.</p>
-        </div>
-        <p className="relative text-xs text-blue-800">Patota CCC · Temporada {new Date().getFullYear()}</p>
-      </section>
-
-      <section className="flex items-center justify-center px-5 py-10">
-        <div className="max-w-sm w-full">
-          <div className="lg:hidden flex items-center gap-3 mb-10"><span className="brand-mark"><span>p</span></span><p className="font-display text-2xl font-bold uppercase tracking-wider text-slate-900">Patota CCC</p></div>
-          <div className="mb-8">
-            <p className="eyebrow">Area do membro</p>
-            <h2 className="mt-2 text-5xl font-bold uppercase leading-none text-slate-950">Entrar</h2>
-            <p className="mt-3 text-sm text-slate-600">Use o e-mail cadastrado pela diretoria.</p>
+    <div className="min-h-screen grid place-items-center px-4 py-10 relative" style={{ background: 'var(--bg)' }}>
+      <button type="button" className="icon-btn tema-btn absolute top-4 right-4" onClick={alternar} title="Alternar tema claro e escuro" aria-label="Alternar tema claro e escuro">
+        <Moon size={15} className="i-lua" /><Sun size={15} className="i-sol" />
+      </button>
+      <div className="w-full max-w-sm">
+        <div className="flex items-center justify-center gap-2.5 mb-6 text-base font-bold" style={{ color: 'var(--ink)' }}><Logo />Patota CCC</div>
+        <form onSubmit={handleSubmit} className="ui-card p-6 space-y-4">
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--ink)' }}>Entrar</h1>
+            <p className="mt-1 text-xs text-slate-500">Use o e-mail cadastrado pela diretoria.</p>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-800 mb-1.5">E-mail</label>
-              <input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="ui-input" placeholder="seu@email.com" required />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-800 mb-1.5">Senha</label>
-              <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="ui-input" placeholder="••••••••" required />
-            </div>
-
-            {error && <div role="alert" className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">{error}</div>}
-
-            <button type="submit" disabled={loading} className="w-full ui-btn-primary py-3">
-              {loading ? 'Entrando...' : <><span>Entrar</span><ArrowRight size={17} /></>}
-            </button>
-          </form>
-          <p className="mt-7 pt-5 border-t border-slate-300 text-xs text-slate-500">Problemas para acessar? Fale com a diretoria.</p>
-        </div>
-      </section>
+          <div>
+            <label htmlFor="email" className="block text-xs font-semibold text-slate-700 mb-1.5">E-mail</label>
+            <input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="ui-input" placeholder="seu@email.com" required />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-xs font-semibold text-slate-700 mb-1.5">Senha</label>
+            <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="ui-input" placeholder="••••••••" required />
+          </div>
+          {error && <div role="alert" className="bg-red-50 border border-red-300 text-red-800 px-3 py-2 rounded-lg text-xs">{error}</div>}
+          <button type="submit" disabled={loading} className="w-full ui-btn-primary">
+            {loading ? 'Entrando...' : <><span>Entrar</span><ArrowRight size={15} /></>}
+          </button>
+          <p className="text-[11px] text-slate-500">Sem acesso? Fale com a diretoria.</p>
+        </form>
+      </div>
     </div>
   )
 }

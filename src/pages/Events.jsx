@@ -182,9 +182,9 @@ export default function Events() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Eventos</h1>
+      <h1 className="text-lg font-bold text-slate-900">Eventos</h1>
 
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="eventos">
         <h2 className="text-lg font-bold text-gray-700">Proximos eventos</h2>
         {upcomingEvents.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">

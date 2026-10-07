@@ -132,16 +132,17 @@ export default function Finance() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Meu Financeiro</h1>
+      <h1 className="text-lg font-bold text-slate-900">Meu Financeiro</h1>
 
       <button
         onClick={copyPix}
+        data-tour="pagar"
         className="w-full ui-btn-primary rounded-xl font-bold text-lg border border-slate-200"
       >
         Copiar Chave PIX
       </button>
 
-      <div className="ui-card p-6">
+      <div className="ui-card p-6" data-tour="pendencias">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Mensalidades</h2>
 
         {pendingDues.length === 0 ? (
@@ -178,7 +179,7 @@ export default function Finance() {
         )}
 
         {dues.filter((d) => d.status !== 'PENDENTE').length > 0 && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="mt-6 pt-6 border-t border-gray-200" data-tour="historico">
             <h3 className="font-semibold text-gray-700 mb-3">Historico</h3>
             <div className="space-y-2">
               {dues

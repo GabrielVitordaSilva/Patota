@@ -136,7 +136,7 @@ export default function Cards() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Cards dos Jogadores</h1>
+      <h1 className="text-lg font-bold text-slate-900">Cards dos Jogadores</h1>
 
       {loadError && (
         <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
@@ -153,7 +153,7 @@ export default function Cards() {
 
       <input type="file" accept="image/*" ref={fileInputRef} onChange={handlePhotoSelected} className="hidden" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-tour="cards">
         {cards.map((card) => {
           const isGoleiro = card.posicao === 'GOLEIRO'
           const isMe = card.id === member?.id
@@ -163,14 +163,14 @@ export default function Cards() {
               <div
                 className={`relative overflow-hidden rounded-xl p-4 pt-5 text-white  border-b-4 ${
                   isGoleiro
-                    ? 'bg-clay-600 border-clay-400'
-                    : 'bg-blue-600 border-blue-400'
+                    ? 'bg-amber-600 border-amber-400'
+                    : 'bg-blue-700 border-blue-400'
                 }`}
               >
                 {/* Topo: overall + foto + posicao */}
                 <div className="relative flex items-start gap-3">
                   <div className="shrink-0 text-center">
-                    <p className="font-display text-6xl font-bold leading-none text-white">
+                    <p className="text-6xl font-bold leading-none text-white">
                       {card.overall ?? '--'}
                     </p>
                     <span className="mt-1 inline-block rounded px-2 py-0.5 text-[10px] font-bold tracking-widest bg-white/15">
@@ -196,7 +196,7 @@ export default function Cards() {
                 </div>
 
                 {/* Nome */}
-                <p className="relative mt-3 text-center font-display font-bold text-2xl uppercase tracking-wide truncate">
+                <p className="relative mt-3 text-center font-bold text-2xl uppercase tracking-wide truncate">
                   {card.nome}
                 </p>
 

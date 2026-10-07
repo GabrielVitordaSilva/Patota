@@ -38,10 +38,10 @@ export default function Ranking() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Ranking</h1>
+      <h1 className="text-lg font-bold text-slate-900">Ranking</h1>
 
       {/* Toggle View */}
-      <div className="flex gap-2 bg-white rounded-xl p-2 border border-slate-200">
+      <div className="flex gap-2 bg-white rounded-xl p-2 border border-slate-200" data-tour="ranking">
         <button
           onClick={() => setView('geral')}
           className={`flex-1 py-3 rounded-lg font-semibold transition ${
