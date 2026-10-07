@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { CheckCircle, X, ExternalLink, ArrowLeft, Image as ImageIcon, FileText, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { useAuth } from '../../contexts/AuthContext'
@@ -19,8 +20,10 @@ export default function AdminPayments() {
     loadPayments()
   }, [])
 
-  const loadPayments = async () => {
-    setLoading(true)
+  useLiveData(['payments'], () => loadPayments(true))
+
+  const loadPayments = async (silent = false) => {
+    if (!silent) setLoading(true)
 
     const { data } = await supabase
       .from('payments')

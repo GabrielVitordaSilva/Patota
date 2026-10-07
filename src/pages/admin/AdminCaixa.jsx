@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { financeService } from '../../services/finance'
@@ -12,6 +13,8 @@ export default function AdminCaixa() {
   useEffect(() => {
     loadData()
   }, [])
+
+  useLiveData(['cash_ledger'], () => loadData())
 
   const loadData = async () => {
     const { balance: bal } = await financeService.getCashBalance()

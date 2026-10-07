@@ -4,6 +4,8 @@ import { Bell, CalendarDays, CircleDollarSign, AlertTriangle, CheckCheck, Trash2
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { notificationService } from '../services/notifications'
+import { pushService } from '../services/push'
+import { useLiveData } from '../hooks'
 
 const ICONES = {
   EVENTO: CalendarDays,
@@ -12,12 +14,16 @@ const ICONES = {
   MULTA: AlertTriangle
 }
 
-const INTERVALO_MS = 60 * 1000
+// O Realtime avisa na hora; a busca periodica e so uma rede de seguranca
+const INTERVALO_MS = 5 * 60 * 1000
 
 export default function NotificationBell({ memberId }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
+  const [pushState, setPushState] = useState('off')
+  const [pushBusy, setPushBusy] = useState(false)
+  const [pushMsg, setPushMsg] = useState('')
   const raiz = useRef(null)
   const naoLidas = items.filter((n) => !n.lida).length
 
@@ -27,16 +33,35 @@ export default function NotificationBell({ memberId }) {
     if (!error) setItems(data)
   }, [memberId])
 
-  // Busca ao abrir o app, a cada minuto e quando a aba volta a ficar visivel
+  useLiveData(['notifications'], carregar, 200)
+
+  useEffect(() => {
+    pushService.status().then(setPushState)
+  }, [open])
+
+  const alternarPush = async () => {
+    setPushBusy(true)
+    setPushMsg('')
+    try {
+      if (pushState === 'on') {
+        await pushService.disable()
+      } else {
+        const { error } = await pushService.enable()
+        if (error) setPushMsg(error)
+      }
+    } catch (e) {
+      setPushMsg('Não foi possível alterar agora.')
+    } finally {
+      setPushState(await pushService.status())
+      setPushBusy(false)
+    }
+  }
+
+  // Busca ao abrir o app e a cada 5 minutos como reserva
   useEffect(() => {
     carregar()
     const timer = setInterval(carregar, INTERVALO_MS)
-    const aoVoltar = () => { if (document.visibilityState === 'visible') carregar() }
-    document.addEventListener('visibilitychange', aoVoltar)
-    return () => {
-      clearInterval(timer)
-      document.removeEventListener('visibilitychange', aoVoltar)
-    }
+    return () => clearInterval(timer)
   }, [carregar])
 
   useEffect(() => {
@@ -114,6 +139,24 @@ export default function NotificationBell({ memberId }) {
                 )
               })}
             </ul>
+          )}
+
+          {pushState !== 'unsupported' && (
+            <div className="notif-push">
+              {pushState === 'ios-install' ? (
+                <p>No iPhone, para receber avisos com o app fechado, adicione o app à Tela de Início (Compartilhar → Adicionar à Tela de Início) e abra por lá.</p>
+              ) : pushState === 'denied' ? (
+                <p>As notificações estão bloqueadas neste aparelho. Libere nas configurações do navegador para receber avisos.</p>
+              ) : (
+                <>
+                  <p>{pushState === 'on' ? 'Avisos no celular ativados neste aparelho.' : 'Receba os avisos no celular, mesmo com o app fechado.'}</p>
+                  <button type="button" onClick={alternarPush} disabled={pushBusy} className={pushState === 'on' ? 'ui-btn-secondary !min-h-8 !px-3 text-xs' : 'ui-btn-primary !min-h-8 !px-3 text-xs'}>
+                    {pushBusy ? 'Aguarde...' : pushState === 'on' ? 'Desativar' : 'Ativar avisos'}
+                  </button>
+                </>
+              )}
+              {pushMsg && <p role="alert" className="notif-push-erro">{pushMsg}</p>}
+            </div>
           )}
         </div>
       )}

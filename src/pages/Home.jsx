@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../hooks'
 import { Link } from 'react-router-dom'
 import { Calendar, DollarSign, AlertCircle, CheckCircle, Share2, Clock } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -22,6 +23,8 @@ export default function Home() {
   useEffect(() => {
     loadData()
   }, [member?.id])
+
+  useLiveData(['events', 'event_rsvp', 'dues', 'fines'], () => loadData())
 
   // Mesma regra do teamsService.isConfirmationOpen, derivada dos campos do evento.
   const isOpen = (event) => {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { Users, Edit, Trash2, X } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../services/supabaseClient'
@@ -19,6 +20,8 @@ export default function AdminMembers() {
   useEffect(() => {
     loadMembers()
   }, [])
+
+  useLiveData(['members', 'dues'], () => loadMembers())
 
   useEffect(() => {
     if (members.length > 0) {

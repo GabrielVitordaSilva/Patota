@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { Trophy, SlidersHorizontal, History, Trash2, X } from 'lucide-react'
 import { adminService } from '../../services/admin'
 
@@ -17,8 +18,10 @@ export default function AdminRanking() {
     loadData()
   }, [])
 
-  const loadData = async () => {
-    setLoading(true)
+  useLiveData(['points_ledger', 'members'], () => loadData(true))
+
+  const loadData = async (silent = false) => {
+    if (!silent) setLoading(true)
     setLoadError('')
     try {
       const [membersResult, ledgerResult] = await Promise.all([

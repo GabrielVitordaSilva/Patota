@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 import Tour from './Tour'
 import NotificationBell from './NotificationBell'
+import { pushService } from '../services/push'
 import RulesModal from './RulesModal'
 
 const mainNav = [
@@ -55,7 +56,7 @@ export default function Layout() {
               <span>{isAdmin ? 'Administrador' : (member?.posicao || 'Atleta')}</span>
             </div>
             {isAdmin && <span className="admin-chip"><ShieldCheck size={12} /> Admin</span>}
-            <button onClick={signOut} className="icon-btn" title="Sair" aria-label="Sair da conta"><LogOut size={15} /></button>
+            <button onClick={async () => { await pushService.removeFromThisDevice(); signOut() }} className="icon-btn" title="Sair" aria-label="Sair da conta"><LogOut size={15} /></button>
           </div>
         </div>
       </header>

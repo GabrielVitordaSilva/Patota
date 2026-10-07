@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLiveData } from '../../hooks'
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react'
 import { supabase } from '../../services/supabaseClient'
 import { configService } from '../../services/config'
@@ -15,6 +16,8 @@ export default function AdminFinanceDashboard() {
     loadDashboard()
     loadPixKey()
   }, [])
+
+  useLiveData(['dues', 'fines', 'cash_ledger', 'payments'], () => loadDashboard())
 
   const loadDashboard = async () => {
     try {
