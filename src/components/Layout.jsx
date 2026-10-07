@@ -1,91 +1,90 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
-  CalendarDays,
-  CircleDollarSign,
-  FileText,
-  HelpCircle,
-  Home,
-  LogOut,
-  Settings,
-  ShieldCheck,
-  Star,
-  Trophy,
+  CalendarDays, CircleDollarSign, HelpCircle, FileText, Home, LogOut, Moon, Settings, ShieldCheck, Star, Sun, Trophy
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../hooks'
+import Tour from './Tour'
 
 const mainNav = [
-  { path: '/', icon: Home, label: 'Visao geral' },
+  { path: '/', icon: Home, label: 'Visao geral', short: 'Inicio' },
   { path: '/events', icon: CalendarDays, label: 'Jogos' },
   { path: '/finance', icon: CircleDollarSign, label: 'Financeiro' },
   { path: '/ranking', icon: Trophy, label: 'Ranking' },
   { path: '/cards', icon: Star, label: 'Elenco' },
-  { path: '/rules', icon: FileText, label: 'Regras' },
-  { path: '/help', icon: HelpCircle, label: 'Como usar' }
+  { path: '/rules', icon: FileText, label: 'Regras' }
 ]
+
+export function Logo() {
+  return (
+    <span className="logo" aria-hidden="true">
+      <i style={{ height: 11, background: '#3b82f6' }} />
+      <i style={{ height: 18, background: '#10b981' }} />
+      <i style={{ height: 8, background: '#fbbf24' }} />
+      <i style={{ height: 14, background: '#a855f7' }} />
+    </span>
+  )
+}
 
 export default function Layout() {
   const location = useLocation()
   const { member, isAdmin, signOut } = useAuth()
+  const { alternar } = useTheme()
   const navItems = isAdmin
-    ? [...mainNav, { path: '/admin', icon: Settings, label: 'Administracao' }]
+    ? [...mainNav, { path: '/admin', icon: Settings, label: 'Administracao', short: 'Admin' }]
     : mainNav
   const initials = member?.nome
     ? member.nome.split(' ').slice(0, 2).map((name) => name[0]).join('').toUpperCase()
     : 'PC'
+  const atual = navItems.find((item) => item.path === location.pathname)
+  const titulo = location.pathname === '/' ? `Ola, ${member?.nome?.split(' ')[0] || 'jogador'}` : atual?.label
 
   return (
-    <div className="min-h-screen bg-app">
-      <header className="app-header">
-        <div className="app-header-inner">
-          <Link to="/" className="brand" aria-label="Patota CCC - inicio">
-            <span className="brand-mark"><span>p</span></span>
-            <span className="brand-copy">
-              <strong>Patota CCC</strong>
-              <small>Gestao da pelada</small>
-            </span>
-          </Link>
-
-          <nav className="desktop-nav" aria-label="Navegacao principal">
+    <>
+      <header className="topbar">
+        <div className="topbar-esq">
+          <Link to="/" className="marca" aria-label="Patota CCC - inicio"><Logo />Patota CCC</Link>
+          <nav className="nav" aria-label="Navegacao principal" data-tour="menu">
             {navItems.map(({ path, label }) => (
-              <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'desktop-nav-link active' : 'desktop-nav-link'}>
-                {label}
-              </NavLink>
+              <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'active' : ''}>{label}</NavLink>
             ))}
           </nav>
-
-          <div className="profile-menu">
-            {isAdmin && <span className="admin-chip"><ShieldCheck size={14} /> Admin</span>}
+        </div>
+        <div className="topbar-dir">
+          <button type="button" className="btn-ajuda" data-tour="ajuda" data-tour-iniciar title="Ver o guia desta tela"><HelpCircle size={14} /><span>Como usar</span></button>
+          <button type="button" className="icon-btn tema-btn" data-tour="tema" onClick={alternar} title="Alternar tema claro e escuro" aria-label="Alternar tema claro e escuro">
+            <Moon size={15} className="i-lua" /><Sun size={15} className="i-sol" />
+          </button>
+          <div className="perfil" data-tour="perfil">
             <div className="avatar" aria-hidden="true">{initials}</div>
-            <div className="profile-copy">
+            <div className="quem">
               <strong>{member?.nome || 'Membro da Patota'}</strong>
-              <span>{member?.posicao || 'Atleta'}</span>
+              <span>{isAdmin ? 'Administrador' : (member?.posicao || 'Atleta')}</span>
             </div>
-            <button onClick={signOut} className="icon-button" title="Sair" aria-label="Sair da conta">
-              <LogOut size={18} />
-            </button>
+            {isAdmin && <span className="admin-chip"><ShieldCheck size={12} /> Admin</span>}
+            <button onClick={signOut} className="icon-btn" title="Sair" aria-label="Sair da conta"><LogOut size={15} /></button>
           </div>
         </div>
       </header>
 
-      <main className="app-main">
-        <div className="page-context">
-          <div>
-            <p className="eyebrow">Temporada {new Date().getFullYear()}</p>
-            <h1>{location.pathname === '/' ? `Ola, ${member?.nome?.split(' ')[0] || 'jogador'}` : navItems.find((item) => item.path === location.pathname)?.label}</h1>
-          </div>
-          <div className="season-pill">Patota CCC</div>
-        </div>
+      <main className="pagina">
+        {location.pathname === '/' && <div className="cabeca"><h1>{titulo}</h1></div>}
         <Outlet />
       </main>
 
+      <footer className="rodape-app">
+        <div><b>Patota CCC</b> · Gestao da pelada</div>
+        <div>Temporada {new Date().getFullYear()}</div>
+      </footer>
+
       <nav className="mobile-nav" aria-label="Navegacao mobile">
-        {navItems.slice(0, isAdmin ? 8 : 7).map(({ path, icon: Icon, label }) => (
-          <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'mobile-nav-link active' : 'mobile-nav-link'}>
-            <Icon size={20} />
-            <span>{label === 'Visao geral' ? 'Inicio' : label}</span>
+        {navItems.map(({ path, icon: Icon, label, short }) => (
+          <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'active' : ''}>
+            <Icon size={19} /><span>{short || label}</span>
           </NavLink>
         ))}
       </nav>
-    </div>
+      <Tour isAdmin={isAdmin} />
+    </>
   )
 }

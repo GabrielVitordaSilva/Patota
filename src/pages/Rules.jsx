@@ -25,7 +25,7 @@ export default function Rules() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Regras CCC</h1>
+      <h1 className="text-lg font-bold text-slate-900">Regras CCC</h1>
 
       <div className="bg-blue-600 text-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-xl font-bold mb-3">Chave PIX</h2>

@@ -21,7 +21,7 @@ export default function Admin() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl md:text-2xl font-bold text-gray-800">Painel Admin</h1>
+      <h1 className="text-lg font-bold text-slate-900">Painel Admin</h1>
 
       {/* Tabs - Responsivo */}
       <div className="bg-white rounded-xl border border-slate-200 p-2">
@@ -31,6 +31,7 @@ export default function Admin() {
             return (
               <button
                 key={tab.id}
+                data-tour={`admin-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={`min-h-12 flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-xs md:text-sm font-semibold transition ${
                   activeTab === tab.id

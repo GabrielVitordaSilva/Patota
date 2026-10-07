@@ -141,79 +141,99 @@ export default function Home() {
 
   const statusLabel = userRsvp === 'VOU' ? 'Confirmado' : userRsvp === 'NAO_VOU' ? 'Ausente' : 'A confirmar'
   const eventDate = nextEvent ? parseISO(nextEvent.data_hora) : null
+  const diasAte = eventDate ? Math.ceil((eventDate - new Date()) / 86400000) : null
+  const quando = diasAte === null ? null : diasAte <= 0 ? ['Hoje', 'badge-warn'] : diasAte === 1 ? ['Amanha', 'badge-warn'] : [`Em ${diasAte} dias`, 'badge-info']
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Resumo" data-tour="kpis">
+        <div className="ui-card p-3.5">
+          <div className="flex items-center justify-between gap-2"><span className="rotulo">Proximo jogo</span>{quando && <span className={`badge ${quando[1]}`}>{quando[0]}</span>}</div>
+          <p className="mt-2 text-lg font-bold tracking-tight text-slate-900 capitalize">{eventDate ? format(eventDate, "EEE, dd MMM", { locale: ptBR }) : 'Sem agenda'}</p>
+          <p className="text-[11px] text-slate-500">{eventDate ? `${format(eventDate, 'HH:mm')} · ${nextEvent.local}` : 'Novo jogo em breve'}</p>
+        </div>
+        <div className="ui-card p-3.5">
+          <div className="flex items-center justify-between gap-2"><span className="rotulo">Confirmados</span></div>
+          <p className="mt-2 text-lg font-bold tracking-tight text-slate-900">{confirmed} {confirmed === 1 ? 'jogador' : 'jogadores'}</p>
+          <div className="mt-2"><progress className="ui-progress" max="16" value={Math.min(16, confirmed)} aria-label="Confirmados de 16 vagas" /></div>
+        </div>
+        <div className="ui-card p-3.5">
+          <div className="flex items-center justify-between gap-2"><span className="rotulo">Seu financeiro</span><span className={`badge ${pendingTotal > 0 ? 'badge-warn' : 'badge-ok'}`}>{pendingTotal > 0 ? 'Pendente' : 'Em dia'}</span></div>
+          <p className="mt-2 text-lg font-bold tracking-tight text-slate-900">{pendingTotal > 0 ? `R$ ${pendingTotal.toFixed(2)}` : 'Tudo certo'}</p>
+          <p className="text-[11px] text-slate-500">{pendingTotal > 0 ? 'Valor aguardando pagamento' : 'Nenhuma pendencia'}</p>
+        </div>
+        <div className="ui-card p-3.5">
+          <div className="flex items-center justify-between gap-2"><span className="rotulo">Seu status</span></div>
+          <p className="mt-2 text-lg font-bold tracking-tight text-slate-900">{statusLabel}</p>
+          <p className="text-[11px] text-slate-500">Presenca no proximo jogo</p>
+        </div>
+      </section>
+
       {nextEvent ? (
-        <section className="rounded-xl overflow-hidden border border-blue-200 bg-blue-100 text-slate-900">
-          <div className="grid lg:grid-cols-[1.5fr_1fr]">
-            <div className="p-5 md:p-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-blue-800">Proxima pelada</p>
-                <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${confirmationOpen ? 'bg-blue-700 text-white' : 'border border-slate-300 text-slate-600'}`}>{confirmationOpen ? 'Lista aberta' : 'Lista encerrada'}</span>
+        <section className="ui-card overflow-hidden" data-tour="jogo">
+          <div className="grid lg:grid-cols-[2fr_1fr]">
+            <div className="p-4 md:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-200">
+                <h2 className="ui-title">Proxima pelada</h2>
+                <span className={`badge ${confirmationOpen ? 'badge-ok' : ''}`}>{confirmationOpen ? 'Lista aberta' : 'Lista encerrada'}</span>
               </div>
-
-              <div className="mt-5 flex items-end gap-5">
-                <p className="font-display text-7xl md:text-8xl font-bold leading-[.85] tabular-nums">{format(eventDate, 'HH:mm')}</p>
-                <div className="pb-1 min-w-0">
-                  <p className="font-display text-2xl md:text-3xl font-semibold uppercase leading-none capitalize">{format(eventDate, "EEE, dd/MM", { locale: ptBR })}</p>
-                  <p className="mt-1.5 text-sm text-slate-600 truncate">{nextEvent.local}</p>
-                </div>
+              <p className="text-sm font-medium text-slate-500 first-letter:uppercase">{format(eventDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}</p>
+              <div className="mt-1 flex flex-wrap items-end gap-x-4 gap-y-1">
+                <p className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 tabular-nums">{format(eventDate, 'HH:mm')}</p>
+                <p className="pb-1.5 text-sm font-medium text-slate-600">{nextEvent.local}</p>
               </div>
-
-              {dataLimite && confirmationOpen && <p className="mt-6 flex items-center gap-2 text-xs text-slate-600"><Clock size={14} /> Responda ate {format(parseISO(dataLimite), "dd/MM 'as' HH:mm")}</p>}
-
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              {dataLimite && confirmationOpen && <p className="mt-4 flex items-center gap-2 text-xs text-slate-500"><Clock size={14} className="text-blue-600" /> Responda ate {format(parseISO(dataLimite), "dd/MM 'as' HH:mm")}</p>}
+              <div className="mt-5 grid grid-cols-2 gap-2" data-tour="confirmar">
                 {[['VOU', 'Vou'], ['NAO_VOU', 'Nao vou']].map(([status, label]) => (
-                  <button key={status} disabled={!confirmationOpen} onClick={() => handleConfirmPresence(status)} className={`ui-btn text-sm border ${userRsvp === status ? 'bg-blue-700 text-white border-blue-700' : 'bg-white border-blue-300 text-slate-800 hover:bg-blue-50'}`}>{label}</button>
+                  <button key={status} disabled={!confirmationOpen} onClick={() => handleConfirmPresence(status)} className={userRsvp === status ? 'ui-btn-primary' : 'ui-btn-secondary'}>{label}</button>
                 ))}
               </div>
             </div>
-
-            <aside className="p-5 md:p-8 border-t lg:border-t-0 lg:border-l border-blue-200 bg-white/55">
-              <dl className="grid grid-cols-3 lg:grid-cols-1 gap-4 lg:gap-0 lg:divide-y divide-blue-200">
-                <div className="lg:py-4 lg:pt-0"><dt className="text-[11px] uppercase tracking-wider text-blue-800">Confirmados</dt><dd className="mt-1 font-display text-4xl font-bold leading-none tabular-nums">{confirmed}<span className="text-lg text-blue-800"> / 16</span></dd></div>
-                <div className="lg:py-4"><dt className="text-[11px] uppercase tracking-wider text-blue-800">Times</dt><dd className="mt-1 font-display text-2xl font-semibold uppercase leading-none">{teams ? 'Sorteados' : 'Aguardando'}</dd></div>
-                <div className="lg:py-4 lg:pb-0"><dt className="text-[11px] uppercase tracking-wider text-blue-800">Sua resposta</dt><dd className="mt-1 font-display text-2xl font-semibold uppercase leading-none">{statusLabel}</dd></div>
+            <aside className="p-4 md:p-5 border-t lg:border-t-0 lg:border-l border-slate-200" style={{ background: 'var(--card-2)' }}>
+              <p className="rotulo">Resumo da rodada</p>
+              <dl className="mt-3 space-y-2.5 text-sm">
+                <div className="flex justify-between"><dt className="text-slate-500">Confirmados</dt><dd className="font-semibold text-slate-900">{confirmed} / 16</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Times</dt><dd className="font-semibold text-slate-900">{teams ? 'Sorteados' : 'Aguardando'}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Sua resposta</dt><dd className="font-semibold text-slate-900">{statusLabel}</dd></div>
               </dl>
-              <Link to="/events" className="mt-6 hidden lg:flex items-center justify-center gap-2 min-h-10 rounded-lg border border-blue-300 bg-white text-sm font-semibold hover:bg-blue-50"><Calendar size={16} /> Agenda completa</Link>
+              <Link to="/events" className="mt-5 ui-btn-secondary w-full text-xs"><Calendar size={14} /> Agenda completa</Link>
             </aside>
           </div>
         </section>
       ) : (
-        <section className="ui-card p-8 text-center"><Calendar className="mx-auto text-slate-400" /><h2 className="mt-3 text-xl font-bold uppercase">Nenhum jogo agendado</h2><p className="mt-1 text-sm text-slate-500">A diretoria ainda nao publicou a proxima rodada.</p></section>
+        <section className="ui-card p-8 text-center" data-tour="jogo"><Calendar className="mx-auto text-slate-400" /><h2 className="mt-3 font-bold text-slate-900">Nenhum jogo agendado</h2><p className="mt-1 text-sm text-slate-500">A diretoria ainda nao publicou a proxima rodada.</p></section>
       )}
 
       {teams && (
-        <section className="ui-card p-5">
-          <div className="flex items-center justify-between gap-3 mb-4"><h2 className="ui-title">Times sorteados</h2><button onClick={shareOnWhatsApp} className="ui-btn-secondary text-sm"><Share2 size={16} /> Compartilhar</button></div>
+        <section className="ui-card p-4 md:p-5" data-tour="times">
+          <div className="flex items-center justify-between gap-3 mb-3"><h2 className="ui-title">Times sorteados</h2><button onClick={shareOnWhatsApp} className="ui-btn-secondary text-xs"><Share2 size={14} /> Compartilhar</button></div>
           <div className="grid md:grid-cols-2 gap-3">
-            {[['Time preto', teams.preto, 'bg-slate-900 text-white'], ['Time branco', teams.branco, 'bg-white text-slate-900 border border-slate-300']].map(([name, players, style]) => <div key={name} className={`rounded-lg p-4 ${style}`}><p className="font-display text-lg font-bold uppercase tracking-wide mb-3">{name}</p><div className="grid grid-cols-2 gap-x-3 gap-y-1.5">{players?.map((player, i) => <span key={player.member_id} className="text-sm truncate"><span className="opacity-50 tabular-nums">{String(i + 1).padStart(2, '0')}</span> {player.nome}</span>)}</div></div>)}
+            {[['Time preto', teams.preto, 'bg-slate-900 text-white'], ['Time branco', teams.branco, 'bg-white text-slate-900 border border-slate-300']].map(([name, players, style]) => <div key={name} className={`rounded-lg p-4 ${style}`}><p className="text-xs font-bold uppercase tracking-wider mb-3">{name}</p><div className="grid grid-cols-2 gap-x-3 gap-y-1.5">{players?.map((player, i) => <span key={player.member_id} className="text-sm truncate"><span className="opacity-50 tabular-nums">{String(i + 1).padStart(2, '0')}</span> {player.nome}</span>)}</div></div>)}
           </div>
         </section>
       )}
 
-      <div className="grid md:grid-cols-[1.4fr_.6fr] gap-4">
-        <section className={`rounded-xl border p-5 ${pendingTotal > 0 ? 'bg-amber-50 border-amber-300' : 'ui-card'}`}>
+      <div className="grid md:grid-cols-[2fr_1fr] gap-4">
+        <section className={`rounded-xl border p-4 md:p-5 ${pendingTotal > 0 ? 'bg-amber-50 border-amber-300' : 'ui-card'}`} data-tour="financeiro">
           <div className="flex items-start justify-between gap-4">
             <div className="flex gap-3">
-              {pendingTotal > 0 ? <AlertCircle className="text-amber-600 shrink-0" /> : <CheckCircle className="text-blue-600 shrink-0" />}
+              {pendingTotal > 0 ? <AlertCircle className="text-amber-600 shrink-0" /> : <CheckCircle className="text-emerald-600 shrink-0" />}
               <div>
-                <h3 className="text-xl font-bold uppercase leading-tight text-slate-900">{pendingTotal > 0 ? `R$ ${pendingTotal.toFixed(2)} pendentes` : 'Financeiro em dia'}</h3>
-                <p className="mt-1 text-sm text-slate-600">{pendingTotal > 0 ? 'Mensalidades ou multas aguardando pagamento.' : 'Voce nao possui mensalidades ou multas pendentes.'}</p>
+                <h3 className="text-sm font-bold text-slate-900">{pendingTotal > 0 ? `R$ ${pendingTotal.toFixed(2)} pendentes` : 'Financeiro em dia'}</h3>
+                <p className="mt-0.5 text-xs text-slate-600">{pendingTotal > 0 ? 'Mensalidades ou multas aguardando pagamento.' : 'Voce nao possui mensalidades ou multas pendentes.'}</p>
               </div>
             </div>
-            <Link to="/finance" className="text-sm font-semibold text-blue-700 underline underline-offset-4 whitespace-nowrap">Detalhes</Link>
+            <Link to="/finance" className="text-xs font-semibold text-blue-700 whitespace-nowrap">Detalhes</Link>
           </div>
-          {pendingTotal > 0 && <button onClick={copyPix} className="mt-4 ui-btn-primary text-sm">Copiar chave PIX</button>}
+          {pendingTotal > 0 && <button onClick={copyPix} className="mt-4 ui-btn-primary text-xs">Copiar chave PIX</button>}
         </section>
-        <section className="ui-card p-5 flex items-center justify-between gap-3"><div><p className="text-[11px] uppercase tracking-wider font-bold text-slate-500">Temporada</p><p className="mt-1 text-xl font-bold uppercase leading-tight text-slate-900">Veja o ranking</p></div><Link to="/ranking" className="ui-btn-secondary text-sm">Abrir</Link></section>
+        <section className="ui-card p-4 md:p-5 flex items-center justify-between gap-3"><div><p className="rotulo">Temporada</p><p className="mt-1 text-sm font-bold text-slate-900">Veja o ranking</p></div><Link to="/ranking" className="ui-btn-secondary text-xs">Abrir</Link></section>
       </div>
 
       {showConfirmModal && nextEvent && (
         <div className="fixed inset-0 bg-slate-950/60 flex items-end sm:items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-xl border border-slate-300 max-w-sm w-full p-6 animate-scale-in">
-            <h3 className="text-2xl font-bold uppercase text-slate-900">Confirmar presenca?</h3>
+            <h3 className="text-lg font-bold text-slate-900">Confirmar presenca?</h3>
             <p className="mt-2 text-sm text-slate-600">Ao confirmar, sua vaga fica reservada. Faltas sem aviso podem gerar multa de R$ 10,00.</p>
             <div className="mt-6 flex gap-2"><button onClick={() => { setShowConfirmModal(false); setSelectedStatus(null) }} className="flex-1 ui-btn-secondary">Cancelar</button><button onClick={confirmPresenceAfterModal} className="flex-1 ui-btn-primary">Confirmar</button></div>
           </div>
