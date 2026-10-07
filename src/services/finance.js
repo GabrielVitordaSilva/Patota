@@ -2,44 +2,88 @@ import { supabase } from './supabaseClient'
 import { storagePathFrom } from './storageUtils'
 
 export const financeService = {
-  // Obter mensalidades do usuario
+  // Obter mensalidades do usuario. O campo motivo_rejeicao vem da migracao
+  // supabase-add-payment-rejection-and-fines-admin.sql; sem ela a consulta
+  // cai para a versao antiga em vez de quebrar a tela.
   async getUserDues(memberId) {
-    const { data, error } = await supabase
-      .from('dues')
-      .select(
-        `
-        *,
-        payments (
-          id,
-          valor,
-          status,
-          comprovante_url,
-          criado_em
-        )
-      `
-      )
-      .eq('member_id', memberId)
-      .order('competencia', { ascending: false })
+    const query = (campos) =>
+      supabase
+        .from('dues')
+        .select(`*, payments (${campos})`)
+        .eq('member_id', memberId)
+        .order('competencia', { ascending: false })
 
-    return { data, error }
+    const completo = await query('id, valor, status, comprovante_url, motivo_rejeicao, criado_em')
+    if (!completo.error) return completo
+    return query('id, valor, status, comprovante_url, criado_em')
   },
 
   // Obter multas do usuario
   async getUserFines(memberId) {
+    const query = (campos) =>
+      supabase
+        .from('fines')
+        .select(`*, events (tipo, data_hora, local), payments (${campos})`)
+        .eq('member_id', memberId)
+        .order('criado_em', { ascending: false })
+
+    const completo = await query('id, status, motivo_rejeicao, criado_em')
+    if (!completo.error) return completo
+    return query('id, status, criado_em')
+  },
+
+  // Todas as multas (Admin)
+  async getAllFines() {
     const { data, error } = await supabase
       .from('fines')
       .select(
         `
         *,
-        events (
-          tipo,
-          data_hora,
-          local
-        )
+        members (nome),
+        events (tipo, data_hora, local)
       `
       )
-      .eq('member_id', memberId)
       .order('criado_em', { ascending: false })
+
+    return { data, error }
+  },
+
+  // Editar multa (Admin). O lancamento no caixa criado junto com a multa
+  // acompanha o novo valor.
+  async updateFine(fineId, { tipo, valor, obs }) {
+    const { data, error } = await supabase
+      .from('fines')
+      .update({ tipo, valor, obs: obs || null })
+      .eq('id', fineId)
+      .select()
+      .single()
+
+    if (!error) {
+      await supabase.from('cash_ledger').update({ valor }).eq('referencia', `fine_${fineId}`)
+    }
+
+    return { data, error }
+  },
+
+  // Excluir multa (Admin), junto com o lancamento que ela gerou no caixa
+  async deleteFine(fineId) {
+    const { error } = await supabase.from('fines').delete().eq('id', fineId)
+
+    if (!error) {
+      await supabase.from('cash_ledger').delete().eq('referencia', `fine_${fineId}`)
+    }
+
+    return { error }
+  },
+
+  // Recusar comprovante (Admin): fica registrado com o motivo para o membro ver
+  async rejectPayment(paymentId, motivo) {
+    const { data, error } = await supabase
+      .from('payments')
+      .update({ status: 'REJEITADO', motivo_rejeicao: motivo })
+      .eq('id', paymentId)
+      .select()
+      .single()
 
     return { data, error }
   },

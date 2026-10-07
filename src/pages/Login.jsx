@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { ArrowRight, Moon, Sun } from 'lucide-react'
-import { useTheme } from '../hooks'
+import { ArrowRight } from 'lucide-react'
 import { Logo } from '../components/Layout'
 
 export default function Login() {
@@ -12,7 +11,6 @@ export default function Login() {
   const [error, setError] = useState('')
   const { signIn } = useAuth()
   const navigate = useNavigate()
-  const { alternar } = useTheme()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,10 +33,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center px-4 py-10 relative" style={{ background: 'var(--bg)' }}>
-      <button type="button" className="icon-btn tema-btn absolute top-4 right-4" onClick={alternar} title="Alternar tema claro e escuro" aria-label="Alternar tema claro e escuro">
-        <Moon size={15} className="i-lua" /><Sun size={15} className="i-sol" />
-      </button>
+    <div className="min-h-screen grid place-items-center px-4 py-10" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-sm">
         <div className="flex items-center justify-center gap-2.5 mb-6 text-base font-bold" style={{ color: 'var(--ink)' }}><Logo />Patota CCC</div>
         <form onSubmit={handleSubmit} className="ui-card p-6 space-y-4">
@@ -58,7 +53,7 @@ export default function Login() {
           <button type="submit" disabled={loading} className="w-full ui-btn-primary">
             {loading ? 'Entrando...' : <><span>Entrar</span><ArrowRight size={15} /></>}
           </button>
-          <p className="text-[11px] text-slate-500">Sem acesso? Fale com a diretoria.</p>
+          <p className="text-[11px] text-slate-500">Problemas para acessar?{' '}<a href="https://wa.me/5547988992438?text=Ol%C3%A1%2C%20estou%20com%20problemas%20para%20acessar%20a%20Patota%20CCC." target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 underline underline-offset-2">Chame a diretoria no WhatsApp</a>.</p>
         </form>
       </div>
     </div>

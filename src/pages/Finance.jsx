@@ -18,6 +18,29 @@ const getStatusBadge = (status) => {
   }
 }
 
+// Ultimo comprovante enviado para a cobranca: se foi recusado (e ainda nao
+// ha um novo enviado), mostra o motivo escrito pelo admin.
+function PaymentNotice({ payments }) {
+  const ordenados = [...(payments || [])].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em))
+  const ultimo = ordenados[0]
+  if (!ultimo) return null
+
+  if (ultimo.status === 'PENDENTE') {
+    return <p className="mb-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">Comprovante enviado. Aguardando conferencia do admin.</p>
+  }
+
+  if (ultimo.status === 'REJEITADO') {
+    return (
+      <div role="alert" className="mb-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs text-red-800">
+        <p className="font-semibold">Comprovante recusado. Envie um novo.</p>
+        {ultimo.motivo_rejeicao && <p className="mt-0.5">Motivo: {ultimo.motivo_rejeicao}</p>}
+      </div>
+    )
+  }
+
+  return null
+}
+
 export default function Finance() {
   const { member } = useAuth()
   const [dues, setDues] = useState([])
@@ -159,6 +182,7 @@ export default function Finance() {
                   <span className="text-lg font-bold text-orange-600">R$ {due.valor.toFixed(2)}</span>
                 </div>
                 <p className="text-sm text-gray-600 mb-3">Vencimento: {format(parseISO(due.vencimento), 'dd/MM/yyyy')}</p>
+                <PaymentNotice payments={due.payments} />
 
                 <label className="block">
                   <div className="flex items-center gap-2 bg-white border-2 border-emerald-600 text-emerald-600 py-2 px-4 rounded-lg cursor-pointer hover:bg-emerald-50 transition">
@@ -233,6 +257,8 @@ export default function Finance() {
                     R$ {fine.valor.toFixed(2)}
                   </span>
                 </div>
+
+                {!fine.pago && <PaymentNotice payments={fine.payments} />}
 
                 {fine.pago ? (
                   <span className="inline-block text-xs text-emerald-600 font-semibold bg-emerald-100 px-3 py-1 rounded-full">

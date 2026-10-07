@@ -64,6 +64,23 @@ export const eventService = {
     return { data, error }
   },
 
+  // Todos os eventos futuros, so com o necessario para a tela inicial
+  async getUpcomingEventsForHome() {
+    const { data, error } = await supabase
+      .from('events')
+      .select(`
+        *,
+        event_rsvp (
+          member_id,
+          status
+        )
+      `)
+      .gte('data_hora', new Date().toISOString())
+      .order('data_hora', { ascending: true })
+
+    return { data: data || [], error }
+  },
+
   // Obter próximo evento
   async getNextEvent() {
     const { data, error } = await supabase

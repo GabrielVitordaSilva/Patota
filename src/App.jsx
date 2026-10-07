@@ -12,7 +12,6 @@ const Events = lazy(() => import('./pages/Events'))
 const Finance = lazy(() => import('./pages/Finance'))
 const Ranking = lazy(() => import('./pages/Ranking'))
 const Cards = lazy(() => import('./pages/Cards'))
-const Rules = lazy(() => import('./pages/Rules'))
 const Admin = lazy(() => import('./pages/admin/Admin'))
 
 function ScreenLoader() {
@@ -106,14 +105,6 @@ function App() {
               element={
                 <Suspense fallback={<PageLoader />}>
                   <Cards />
-                </Suspense>
-              }
-            />
-            <Route
-              path="rules"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <Rules />
                 </Suspense>
               }
             />

@@ -1,18 +1,18 @@
+import { useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   CalendarDays, CircleDollarSign, HelpCircle, FileText, Home, LogOut, Moon, Settings, ShieldCheck, Star, Sun, Trophy
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { useTheme } from '../hooks'
 import Tour from './Tour'
+import RulesModal from './RulesModal'
 
 const mainNav = [
   { path: '/', icon: Home, label: 'Visao geral', short: 'Inicio' },
   { path: '/events', icon: CalendarDays, label: 'Jogos' },
   { path: '/finance', icon: CircleDollarSign, label: 'Financeiro' },
   { path: '/ranking', icon: Trophy, label: 'Ranking' },
-  { path: '/cards', icon: Star, label: 'Elenco' },
-  { path: '/rules', icon: FileText, label: 'Regras' }
+  { path: '/cards', icon: Star, label: 'Elenco' }
 ]
 
 export function Logo() {
@@ -29,7 +29,7 @@ export function Logo() {
 export default function Layout() {
   const location = useLocation()
   const { member, isAdmin, signOut } = useAuth()
-  const { alternar } = useTheme()
+  const [showRules, setShowRules] = useState(false)
   const navItems = isAdmin
     ? [...mainNav, { path: '/admin', icon: Settings, label: 'Administracao', short: 'Admin' }]
     : mainNav
@@ -51,10 +51,8 @@ export default function Layout() {
           </nav>
         </div>
         <div className="topbar-dir">
+          <button type="button" className="btn-ajuda" data-tour="regras" onClick={() => setShowRules(true)} title="Ver as regras da patota"><FileText size={14} /><span>Regras</span></button>
           <button type="button" className="btn-ajuda" data-tour="ajuda" data-tour-iniciar title="Ver o guia desta tela"><HelpCircle size={14} /><span>Como usar</span></button>
-          <button type="button" className="icon-btn tema-btn" data-tour="tema" onClick={alternar} title="Alternar tema claro e escuro" aria-label="Alternar tema claro e escuro">
-            <Moon size={15} className="i-lua" /><Sun size={15} className="i-sol" />
-          </button>
           <div className="perfil" data-tour="perfil">
             <div className="avatar" aria-hidden="true">{initials}</div>
             <div className="quem">
@@ -85,6 +83,7 @@ export default function Layout() {
         ))}
       </nav>
       <Tour isAdmin={isAdmin} />
+      {showRules && <RulesModal onClose={() => setShowRules(false)} />}
     </>
   )
 }
