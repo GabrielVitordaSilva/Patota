@@ -485,7 +485,7 @@ export default function AdminEvents() {
                   <button
                     onClick={() => handleMarkAttendance(selectedEvent.id, rsvp.member_id, 'PRESENTE')}
                     className={`py-2 rounded-lg text-sm font-semibold ${
-                      statusAtual === 'PRESENTE' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700'
+                      statusAtual === 'PRESENTE' ? 'bg-blue-800 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     <Check size={16} className="mx-auto" />

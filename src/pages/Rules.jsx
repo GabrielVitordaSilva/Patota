@@ -27,7 +27,7 @@ export default function Rules() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Regras CCC</h1>
 
-      <div className="bg-emerald-600 text-white rounded-xl shadow-md p-6">
+      <div className="bg-blue-800 text-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-xl font-bold mb-3">Chave PIX</h2>
         <p className="mb-4 font-mono text-lg break-all">{pixKey}</p>
         <button
@@ -38,7 +38,7 @@ export default function Rules() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center gap-3 mb-4">
           <DollarSign className="text-emerald-600" size={28} />
           <h2 className="text-xl font-bold text-gray-800">Mensalidade</h2>
@@ -61,7 +61,7 @@ export default function Rules() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center gap-3 mb-4">
           <AlertCircle className="text-orange-600" size={28} />
           <h2 className="text-xl font-bold text-gray-800">Multas</h2>
@@ -94,7 +94,7 @@ export default function Rules() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Trophy className="text-yellow-600" size={28} />
           <h2 className="text-xl font-bold text-gray-800">Sistema de Pontos</h2>

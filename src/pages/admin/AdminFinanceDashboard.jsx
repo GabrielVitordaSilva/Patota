@@ -99,7 +99,7 @@ export default function AdminFinanceDashboard() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 text-white">
+        <div className="bg-emerald-600 rounded-xl p-4 text-white">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign size={20} />
             <span className="text-xs opacity-90">Saldo Caixa</span>
@@ -107,7 +107,7 @@ export default function AdminFinanceDashboard() {
           <p className="text-2xl font-bold">R$ {stats?.saldoCaixa?.toFixed(2)}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+        <div className="bg-orange-600 rounded-xl p-4 text-white">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp size={20} />
             <span className="text-xs opacity-90">A Receber</span>
@@ -115,7 +115,7 @@ export default function AdminFinanceDashboard() {
           <p className="text-2xl font-bold">R$ {stats?.pendentesMensalidades?.toFixed(2)}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+        <div className="bg-blue-600 rounded-xl p-4 text-white">
           <div className="flex items-center gap-2 mb-2">
             <TrendingDown size={20} />
             <span className="text-xs opacity-90">Recebido Mes</span>
@@ -123,7 +123,7 @@ export default function AdminFinanceDashboard() {
           <p className="text-2xl font-bold">R$ {stats?.pagasMensalidades?.toFixed(2)}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white">
+        <div className="bg-red-600 rounded-xl p-4 text-white">
           <div className="flex items-center gap-2 mb-2">
             <AlertCircle size={20} />
             <span className="text-xs opacity-90">Devedores</span>
